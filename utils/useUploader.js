@@ -50,9 +50,9 @@ export const UPLOAD_STATUS = {
  */
 export const UPLOADERS = {
     // 本地上传
-    'local': ()=>import('./uploader/uploader/local'),
+    'local': ()=>import('./uploader/local'),
     // 七牛云上传
-    'qiniu': ()=>import('./uploader/uploader/qiniu'),
+    'qiniu': ()=>import('./uploader/qiniu'),
     // 阿里云上传
-    'aliyun': ()=>import('./uploader/uploader/aliyun'),
+    'aliyun': ()=>import('./uploader/aliyun'),
 }

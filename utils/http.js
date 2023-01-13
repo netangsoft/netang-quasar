@@ -94,13 +94,13 @@ utils.http = createHttp({
             if (para.token) {
 
                 // 如果已登录
-                if (utils.auth.isLogin()) {
-                    const { token } = utils.auth.getAdminUserInfo()
+                if (utils.$auth.isLogin()) {
+                    const { token } = utils.$auth.getAdminUserInfo()
                     options.headers.Authorization = token
 
                 // 否则未登录 && 如果开启强制登录, 则跳转登录页面
                 } else if (para.login) {
-                    utils.auth.pushLogin()
+                    utils.$auth.pushLogin()
                     return false
                 }
             }
@@ -231,10 +231,10 @@ utils.http = createHttp({
             })
 
             // 退出登录
-            utils.auth.logout()
+            utils.$auth.logout()
 
             // 跳转登录页面
-            utils.auth.pushLogin()
+            utils.$auth.pushLogin()
 
             return false
         }

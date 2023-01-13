@@ -3,7 +3,7 @@ import routers from '@/router/routers'
 /**
  * 获取路由
  */
-export function getRouter(mainRouter, errorRouter) {
+export function getRouters(mainRouter, errorRouter) {
 
     const routes = [
         mainRouter
