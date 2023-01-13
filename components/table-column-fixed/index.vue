@@ -19,7 +19,7 @@
 
 <script>
 import { inject } from 'vue'
-import { NLayoutKey } from '@/utils/common/symbols'
+import { NLayoutKey } from '../../utils/symbols'
 
 export default {
 
