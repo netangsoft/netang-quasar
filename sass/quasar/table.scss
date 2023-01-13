@@ -1,0 +1,112 @@
+/**
+ * 表格
+ */
+
+// 头部底部背景色
+$header-footer-bg-color: $grey-2;
+$dark-header-footer-bg-color: $color-gray-93;
+// 单元格背景色
+$td-bg-color: #ffffff;
+$dark-td-bg-color: $dark;
+
+.n-table {
+
+    // 宫格模式
+    &--grid {
+        background-color: rgba(var(--reverse-color-rgb), 0.1);
+    }
+
+    // 撑满
+    &.absolute-full {
+        border-radius: unset;
+
+        // 顶部吸顶
+        thead tr th {
+            position: sticky;
+            z-index: 2;
+        }
+        thead tr:first-child th {
+            top: 0;
+        }
+
+        // 最后一列固定
+        &.n-table--last-fixed {
+            // 最后一列吸顶
+            th:last-child,
+            td:last-child {
+                position: sticky;
+                right: 0;
+                z-index: 1;
+            }
+            th:last-child {
+                z-index: 2;
+            }
+        }
+    }
+}
+
+// 亮色
+.body--light {
+    .n-table {
+
+        // 头部和底部背景色
+        .q-table__top,
+        .q-table__bottom,
+        thead tr:first-child th {
+            background-color: $header-footer-bg-color;
+        }
+
+        // 撑满
+        &.absolute-full {
+            // 最后一列固定
+            &.n-table--last-fixed {
+                // 头部最后一个
+                thead tr:last-child th:last-child {
+                    background-color: $header-footer-bg-color;
+                }
+                // 内容最后一个
+                td:last-child {
+                    background-color: $td-bg-color;
+                }
+                th:last-child,
+                td:last-child {
+                    background-color: $td-bg-color;
+                    border-left: 1px solid $table-border-color;
+                }
+            }
+        }
+    }
+}
+
+// 暗色
+.body--dark {
+    .n-table {
+
+        // 头部和底部背景色
+        .q-table__top,
+        .q-table__bottom,
+        thead tr:first-child th {
+            background-color: $dark-header-footer-bg-color;
+        }
+
+        // 撑满
+        &.absolute-full {
+            // 最后一列固定
+            &.n-table--last-fixed {
+                // 头部最后一个
+                thead tr:last-child th:last-child {
+                    background-color: $dark-header-footer-bg-color;
+                }
+                // 内容最后一个
+                td:last-child {
+                    background-color: $dark-td-bg-color;
+                }
+                th:last-child,
+                td:last-child {
+                    background-color: $dark-td-bg-color;
+                    border-left: 1px solid $table-dark-border-color;
+                }
+            }
+        }
+    }
+}

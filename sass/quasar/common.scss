@@ -1,0 +1,31 @@
+/**
+ * 亮色
+ */
+.body--light {
+    // 反色
+    --reverse-color: var(--q-dark);
+    // 反色 rgb(亮色是黑色)
+    --reverse-color-rgb: 0, 0, 0;
+    // 主题颜色
+    --mode-color: #ffffff;;
+    // 占位符颜色
+    --placeholder-color: rgba(0, 0, 0, 0.5);
+}
+
+/**
+ * 暗色
+ */
+.body--dark {
+    // 反色
+    --reverse-color: #ffffff;
+    // 反色 rgb(暗色是白色)
+    --reverse-color-rgb: 255, 255, 255;
+    // 主题颜色
+    --mode-color: var(--q-dark);
+    // 占位符颜色
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+}
+
+.q-page-container {
+    position: relative;
+}
