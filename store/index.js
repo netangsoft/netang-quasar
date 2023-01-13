@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { initAuthStore } from '../utils/auth'
+import { initAuthStore } from '../utils/useAuth'
 
 /**
  * 公共变量
