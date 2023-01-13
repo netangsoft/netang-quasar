@@ -439,20 +439,6 @@ async function request(params) {
         requestAfter: null,
     }, params)
 
-    // 判断 url
-    o.data.url = _.toLower(utils.trimString(o.data.url))
-    if (! o.data.url) {
-
-        // 【调试模式】
-        // --------------------------------------------------
-        // #ifdef IS_DEBUG
-        console.log('没有定义 url')
-        // #endif
-        // --------------------------------------------------
-
-        return
-    }
-
     // 判断类型
     if (! _.get(o.data, 'type')) {
 
@@ -465,6 +451,7 @@ async function request(params) {
 
         return
     }
+
     o.data.type = _.toLower(utils.trimString(o.data.type))
     if (utils.indexOf(['open', 'form', 'data'], o.data.type) === -1) {
 
@@ -472,6 +459,22 @@ async function request(params) {
         // --------------------------------------------------
         // #ifdef IS_DEBUG
         console.log('type 类型必须为 open/form/data')
+        // #endif
+        // --------------------------------------------------
+
+        return
+    }
+
+    console.log('o.data', o.data)
+
+    // 判断 url
+    o.data.url = _.toLower(utils.trimString(o.data.url))
+    if (! o.data.url) {
+
+        // 【调试模式】
+        // --------------------------------------------------
+        // #ifdef IS_DEBUG
+        console.log('没有定义 url')
         // #endif
         // --------------------------------------------------
 

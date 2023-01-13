@@ -25,6 +25,26 @@
             />
         </div>
 
+        <!-- 设置跳转页面 -->
+        <div class="col-xs-12 col-sm-6 col-md-3" v-if="formData.type === 'open' && routerType === 0">
+
+            <!-- 树 -->
+            <n-field-tree
+                class="n-field-fieldset"
+                label="跳转页面"
+                outlined
+                clearable
+                stack-label
+                dense
+
+                v-model="formData.toPage"
+                :nodes="treeNodes"
+                :expanded="treeExpanded"
+                strict
+                accordion
+            />
+        </div>
+
         <!-- 有数据类型显示 -->
         <template v-if="formData.type">
 
@@ -285,6 +305,8 @@ export default {
         treeNodes: Array,
         // 树展开节点
         treeExpanded: Array,
+        // 路由类型
+        routerType: Number,
     },
 
     /**
@@ -361,6 +383,8 @@ export default {
                 type: '',
                 // 显示类型, 可选 single / multi / 空(默认显示)
                 show: '',
+                // 跳转页面 id
+                toPage: '',
                 // 是否固定列
                 fixed: false,
                 // 是否双击: 可选 true / false
@@ -518,7 +542,27 @@ export default {
                 // 请求传参参数
                 setRequestQuery('query')
 
-                if (obj.type !== 'open') {
+                // 如果数据类型为新窗口
+                if (obj.type === 'open') {
+
+                    // 如果是非路由
+                    if (props.routerType === 0) {
+
+                        // 如果没有选择跳转页面
+                        if (! data.toPage) {
+                            // 轻提示
+                            utils.toast({
+                                message: '请选择跳转页面',
+                            })
+                            return false
+                        }
+
+                        // 设置跳转页面 id
+                        obj.toPage = data.toPage
+                    }
+
+                // 否则为其他
+                } else {
 
                     // 是否确认
                     if (data.confirm) {
@@ -527,7 +571,7 @@ export default {
                         if (data.confirm === 1) {
                             obj.confirm = utils.isFillString(data.confirmContent) ? data.confirmContent : true
 
-                            // 否则是(2:提交前确认登录密码)
+                        // 否则是(2:提交前确认登录密码)
                         } else {
                             obj.confirmPassword = utils.isFillString(data.confirmContent) ? data.confirmContent : true
                         }
