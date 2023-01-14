@@ -190,7 +190,7 @@ export default {
             }
 
             // 更新当前值
-            currentValue.value = Number.isFinite(props.min) ? props.min : ''
+            currentValue.value = ''
 
             // 提交值
             emitModelValue(currentValue.value)

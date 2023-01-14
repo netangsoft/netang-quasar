@@ -16,22 +16,70 @@ const COMPARE_TYPE_MAPS = {
 }
 
 /**
+ * 设置单个搜索值
+ */
+export function setItemValue(value, val) {
+
+    // 如果值为数组
+    if (Array.isArray(val)) {
+        // 比较类型为 in
+        value[0].type = dicts.SEARCH_TYPE__IN
+        // 设置值为将数组转为逗号分隔的字符串
+        value[0].value = val.join(',')
+
+    // 否则为单个值
+    } else {
+        // 比较类型为 ==
+        value[0].type = dicts.SEARCH_TYPE__EQUAL
+        // 设置值为当前值
+        value[0].value = val
+    }
+}
+
+/**
  * 从表格列获取原始值
  */
-function getRawData(tableColumns) {
+function getRawData(tableColumns, query, searchFromQuery = true) {
 
-    // 原始表格搜索值
-    const rawTableSearchValue = []
+    // 原始参数
+    const rawQuery = {}
     // 原始表格搜索参数
     const rawSearchOptions = []
+    // 原始表格搜索值(空表格搜索值, 用于搜索重置)
+    const rawTableSearchValue = []
+    // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+    const firstTableSearchValue = []
+
+    // 搜索参数键值数组
+    const searchQueryKey = []
 
     utils.forEach(tableColumns, function (item) {
         if (_.has(item, 'search.type')) {
 
+            // 【设置原始表格搜索参数】
+            // --------------------------------------------------
+
+            // 搜索参数
+            const newItem = _.merge({
+                // 标签
+                label: item.label,
+            }, item.search)
+
+            // 标识
+            newItem.name = _.has(newItem, 'name') ? newItem.name : item.name
+
+            // 如果有字典标识
+            if (_.has(item, 'dict')) {
+                newItem.dict = item.dict
+            }
+
+            // 原始表格搜索参数
+            rawSearchOptions.push(newItem)
+
             // 【原始表格搜索值】
             // --------------------------------------------------
 
-            const value = [
+            let value = [
                 // 值1
                 {
                     // 比较类型
@@ -54,42 +102,53 @@ function getRawData(tableColumns) {
                 value[0].dateType = 'day'
             }
 
-            // 获取初始化值
-            const defaultValue = _.get(item, 'search.value')
-            if (utils.isFillArray(defaultValue)) {
-                _.merge(value, defaultValue)
+            // 添加原始表格搜索值
+            rawTableSearchValue.push(_.cloneDeep(value))
+
+            if (
+                // 如果开启从参数中获取搜索值
+                searchFromQuery
+                // 如果在传参中有搜索参数
+                && _.has(query, newItem.name)
+            ) {
+                // 如果有值
+                if (utils.isRequired(query[newItem.name])) {
+                    // 设置单个搜索值
+                    setItemValue(value, query[newItem.name])
+                }
+
+                // 设置参数中搜索的 key
+                searchQueryKey.push(newItem.name)
+
+            // 否则, 如果表格参数中有设置初始值
+            } else if (_.has(item, 'search.value') && utils.isFillArray(item.search.value)) {
+                value = _.merge([], value, item.search.value)
             }
 
-            // 原始表格搜索值
-            rawTableSearchValue.push(value)
-
-            // 【设置原始表格搜索参数】
-            // --------------------------------------------------
-
-            // 搜索参数
-            const newItem = _.merge({
-                // 标签
-                label: item.label,
-            }, item.search)
-
-            // 标识
-            newItem.name = _.has(newItem, 'name') ? newItem.name : item.name
-
-            // 如果有字典标识
-            if (_.has(item, 'dict')) {
-                newItem.dict = item.dict
-            }
-
-            // 原始表格搜索参数
-            rawSearchOptions.push(newItem)
+            // 首次初始表格搜索值
+            firstTableSearchValue.push(value)
         }
     })
 
+    if (searchQueryKey.length) {
+        utils.forIn(query, function(val, key) {
+            if (searchQueryKey.indexOf(key) === -1) {
+                rawQuery[key] = val
+            }
+        })
+    } else {
+        Object.assign(rawQuery, query)
+    }
+
     return {
-        // 原始表格搜索值
-        rawTableSearchValue,
+        // 原始参数
+        rawQuery,
         // 原始表格搜索参数
         rawSearchOptions,
+        // 原始表格搜索值(空表格搜索值, 用于搜索重置)
+        rawTableSearchValue,
+        // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+        firstTableSearchValue,
     }
 }
 

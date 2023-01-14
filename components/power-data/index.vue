@@ -4,52 +4,34 @@
         <!-- 栏目标题 -->
         <n-column-title label="数据配置" />
 
-        <!-- 数据类型 -->
         <div class="col-xs-12 col-sm-6 col-md-3">
-            <q-select
-                class="n-field-fieldset"
-                label="数据类型"
-                v-model="formData.type"
-                :options="[
-                    { label: '无', value: '' },
-                    { label: '新窗口', value: 'open' },
-                    { label: '表单', value: 'form' },
-                    { label: '数据', value: 'data' },
-                ]"
-                map-options
-                emit-value
-                outlined
-                stack-label
-                dense
-                options-dense
-            />
+            <slot/>
         </div>
 
-        <!-- 设置跳转页面 -->
-        <div class="col-xs-12 col-sm-6 col-md-3" v-if="formData.type === 'open' && routerType === 0">
+        <template v-if="dataType">
 
-            <!-- 树 -->
-            <n-field-tree
-                class="n-field-fieldset"
-                label="跳转页面"
-                outlined
-                clearable
-                stack-label
-                dense
+            <!-- 设置跳转页面 -->
+            <div class="col-xs-12 col-sm-6 col-md-3" v-if="dataType === dicts.POWER_DATA_TYPE__OPEN && routeType === 0">
 
-                v-model="formData.toPage"
-                :nodes="treeNodes"
-                :expanded="treeExpanded"
-                strict
-                accordion
-            />
-        </div>
+                <!-- 树 -->
+                <n-field-tree
+                    class="n-field-fieldset"
+                    label="跳转页面"
+                    outlined
+                    clearable
+                    stack-label
+                    dense
 
-        <!-- 有数据类型显示 -->
-        <template v-if="formData.type">
+                    v-model="formData.toPage"
+                    :nodes="treeNodes"
+                    :expanded="treeExpanded"
+                    strict
+                    accordion
+                />
+            </div>
 
             <!-- 非表单显示 -->
-            <template v-if="formData.type !== 'form'">
+            <template v-if="dataType !== dicts.POWER_DATA_TYPE__FORM">
 
                 <!-- 显示类型 -->
                 <div class="col-xs-12 col-sm-6 col-md-3">
@@ -110,7 +92,7 @@
                 </div>
             </template>
 
-            <template v-if="formData.type !== 'open'">
+            <template v-if="dataType !== dicts.POWER_DATA_TYPE__OPEN">
 
                 <!-- 是否确认 -->
                 <div class="col-xs-12 col-sm-6 col-md-3">
@@ -152,7 +134,7 @@
                         class="n-field-fieldset"
                         label="请求成功执行"
                         v-model="formData.requestSuccess.type"
-                        :options="formData.type === 'form' ?
+                        :options="dataType === dicts.POWER_DATA_TYPE__FORM ?
                         [
                             { label: '无', value: '' },
                             { label: '关闭窗口', value: 'close' },
@@ -199,7 +181,7 @@
 
             </template>
 
-            <template v-if="formData.type !== 'form'">
+            <template v-if="dataType !== dicts.POWER_DATA_TYPE__FORM">
 
                 <!-- 栏目标题 -->
                 <n-column-title label="请求表格参数" tooltip='示例：id / sku_id AS sku' />
@@ -285,7 +267,6 @@
                     autogrow
                 />
             </div>
-
         </template>
     </div>
 </template>
@@ -301,12 +282,14 @@ export default {
     props: {
         // 值
         modelValue: String,
+        // 数据类型
+        dataType: Number,
+        // 路由类型
+        routeType: Number,
         // 树节点数组
         treeNodes: Array,
         // 树展开节点
         treeExpanded: Array,
-        // 路由类型
-        routerType: Number,
     },
 
     /**
@@ -333,13 +316,17 @@ export default {
         /**
          * 监听数据类型
          */
-        watch(()=>formData.value.type, function(val) {
-            if (val === 'form') {
+        watch(()=>props.dataType, function (val) {
+
+            // 如果数据类型为新窗口
+            if (val === dicts.POWER_DATA_TYPE__FORM) {
                 if (formData.value.requestSuccess.type === 'refreshTable') {
                     formData.value.requestSuccess.type = ''
                     formData.value.requestSuccess.params = ''
                 }
-            } else if (val === 'data') {
+
+            // 如果数据类型为数据
+            } else if (val === dicts.POWER_DATA_TYPE__DATA) {
                 if (formData.value.requestSuccess.type === 'resetForm') {
                     formData.value.requestSuccess.type = ''
                     formData.value.requestSuccess.params = ''
@@ -379,8 +366,6 @@ export default {
             }
 
             obj = _.merge({
-                // 类型, 可选 open / form / data / 空(无)
-                type: '',
                 // 显示类型, 可选 single / multi / 空(默认显示)
                 show: '',
                 // 跳转页面 id
@@ -459,8 +444,8 @@ export default {
             // 获取表单数据
             const data = formData.value
 
-            // 如果有选择类型
-            if (data.type) {
+            // 如果有选择数据类型
+            if (props.dataType) {
 
                 // 设置请求参数
                 function setRequestQuery(field) {
@@ -513,12 +498,9 @@ export default {
                     return utils.isFillString(value) ? value : ''
                 }
 
-                // 类型
-                obj.type = data.type
-
                 // 如果非表单显示
                 // --------------------------------------------------
-                if (obj.type !== 'form') {
+                if (props.dataType !== dicts.POWER_DATA_TYPE__FORM) {
 
                     // 显示类型
                     if (data.show) {
@@ -543,10 +525,10 @@ export default {
                 setRequestQuery('query')
 
                 // 如果数据类型为新窗口
-                if (obj.type === 'open') {
+                if (props.dataType === dicts.POWER_DATA_TYPE__OPEN) {
 
                     // 如果是非路由
-                    if (props.routerType === 0) {
+                    if (props.routeType === 0) {
 
                         // 如果没有选择跳转页面
                         if (! data.toPage) {

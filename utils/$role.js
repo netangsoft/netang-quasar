@@ -40,6 +40,10 @@ function setData(data) {
         }
         item.data = utils.isFillObject(item.data) ? utils.numberDeep(item.data) : {}
 
+        // 设置数据类型
+        item.data.type = item.data_type
+        delete item.data_type
+
         // 标识
         item.name = ''
 
@@ -127,6 +131,27 @@ function setData(data) {
     }
 
     for (const item of rows) {
+
+        // 如果有跳转页面
+        if (_.has(item.data, 'toPage')) {
+            // 设置跳转页面地址
+            item.data.toPage = _.has(all, item.data.toPage) ? all[item.data.toPage].data.url : null
+
+        // 如果有请求成功执行类型
+        } else if (_.has(item.data, 'requestSuccess.type')) {
+            // 如果请求成功执行类型是关闭窗口、跳转并刷新页面
+            if (item.data.requestSuccess.type === 'closePushRefresh') {
+                // 设置刷新页面地址
+                item.data.requestSuccess.params =
+                    (
+                        // 如果有刷新页面的参数 id
+                        _.has(item.data.requestSuccess, 'params')
+                        // 如果有页面数据
+                        && _.has(all, item.data.requestSuccess.params)
+                    ) ? all[item.data.requestSuccess.params].data.url : null
+            }
+        }
+
         if (
             // 数据/按钮
             item.type > 1
@@ -445,40 +470,37 @@ async function request(params) {
         // 【调试模式】
         // --------------------------------------------------
         // #ifdef IS_DEBUG
-        console.log('没有定义 type')
+        console.log('没有定义数据类型')
         // #endif
         // --------------------------------------------------
 
         return
     }
-
-    o.data.type = _.toLower(utils.trimString(o.data.type))
-    if (utils.indexOf(['open', 'form', 'data'], o.data.type) === -1) {
-
-        // 【调试模式】
-        // --------------------------------------------------
-        // #ifdef IS_DEBUG
-        console.log('type 类型必须为 open/form/data')
-        // #endif
-        // --------------------------------------------------
-
-        return
-    }
-
-    console.log('o.data', o.data)
 
     // 判断 url
     o.data.url = _.toLower(utils.trimString(o.data.url))
     if (! o.data.url) {
 
-        // 【调试模式】
-        // --------------------------------------------------
-        // #ifdef IS_DEBUG
-        console.log('没有定义 url')
-        // #endif
-        // --------------------------------------------------
+        if (
+            // 如果没有跳转页面地址
+            ! _.has(o.data, 'toPage')
+            // 或跳转页面地址为空
+            || ! utils.isFillString(o.data.toPage)
+        ) {
+            // 【调试模式】
+            // --------------------------------------------------
+            // #ifdef IS_DEBUG
+            console.log('没有定义 url')
+            // #endif
+            // --------------------------------------------------
 
-        return
+            return
+        }
+
+        // 用跳转页面地址替换 toPage
+        o.data = Object.assign({}, o.data, {
+            url: o.data.toPage,
+        })
     }
 
     // 获取请求参数
@@ -486,7 +508,7 @@ async function request(params) {
 
     // 如果是打开新窗口
     // --------------------------------------------------
-    if (o.data.type === 'open') {
+    if (o.data.type === dicts.POWER_DATA_TYPE__OPEN) {
 
         // 请求前执行
         if (await utils.runAsync(o.requestBefore)({ params: o, requestData: query }) === false) {
@@ -505,7 +527,7 @@ async function request(params) {
 
     // 如果是提交表单
     // --------------------------------------------------
-    if (o.data.type === 'form') {
+    if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 如果验证表单
         if (_.get(o.data, 'validate') !== false) {
@@ -652,8 +674,8 @@ async function request(params) {
                         // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
                         if (o.data.requestSuccess.type !== 'close') {
                             Object.assign(opts, {
-                                // 跳转页面 id
-                                pushId: o.data.requestSuccess.params,
+                                // 跳转页面地址
+                                pushPage: o.data.requestSuccess.params,
                                 // 是否跳转并刷新页面
                                 isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
                             })

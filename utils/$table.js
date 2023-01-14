@@ -1,20 +1,45 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { date, useQuasar } from 'quasar'
+import { parse } from 'qs'
+
+import {
+    // 设置单个搜索值
+    setItemValue,
+} from './$search'
 
 /**
- * 设置参数
+ * 获取 url 参数
  */
-function setQuery(data, query) {
-    const newQuery = {}
-    utils.forIn(query, function(value, key) {
-        // 如果有值
-        if (utils.isRequired(value)) {
-            newQuery[key] = value
+function getUrlQuery(url) {
+
+    const query = {}
+
+    if (utils.indexOf(url, '?') > -1) {
+
+        const arr = url.split('?')
+
+        url = arr[0]
+        const urlQuery = parse(arr[1])
+        if (utils.isFillObject(urlQuery)) {
+            utils.forIn(urlQuery, function (val, key) {
+
+                key = utils.trimString(key)
+                val = utils.trimString(val)
+
+                if (key && val) {
+                    if (val.indexOf(',') > -1) {
+                        val = val.split(',')
+                    }
+                    query[key] = utils.numberDeep(val)
+                }
+            })
         }
-    })
-    if (utils.isFillObject(newQuery)) {
-        _.merge(data, newQuery)
+    }
+
+    return {
+        url,
+        query,
     }
 }
 
@@ -35,6 +60,8 @@ function create(params) {
     const o = _.merge({
         // 请求地址
         url: '',
+        // 参数
+        query: {},
         // 表格节点
         ref: null,
         // id key
@@ -72,7 +99,7 @@ function create(params) {
         // 格式化单条数据
         formatRow: null,
         // 格式化参数
-        formatQuery: null,
+        // formatQuery: null,
         // http 设置
         httpSettings: {},
         // 是否开启初始搜素
@@ -81,6 +108,8 @@ function create(params) {
         summary: false,
         // 权限按钮列表
         roleBtnLists: null,
+        // 从参数中获取搜索值
+        searchFromQuery: true,
     }, params)
 
     // 如果没有地址, 则使用当前路由地址
@@ -144,10 +173,10 @@ function create(params) {
         }
 
         // 如果有路由
-        if (_.get(item, 'route')) {
+        if (_.get(item, 'router')) {
 
             // 如果该值在当前路由路径中, 则显示
-            if (utils.indexOf(o.url, item.route) > -1) {
+            if (utils.indexOf(o.url, item.router) > -1) {
                 tableColumns.push(item)
             }
 
@@ -186,20 +215,33 @@ function create(params) {
     // 表格传参
     const tableQuery = ref({})
 
+    // 表格请求参数(将表格传参中的搜索参数剥离掉, 剩下的直接当做参数传递给服务器)
+    let tableRequestQuery = {}
+
     // 是否请求表格合计
     let isRequestSummary = false
+
     // 表格合计
     const tableSummary = ref(null)
 
+    // 获取 url 参数
+    const resUrl = getUrlQuery(o.url)
+    o.url = resUrl.url
+
     const {
-        // 原始表格搜索值
-        rawTableSearchValue,
+        // 原始参数
+        rawQuery,
         // 原始表格搜索参数
         rawSearchOptions,
-    } = utils.$search.getRawData(tableColumns)
+        // 原始表格搜索值(空表格搜索值, 用于搜索重置)
+        rawTableSearchValue,
+        // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+        firstTableSearchValue,
+        // 表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+    } = utils.$search.getRawData(tableColumns, Object.assign({}, o.query, resUrl.query), o.searchFromQuery)
 
     // 表格搜索数据值
-    const tableSearchValue = ref(rawTableSearchValue)
+    const tableSearchValue = ref(firstTableSearchValue)
 
     // 表格搜索参数
     const tableSearchOptions = ref()
@@ -310,6 +352,49 @@ function create(params) {
         immediate: true,
     })
 
+    /**
+     * 监听表格传参
+     */
+    watch(tableQuery, function (query) {
+
+        // 如果禁止从参数中获取搜索值
+        if (! o.searchFromQuery) {
+            tableRequestQuery = query
+            return
+        }
+
+        const newQuery = {}
+
+        if (utils.isFillObject(query)) {
+
+            // 搜索参数键值数组
+            const searchQueryKey = []
+
+            utils.forEach(rawSearchOptions, function (item, index) {
+                // 如果传参在搜索参数中
+                if (_.has(query, item.name)) {
+                    // 设置单个搜索值
+                    setItemValue(tableSearchValue.value[index], utils.isRequired(query[item.name]) ? query[item.name] : '')
+                    // 设置参数中搜索的 key
+                    searchQueryKey.push(item.name)
+                }
+            })
+
+            if (! searchQueryKey.length) {
+                tableRequestQuery = query
+                return
+            }
+
+            utils.forIn(query, function(val, key) {
+                if (searchQueryKey.indexOf(key) === -1) {
+                    newQuery[key] = val
+                }
+            })
+        }
+
+        tableRequestQuery = newQuery
+    })
+
     // ==========【方法】================================================================================================
 
     /**
@@ -391,11 +476,13 @@ function create(params) {
             })
         }
 
-        // 合并筛选数据
-        // setQuery(data, filter)
-
-        // 合并传参数据
-        setQuery(data, _.isFunction(o.formatQuery) ? o.formatQuery(tableQuery.value) : tableQuery.value)
+        // 合并参数
+        utils.forIn(Object.assign({}, rawQuery, tableRequestQuery), function(value, key) {
+            // 如果有值
+            if (utils.isRequired(value)) {
+                data[key] = value
+            }
+        })
 
         // 获取搜索值
         const search = utils.$search.formatValue(rawSearchOptions, tableSearchValue.value)
