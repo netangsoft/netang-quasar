@@ -274,6 +274,9 @@
 <script>
 import { ref, watch } from 'vue'
 
+import _isString from 'lodash/isString'
+import _isPlainObject from 'lodash/isPlainObject'
+
 export default {
 
     /**
@@ -383,7 +386,7 @@ export default {
                     // 表格: 字符串组成的数组, 如: [ "id", "sku_id AS sku" ]
                     table: [],
                     // 参数: 字符串 / 对象(自定义参数) 组成的数组, 如: [ "id", "sku_id AS sku", { "type": 1, "name": "age" } ]
-                    query: [],
+                    // query: [],
                 },
                 // 请求成功执行
                 requestSuccess: {
@@ -393,7 +396,7 @@ export default {
                     params: '',
                 },
                 // 自定义参数, 任意类型
-                params: '',
+                // params: '',
             }, obj)
 
             // 【格式化是否确认参数】
@@ -416,7 +419,7 @@ export default {
             obj.confirm = confirm
             delete obj.confirmPassword
 
-            // 【格式化请求参数】
+            // 【格式化请求参数中的 table】
             // ------------------------------------------------------------
             if (utils.isFillString(obj.requestQuery.table)) {
                 obj.requestQuery.table = [obj.requestQuery.table]
@@ -424,10 +427,57 @@ export default {
                 obj.requestQuery.table = ['']
             }
 
-            if (utils.isFillString(obj.requestQuery.query)) {
-                obj.requestQuery.query = [obj.requestQuery.query]
-            } else if (! utils.isFillArray(obj.requestQuery.query)) {
+            // 【格式化请求参数中的 query】
+            // ------------------------------------------------------------
+            if (_.has(obj.requestQuery, 'query')) {
+                // 如果是有效值
+                if (utils.isValidValue(obj.requestQuery.query)) {
+                    obj.requestQuery.query = [obj.requestQuery.query]
+
+                // 如果是对象
+                } else if (utils.isFillObject(obj.requestQuery.query)) {
+                    obj.requestQuery.query = [utils.json.stringify(obj.requestQuery.query)]
+
+                // 如果是数组
+                } else if (utils.isFillArray(obj.requestQuery.query)) {
+                    const query = []
+                    utils.forEach(obj.requestQuery.query, function(item, key) {
+
+                        // 如果是有效值
+                        if (utils.isValidValue(item)) {
+                            query.push(item)
+
+                        // 如果是对象
+                        } else if (utils.isFillObject(item)) {
+                            query.push(utils.json.stringify(item))
+                        }
+                    })
+                    obj.requestQuery.query = query.length ? query : ['']
+
+                // 否则没有数据
+                } else {
+                    obj.requestQuery.query = ['']
+                }
+
+            // 否则没有数据
+            } else {
                 obj.requestQuery.query = ['']
+            }
+
+            // 【格式化其他参数】
+            // ------------------------------------------------------------
+            if (! _.has(obj, 'params')) {
+                obj.params = ''
+
+            // 如果不是字符串
+            } else if (! utils.isFillString(obj.params)) {
+                if (utils.isFillObject(obj.params)) {
+                    obj.params = utils.json.stringify(obj.params)
+                } else if (utils.isFillArray(obj.params)) {
+                    obj.params = utils.json.stringify(obj.params)
+                } else {
+                    obj.params = ''
+                }
             }
             // ------------------------------------------------------------
 
@@ -454,48 +504,62 @@ export default {
                     const lists = []
 
                     utils.forEach(data.requestQuery[field], function(value) {
-                        if (utils.isFillString(value)) {
 
-                            value = formatParams(value)
+                        value = formatParams(value)
 
+                        // 如果有值
+                        if (utils.isRequired(value)) {
+
+                            // 如果为表格
                             if (field === 'table') {
-                                if (utils.isFillString(value)) {
-                                    lists.push(value)
+
+                                if (Array.isArray(value) || _isPlainObject(value)) {
+
+                                    // 轻提示
+                                    utils.toast({
+                                        message: '请求列表参数格式不能是数组或对象',
+                                    })
+                                    return false
                                 }
 
-                            } else if (value) {
-                                lists.push(value)
+                            // 否则为参数
+                            } else if (Array.isArray(value)) {
+                                // 轻提示
+                                utils.toast({
+                                    message: '请求传参参数格式不能是数组',
+                                })
+                                return false
                             }
+
+                            // 如果是字符串
+                            lists.push(value)
                         }
                     })
 
-                    if (utils.isFillArray(lists)) {
+                    if (lists.length) {
                         if (! _.has(obj, 'requestQuery')) {
                             obj.requestQuery = {}
                         }
                         obj.requestQuery[field] = lists.length === 1 ? lists[0] : lists
                     }
+
+                    return true
                 }
 
-                // 格式化参数
+                // 格式化其他参数
                 function formatParams(value) {
                     value = utils.trimString(value)
                     if (
-                        (
-                            value.indexOf('[') > -1
-                            || value.indexOf('{') > -1
-                        )
+                        (value.startsWith('[') || value.startsWith('{'))
                         && utils.isJson(value)
                     ) {
                         value = utils.json.parse(value)
-                        if (
-                            utils.isFillArray(value)
-                            || utils.isFillObject(value)
-                        ) {
-                            return value
+
+                        if (! Array.isArray(value) && ! _isPlainObject(value)) {
+                            return ''
                         }
                     }
-                    return utils.isFillString(value) ? value : ''
+                    return value
                 }
 
                 // 如果非表单显示
@@ -518,11 +582,15 @@ export default {
                     }
 
                     // 请求表格参数
-                    setRequestQuery('table')
+                    if (setRequestQuery('table') === false) {
+                        return false
+                    }
                 }
 
                 // 请求传参参数
-                setRequestQuery('query')
+                if (setRequestQuery('query') === false) {
+                    return false
+                }
 
                 // 如果数据类型为新窗口
                 if (props.dataType === dicts.POWER_DATA_TYPE__OPEN) {
@@ -576,7 +644,7 @@ export default {
 
                 // 自定义参数
                 const params = formatParams(data.params)
-                if (params) {
+                if (utils.isRequired(params)) {
                     obj.params = params
                 }
             }

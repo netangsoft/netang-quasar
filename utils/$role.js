@@ -232,6 +232,10 @@ function parseQuery(data, settings) {
 
         // 将字符串放到数组中
         settings = [settings]
+
+    // 如果配置是对象
+    } else if (utils.isFillObject(settings)) {
+        settings = [settings]
     }
 
     const query = {}
