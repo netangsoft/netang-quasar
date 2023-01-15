@@ -3,10 +3,10 @@ import { date as quasarDate } from 'quasar'
 /**
  * 获取时间
  */
-utils.getTime = function(time, params) {
+utils.getTime = function(time, params, defaultValue = '') {
 
     if (! time) {
-        return ''
+        return utils.isFillString(params) ? params : defaultValue
     }
 
     let {

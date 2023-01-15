@@ -45,10 +45,18 @@
             >{{value}}</div>
 
         </template>
+
+        <template
+            v-for="slotName in slotNames"
+            v-slot:[slotName]
+        >
+            <slot :name="slotName" />
+        </template>
     </q-field>
 </template>
 
 <script>
+import { computed } from 'vue'
 import { useFieldProps } from 'quasar/src/composables/private/use-field.js'
 
 // 自定义声明属性
@@ -106,12 +114,29 @@ export default {
     /**
      * 组合式
      */
-    setup(props) {
+    setup(props, { slots }) {
 
         // ==========【数据】============================================================================================
 
         // 字段组件传参
         const fieldProps = _.omit(props, Object.keys(currentProps))
+
+        // ==========【计算属性】==========================================================================================
+
+        /**
+         * 插槽标识数组
+         */
+        const slotNames = computed(function() {
+            const lists = []
+
+            utils.forIn(slots, function(val, key) {
+                if (key !== 'default') {
+                    lists.push(key)
+                }
+            })
+
+            return lists
+        })
 
         // ==========【方法】=============================================================================================
 
@@ -127,6 +152,8 @@ export default {
         return {
             // 字段组件传参
             fieldProps,
+            // 插槽标识数组
+            slotNames,
             // 复制
             onCopy,
         }
