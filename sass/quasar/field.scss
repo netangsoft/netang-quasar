@@ -187,22 +187,24 @@
  * 亮色
  */
 .body--light {
+    // 输入框背景 白色
     .n-field-fieldset {
         &.q-field {
             &--outlined {
-                .q-field__control {
-                    //&:before {
-                    //    //position: absolute;
-                    //    //content: "";
-                    //    //top: 1px;
-                    //    //left: 1px;
-                    //    //bottom: 1px;
-                    //    //right: 1px;
-                    //    background-color: #ffffff;
-                    //    z-index: -1;
-                    //}
+                .q-field__inner {
+                    &:before {
+                        content: "";
+                        position: absolute;
+                        top: 1px;
+                        left: 0;
+                        right: 0;
+                        bottom: 1px;
+                        border-radius: 4px;
+                        background-color: #ffffff;
+                    }
                 }
             }
         }
     }
 }
+
