@@ -1,5 +1,6 @@
-import moveToTree from './move-to-tree'
+import dialog from '@/components/public/dialog'
 
 export default {
-    moveToTree,
+    moveToTree: () => import('./move-to-tree'),
+    ...dialog,
 }

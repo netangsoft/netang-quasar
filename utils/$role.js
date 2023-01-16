@@ -293,7 +293,7 @@ function parseQuery(data, settings) {
 /**
  * 格式化权限按钮列表
  */
-function formatRoleBtnLists(roleBtnLists, filterBtns) {
+function formatRoleBtnLists(roleBtnLists, filterBtns, toObject = false) {
 
     const newLists = []
 
@@ -324,14 +324,31 @@ function formatRoleBtnLists(roleBtnLists, filterBtns) {
             // 按钮有图标
             && !! newItem.icon
 
+        // 如果是对象
         if (utils.isFillObject(filterBtns)) {
             if (_.has(filterBtns, name)) {
                 newLists.push(_.merge(newItem, filterBtns[name]))
             }
+
+        // 如果是数组
+        } else if (utils.isFillArray(filterBtns)) {
+            if (utils.indexOf(filterBtns, name) > -1) {
+                newLists.push(_.merge(newItem, filterBtns[name]))
+            }
+
         } else {
             newLists.push(newItem)
         }
     })
+
+    // 转数组
+    if (toObject) {
+        const obj = {}
+        for (const item of newLists) {
+            obj[item.name] = item
+        }
+        return obj
+    }
 
     return newLists
 }

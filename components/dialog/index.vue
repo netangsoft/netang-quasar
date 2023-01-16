@@ -65,8 +65,8 @@ export default {
         dialogProps: Object,
         // 组件标识
         name: String,
-        // 路由组件
-        router: String,
+        // 路由组件路径
+        route: String,
         // 组件传参
         props: Object,
         // 标题
@@ -192,18 +192,32 @@ export default {
          */
         const comp = computed(function () {
 
+            // 组件
+            let comp
+
             // 如果是路由路径
-            if (props.router) {
-                const routeItem = _.get(routers, `${utils.slash(props.router, 'start', false)}.component`)
-                if (routeItem) {
-                    return defineAsyncComponent(routeItem)
-                }
-            }
+            if (props.route) {
+                // 获取路由组件
+                comp = _.get(routers, `${utils.slash(props.route, 'start', false)}.component`)
 
             // 如果有组件标识
-            if (props.name) {
-                return _.get(components, props.name)
+            } else if (props.name && _.has(components, props.name)) {
+                // 获取自定义组件
+                comp = components[props.name]
             }
+
+            // 如果没有组件
+            if (! comp) {
+                return
+            }
+
+            // 如果是方法, 则说明是异步组件
+            if (_.isFunction(comp)) {
+                return defineAsyncComponent(comp)
+            }
+
+            // 返回组件
+            return comp
         })
 
         /**
@@ -216,12 +230,10 @@ export default {
                 return props.title
             }
 
-            // 如果是路由路径, 则获取路由标题
-            if (props.router) {
-                return _.get(routers, `${utils.slash(props.router, 'start', false)}.meta.title`, '')
-            }
-
-            return ''
+            return props.route ?
+                // 如果是路由路径, 则获取路由标题
+                _.get(routers, `${utils.slash(props.route, 'start', false)}.meta.title`, '')
+                : ''
         })
 
         // ==========【方法】=============================================================================================
@@ -297,7 +309,5 @@ export default {
             max-height: inherit !important;
         }
     }
-
-
 }
 </style>
