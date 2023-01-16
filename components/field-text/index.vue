@@ -58,7 +58,10 @@
             v-for="slotName in slotNames"
             v-slot:[slotName]
         >
-            <slot :name="slotName" />
+            <slot
+                :name="slotName"
+                :value="value"
+            />
         </template>
     </q-field>
 </template>
