@@ -16,6 +16,8 @@
                 <!-- 否则如果开启复制 -->
                 <div
                     class="full-width"
+                    :class="valueClass"
+                    :style="valueStyle"
                     @click="onCopy"
                     v-if="copy"
                 >
@@ -27,6 +29,8 @@
                 <!-- 否则仅展示 -->
                 <div
                     class="full-width"
+                    :class="valueClass"
+                    :style="valueStyle"
                     v-else
                 >{{value}}</div>
             </template>
@@ -34,6 +38,8 @@
             <!-- 否则如果开启复制 -->
             <div
                 class="full-width"
+                :class="valueClass"
+                :style="valueStyle"
                 @click="onCopy"
                 v-else-if="copy"
             >{{value}}</div>
@@ -41,6 +47,8 @@
             <!-- 否则仅展示 -->
             <div
                 class="full-width"
+                :class="valueClass"
+                :style="valueStyle"
                 v-else
             >{{value}}</div>
 
@@ -92,6 +100,10 @@ const currentProps = {
         type: Boolean,
         default: true,
     },
+    // 值类名
+    valueClass: String,
+    // 值样式
+    valueStyle: [String, Object, Array],
 }
 
 export default {
