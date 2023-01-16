@@ -1,7 +1,43 @@
 /**
- * 公共样式
+ * 亮色
  */
+.body--light {
+    // 反色
+    --n-reverse-color: var(--q-dark);
+    // 反色 rgb(亮色是黑色)
+    --n-reverse-color-rgb: 0, 0, 0;
+    // 主题颜色
+    --n-mode-color: #ffffff;;
+    // 占位符颜色
+    --n-placeholder-color: rgba(0, 0, 0, 0.5);
+}
+
+/**
+ * 暗色
+ */
+.body--dark {
+    // 反色
+    --n-reverse-color: #ffffff;
+    // 反色 rgb(暗色是白色)
+    --n-reverse-color-rgb: 255, 255, 255;
+    // 主题颜色
+    --n-mode-color: var(--q-dark);
+    // 占位符颜色
+    --n-placeholder-color: rgba(255, 255, 255, 0.5);
+}
+
 body {
+    --n-bg-grey-1: rgba(var(--n-reverse-color-rgb), 0.02);
+    --n-bg-grey-2: rgba(var(--n-reverse-color-rgb), 0.04);
+    --n-bg-grey-3: rgba(var(--n-reverse-color-rgb), 0.07);
+    --n-bg-grey-4: rgba(var(--n-reverse-color-rgb), 0.12);
+    --n-bg-grey-5: rgba(var(--n-reverse-color-rgb), 0.26);
+    --n-bg-grey-6: rgba(var(--n-reverse-color-rgb), 0.38);
+    --n-bg-grey-7: rgba(var(--n-reverse-color-rgb), 0.54);
+    --n-bg-grey-8: rgba(var(--n-reverse-color-rgb), 0.62);
+    --n-bg-grey-9: rgba(var(--n-reverse-color-rgb), 0.75);
+    --n-bg-grey-10: rgba(var(--n-reverse-color-rgb), 0.86);
+
     overflow: hidden;
 }
 
@@ -28,29 +64,29 @@ body {
 
 // 占位符
 .n-placeholder {
-    color: var(--placeholder-color);
+    color: var(--n-placeholder-color);
 }
 
 .n-pointer-none {
     pointer-events: none;
 }
 
-.n-color-primary,
-.n-color-main {
-    color: var(--q-primary);
-}
-.n-color-success {
-    color: var(--q-positive);
-}
-.n-color-warning {
-    color: var(--q-warning);
-}
-.n-color-danger {
-    color: var(--q-negative);
-}
-.n-color-info {
-    color: var(--q-info);
-}
+//.n-color-primary,
+//.n-color-main {
+//    color: var(--q-primary);
+//}
+//.n-color-success {
+//    color: var(--q-positive);
+//}
+//.n-color-warning {
+//    color: var(--q-warning);
+//}
+//.n-color-danger {
+//    color: var(--q-negative);
+//}
+//.n-color-info {
+//    color: var(--q-info);
+//}
 
 // flex 1
 .n-flex-1 {
@@ -65,36 +101,39 @@ body {
 }
 
 .n-bg-grey-1 {
-    background-color: rgba(var(--reverse-color-rgb), 0.02);
+    background-color: var(--n-bg-grey-1)
 }
 .n-bg-grey-2 {
-    background-color: rgba(var(--reverse-color-rgb), 0.04);
+    background-color: var(--n-bg-grey-2)
 }
 .n-bg-grey-3 {
-    background-color: rgba(var(--reverse-color-rgb), 0.07);
+    background-color: var(--n-bg-grey-3)
 }
 .n-bg-grey-4 {
-    background-color: rgba(var(--reverse-color-rgb), 0.12);
+    background-color: var(--n-bg-grey-4)
 }
 .n-bg-grey-5 {
-    background-color: rgba(var(--reverse-color-rgb), 0.26);
+    background-color: var(--n-bg-grey-5)
 }
 .n-bg-grey-6 {
-    background-color: rgba(var(--reverse-color-rgb), 0.38);
+    background-color: var(--n-bg-grey-6)
 }
 .n-bg-grey-7 {
-    background-color: rgba(var(--reverse-color-rgb), 0.54);
+    background-color: var(--n-bg-grey-7)
 }
 .n-bg-grey-8 {
-    background-color: rgba(var(--reverse-color-rgb), 0.62);
+    background-color: var(--n-bg-grey-8)
 }
 .n-bg-grey-9 {
-    background-color: rgba(var(--reverse-color-rgb), 0.75);
+    background-color: var(--n-bg-grey-9)
 }
 .n-bg-grey-10 {
-    background-color: rgba(var(--reverse-color-rgb), 0.86);
+    background-color: var(--n-bg-grey-10)
 }
 
+/**
+ * 桌面
+ */
 body.desktop {
     ::-webkit-scrollbar {
         height: 10px;
@@ -118,9 +157,9 @@ body.desktop {
     ::-webkit-scrollbar-thumb,
     ::-webkit-scrollbar-track,
     ::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(var(--reverse-color-rgb), 0.2);
+        background-color: rgba(var(--n-reverse-color-rgb), 0.2);
     }
     ::-webkit-scrollbar-track {
-        background-color: rgba(var(--reverse-color-rgb), 0.05);
+        background-color: rgba(var(--n-reverse-color-rgb), 0.05);
     }
 }

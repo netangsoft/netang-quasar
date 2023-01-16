@@ -205,7 +205,7 @@ export default {
             // 第三个子节点
             &:nth-child(3) {
                 .q-field__control {
-                    background-color: rgba(var(--reverse-color-rgb), 0.04);
+                    background-color: rgba(var(--n-reverse-color-rgb), 0.04);
                 }
             }
 

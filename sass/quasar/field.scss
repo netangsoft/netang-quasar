@@ -11,7 +11,7 @@
 
             // 输入框边框颜色
             &:before {
-                border-color: rgba(var(--reverse-color-rgb), 0.15) !important;
+                border-color: rgba(var(--n-reverse-color-rgb), 0.15) !important;
             }
         }
 
@@ -24,7 +24,7 @@
 
             // 输入框触碰边框颜色
             &:hover:before {
-                border-color: rgba(var(--reverse-color-rgb), 0.4) !important;
+                border-color: rgba(var(--n-reverse-color-rgb), 0.4) !important;
             }
         }
     }
@@ -34,19 +34,19 @@
             .q-field__native,
             .q-field__input {
                 &::-webkit-input-placeholder {
-                    color: var(--placeholder-color) !important;
+                    color: var(--n-placeholder-color) !important;
                 }
                 &::-moz-placeholder {
-                    color: var(--placeholder-color) !important;
+                    color: var(--n-placeholder-color) !important;
                 }
                 &::-ms-input-placeholder {
-                    color: var(--placeholder-color) !important;
+                    color: var(--n-placeholder-color) !important;
                 }
                 &::-ms-input-placeholder {
-                    color: var(--placeholder-color) !important;
+                    color: var(--n-placeholder-color) !important;
                 }
                 &::placeholder {
-                    color: var(--placeholder-color) !important;
+                    color: var(--n-placeholder-color) !important;
                 }
             }
         }
@@ -159,7 +159,7 @@
         &--float {
             .q-field__label {
                 transform: translateY(-120%) scale(0.85) !important;
-                background-color: var(--mode-color) !important;
+                background-color: var(--n-mode-color) !important;
             }
         }
 

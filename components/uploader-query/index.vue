@@ -528,11 +528,11 @@ export default {
             display: inline-flex;
             vertical-align: middle;
             overflow: hidden;
-            border: 1px dashed rgba(var(--reverse-color-rgb), 0.2);
+            border: 1px dashed rgba(var(--n-reverse-color-rgb), 0.2);
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: rgba(var(--reverse-color-rgb), 0.4);
+            color: rgba(var(--n-reverse-color-rgb), 0.4);
             border-radius: 4px;
 
             &:hover {
@@ -603,8 +603,8 @@ export default {
             flex-direction: row;
             align-items: center;
             border-radius: 4px;
-            color: rgba(var(--reverse-color-rgb), 0.8);
-            background-color: rgba(var(--reverse-color-rgb), 0.05);
+            color: rgba(var(--n-reverse-color-rgb), 0.8);
+            background-color: rgba(var(--n-reverse-color-rgb), 0.05);
 
             // 图标
             .n-uploader-query__item__icon {
@@ -615,7 +615,7 @@ export default {
                 z-index: 1;
 
                 &__icon {
-                    color: rgba(var(--reverse-color-rgb), 0.2);
+                    color: rgba(var(--n-reverse-color-rgb), 0.2);
                 }
             }
 
