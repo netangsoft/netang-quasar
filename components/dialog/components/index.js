@@ -1,4 +1,4 @@
-import dialog from '@/components/public/dialog'
+import dialog from '@/components/private/dialog'
 
 export default {
     moveToTree: () => import('./move-to-tree'),

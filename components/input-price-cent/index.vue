@@ -16,9 +16,20 @@
 <script>
 import { computed, ref, watch } from 'vue'
 
-import { useFieldProps } from 'quasar/src/composables/private/use-field.js'
-import { useMaskProps } from 'quasar/src/components/input/use-mask.js'
-import { useFormProps } from 'quasar/src/composables/private/use-form.js'
+import inputProps from '../../props/quasar/input'
+
+// 自定义声明属性
+const currentProps = {
+    // 值
+    modelValue: [String, Number],
+    // 最小值(元)
+    min: {
+        type: Number,
+        default: 1,
+    },
+    // 最大值(元)
+    max: Number,
+}
 
 /**
  * 金额(分转元)
@@ -34,30 +45,10 @@ export default {
      * 声明属性
      */
     props: {
-        ...useFieldProps,
-        ...useMaskProps,
-        ...useFormProps,
-        shadowText: String,
-        type: {
-            type: String,
-            default: 'text'
-        },
-        debounce: [ String, Number ],
-        autogrow: Boolean,
-        inputClass: [ Array, String, Object ],
-        inputStyle: [ Array, String, Object ],
+        ...inputProps,
 
         // 自定义声明属性
-        // --------------------------------------------------
-        // 值
-        modelValue: [String, Number],
-        // 最小值(元)
-        min: {
-            type: Number,
-            default: 1,
-        },
-        // 最大值(元)
-        max: Number,
+        ...currentProps,
     },
 
     /**
@@ -75,10 +66,7 @@ export default {
         // ==========【数据】============================================================================================
 
         // 输入框组件传参
-        const inputProps = _.omit(props, [
-            // 值
-            'modelValue',
-        ])
+        const inputProps = _.omit(props, Object.keys(currentProps))
 
         // 当前值
         const currentValue = ref(formatModelValue())

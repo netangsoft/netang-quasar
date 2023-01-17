@@ -25,6 +25,7 @@
                     <q-page-container>
                         <component
                             :is="comp"
+                            v-bind="props"
                         />
                     </q-page-container>
                 </q-layout>

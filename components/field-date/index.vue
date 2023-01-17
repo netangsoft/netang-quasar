@@ -135,9 +135,9 @@
 
 <script>
 import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { useFieldProps } from 'quasar/src/composables/private/use-field.js'
 import { date as quasarDate } from 'quasar'
 
+import fieldProps from '../../props/quasar/field'
 import { quickRange, getQuickRange } from './methods'
 
 // 自定义声明属性
@@ -178,7 +178,7 @@ export default {
      * 声明属性
      */
     props: {
-        ...useFieldProps,
+        ...fieldProps,
 
         // 自定义声明属性
         ...currentProps,

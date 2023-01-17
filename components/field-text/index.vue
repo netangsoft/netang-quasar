@@ -68,7 +68,7 @@
 
 <script>
 import { computed } from 'vue'
-import { useFieldProps } from 'quasar/src/composables/private/use-field.js'
+import fieldProps from '../../props/quasar/field'
 
 // 自定义声明属性
 const currentProps = {
@@ -120,7 +120,7 @@ export default {
      * 声明属性
      */
     props: {
-        ...useFieldProps,
+        ...fieldProps,
 
         // 自定义声明属性
         ...currentProps,
