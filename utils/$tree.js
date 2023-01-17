@@ -251,10 +251,7 @@ utils.$tree = function(params) {
                     // 显示取消按钮
                     cancel: true,
                     // 点击确认执行
-                    async onConfirm(dialogValue) {
-
-                        // 移动至节点 id
-                        const moveNodeId = dialogValue.value
+                    async onConfirm({ value: moveNodeId }) {
 
                         // 是否为正确的 id
                         if (! utils.isId(moveNodeId)) {

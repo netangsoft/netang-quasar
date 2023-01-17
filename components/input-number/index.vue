@@ -327,6 +327,9 @@ export default {
         &--outlined {
             .q-field__control {
                 padding: 0 4px !important;
+                .q-field__native {
+                    text-align: center;
+                }
             }
         }
     }

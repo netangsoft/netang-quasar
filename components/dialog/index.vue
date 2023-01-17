@@ -136,6 +136,9 @@ export default {
         // 对话框值
         const dialogValue = ref(null)
 
+        // 组件提交方法
+        let compSubmit
+
         // 向后代注入数据
         provide(NDialogKey, {
             // 值
@@ -143,8 +146,8 @@ export default {
             // 传参
             props: props.props,
             // 提交值
-            emit(value) {
-                dialogValue.value = value
+            submit(cb) {
+                compSubmit = cb
             },
         })
 
@@ -254,7 +257,16 @@ export default {
 
             // 如果有确定按钮
             if (_.isFunction(props.onConfirm)) {
-                const res = await utils.runAsync(props.onConfirm)(dialogValue, hide)
+
+                if (! _.isFunction(compSubmit)) {
+                    // 轻提示
+                    utils.toast({
+                        message: '未调用 $dialog.submit 方法',
+                    })
+                    return
+                }
+
+                const res = await utils.runAsync(props.onConfirm)(await utils.runAsync(compSubmit)(), hide)
                 if (res === false) {
                     return
                 }

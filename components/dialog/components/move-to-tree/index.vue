@@ -45,6 +45,9 @@ export default {
         // 获取对话框注入数据
         const $dialog = utils.$dialog.inject()
 
+        // 对话框提交数据
+        $dialog.submit(onSubmit)
+
         // ==========【数据】=============================================================================================
 
         // 树节点
@@ -60,17 +63,32 @@ export default {
         const treeExpanded = ref([0])
 
         // 树选择数据
-        const treeSelected = ref({})
+        const treeSelected = ref(0)
+
+        // 当前选择值
+        const currentValue = ref({})
 
         // ==========【监听数据】==========================================================================================
 
         /**
          * 监听树选择数据
          */
-        watch(treeSelected, function(val) {
-            // 提交值
-            $dialog.emit(val)
+        watch(treeSelected, function(value) {
+            // 设置当前选择值
+            currentValue.value = {
+                value,
+                node: treeRef.value.getNodeByKey(value),
+            }
         })
+
+        // ==========【方法】=============================================================================================
+
+        /**
+         * 提交
+         */
+        function onSubmit() {
+            return currentValue.value
+        }
 
         // ==========【返回】=============================================================================================
 
