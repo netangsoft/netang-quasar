@@ -610,17 +610,6 @@ export default {
         }
 
         /**
-         * 清空
-         */
-        function onClear() {
-            emit('update:modelValue', null)
-            if (isRange.value) {
-                emit('update:end', null)
-            }
-            popupRef.value.hide()
-        }
-
-        /**
          * 更新日期后回调
          */
         function onUpdateDateValue(val) {
@@ -659,6 +648,56 @@ export default {
             updateValue(dateValue.value, Object.assign({}, timeValue, {
                 to,
             }))
+        }
+
+        /**
+         * 选择
+         */
+        function onSelect(type, value) {
+
+            // 更新值
+            const newValue = {}
+            newValue[type] = value
+            updateValue(Object.assign({}, dateValue.value, newValue), timeValue)
+
+            // 如是类型是年
+            if (props.type === 'year') {
+                // 则关闭弹出层
+                popupRef.value.hide()
+            }
+        }
+
+        /**
+         * 快捷范围
+         */
+        function onQuickRange(index) {
+
+            const {
+                date,
+                time,
+            } = getQuickRange(index, props.showSecond)
+
+            if (date) {
+                updateValue(date, time)
+            }
+        }
+
+        /**
+         * 取消
+         */
+        function onCancel() {
+            // 还原原始值
+            onEmit('update:modelValue', oldModelValue)
+            if (isRange.value) {
+                onEmit('update:end', oldEnd)
+            }
+        }
+
+        /**
+         * 提交
+         */
+        function onEmit(key, value) {
+            emit(key, utils.numberDeep(value))
         }
 
         /**
@@ -711,53 +750,14 @@ export default {
         }
 
         /**
-         * 取消
+         * 清空
          */
-        function onCancel() {
-            // 还原原始值
-            onEmit('update:modelValue', oldModelValue)
+        function onClear() {
+            emit('update:modelValue', null)
             if (isRange.value) {
-                onEmit('update:end', oldEnd)
+                emit('update:end', null)
             }
-        }
-
-        /**
-         * 选择
-         */
-        function onSelect(type, value) {
-
-            // 更新值
-            const newValue = {}
-            newValue[type] = value
-            updateValue(Object.assign({}, dateValue.value, newValue), timeValue)
-
-            // 如是类型是年
-            if (props.type === 'year') {
-                // 则关闭弹出层
-                popupRef.value.hide()
-            }
-        }
-
-        /**
-         * 快捷范围
-         */
-        function onQuickRange(index) {
-
-            const {
-                date,
-                time,
-            } = getQuickRange(index, props.showSecond)
-
-            if (date) {
-                updateValue(date, time)
-            }
-        }
-
-        /**
-         * 提交
-         */
-        function onEmit(key, value) {
-            emit(key, utils.numberDeep(value))
+            popupRef.value.hide()
         }
 
         // ==========【返回】=============================================================================================
@@ -787,8 +787,6 @@ export default {
             // 快捷范围
             quickRange,
 
-            // 清空
-            onClear,
             // 更新日期后回调
             onUpdateDateValue,
             // 更新日期时间起回调
@@ -796,18 +794,21 @@ export default {
             // 更新日期时间止回调
             onUpdateTimeValueTo,
 
+            // 选择
+            onSelect,
+            // 快捷范围
+            onQuickRange,
+            // 取消
+            onCancel,
+
             // 弹出层显示前回调
             onPopupBeforeShow,
             // 弹出层隐藏前回调
             onPopupBeforeHide,
             // 弹出层隐藏后回调
             onPopupHide,
-            // 取消
-            onCancel,
-            // 选择
-            onSelect,
-            // 快捷范围
-            onQuickRange,
+            // 清空
+            onClear,
         }
     },
 }

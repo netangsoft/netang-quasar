@@ -1,5 +1,6 @@
 <template>
     <q-field
+        :class="fieldFocused ? 'q-field--float q-field--focused q-field--highlighted' : ''"
         :model-value="modelValue"
         @clear="onClear"
         v-bind="$attrs"
@@ -46,12 +47,17 @@
         </template>
 
         <!-- 弹出层代理 -->
-        <q-popup-proxy ref="popupRef">
+        <q-popup-proxy
+            ref="popupRef"
+            @before-show="onPopupBeforeShow"
+            @before-hide="onPopupBeforeHide"
+            v-if="! readonly"
+        >
             <q-card>
                 <!-- 树 -->
                 <q-tree
                     class="q-pa-sm q-pr-md"
-                    style="min-width:200px"
+                    style="min-width:260px;"
                     ref="treeRef"
                     :nodes="nodes"
                     :node-key="nodeKey"
@@ -91,6 +97,8 @@ export default {
      * 声明属性
      */
     props: {
+        // 是否只读
+        readonly: Boolean,
         // 值
         modelValue: [Array, String, Number],
         // 树展开节点
@@ -138,6 +146,8 @@ export default {
 
         // ==========【数据】============================================================================================
 
+        // 字段组件获取焦点
+        const fieldFocused = ref(false)
         // 弹出层节点
         const popupRef = ref(null)
         // 树节点
@@ -354,14 +364,6 @@ export default {
         }
 
         /**
-         * 清空
-         */
-        function onClear() {
-            emit('update:modelValue', props.multiple ? [] : null)
-            popupRef.value.hide()
-        }
-
-        /**
          * 移除单个
          */
         function onRemoveItem(index) {
@@ -370,9 +372,37 @@ export default {
             emit('update:modelValue', newValue)
         }
 
+        /**
+         * 弹出层显示前回调
+         */
+        function onPopupBeforeShow() {
+
+            // 字段组件获取焦点
+            fieldFocused.value = true
+        }
+
+        /**
+         * 弹出层隐藏前回调
+         */
+        function onPopupBeforeHide() {
+
+            // 字段组件失去焦点
+            fieldFocused.value = false
+        }
+
+        /**
+         * 清空
+         */
+        function onClear() {
+            emit('update:modelValue', props.multiple ? [] : null)
+            popupRef.value.hide()
+        }
+
         // ==========【返回】=============================================================================================
 
         return {
+            // 字段组件获取焦点
+            fieldFocused,
             // 弹出层节点
             popupRef,
             // 树节点
@@ -394,6 +424,11 @@ export default {
             onClear,
             // 移除单个
             onRemoveItem,
+
+            // 弹出层显示前回调
+            onPopupBeforeShow,
+            // 弹出层隐藏前回调
+            onPopupBeforeHide,
         }
     },
 }
