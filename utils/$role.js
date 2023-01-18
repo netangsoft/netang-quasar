@@ -669,13 +669,15 @@ async function request(params) {
         if (res.status) {
 
             // 下一步
-            function next() {
+            function next(isNotify = true) {
 
                 // 轻提示
-                utils.toast({
-                    type: 'positive',
-                    message: '恭喜您，操作成功',
-                })
+                if (isNotify) {
+                    utils.toast({
+                        type: 'positive',
+                        message: '恭喜您，操作成功',
+                    })
+                }
 
                 // 判断是否有请求成功后的操作动作
                 if (_.has(o.data, 'requestSuccess.type')) {

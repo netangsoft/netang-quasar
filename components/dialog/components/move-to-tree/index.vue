@@ -14,9 +14,9 @@
         <q-tree
             ref="treeRef"
             color="grey-5"
-            :nodes="treeLists"
+            :nodes="treeNodes"
             :filter="treeFilter"
-            node-key="id"
+            :node-key="treeNodeKey"
             v-model:expanded="treeExpanded"
             selected-color="primary"
             v-model:selected="treeSelected"
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { ref, isRef, toRaw, watch } from 'vue'
 
 export default {
 
@@ -43,24 +43,44 @@ export default {
         // ==========【注入】============================================================================================
 
         // 获取对话框注入数据
-        const $dialog = utils.$dialog.inject()
+        const {
+            // 提交数据
+            submit,
+            // 父级声明属性
+            props,
+        } = utils.$dialog.inject()
+
+        const {
+            // 树节点列表
+            nodes,
+            // 树展开节点
+            expanded,
+            // 节点唯一键值
+            nodeKey,
+
+        } = Object.assign({
+            nodeKey: 'id',
+        }, props)
 
         // 对话框提交数据
-        $dialog.submit(onSubmit)
+        submit(onSubmit)
 
         // ==========【数据】=============================================================================================
 
         // 树节点
         const treeRef = ref(null)
 
-        // 树列表
-        const treeLists = $dialog.props.data
+        // 树节点列表
+        const treeNodes = format(nodes)
+
+        // 树节点唯一键值
+        const treeNodeKey = ref(nodeKey)
 
         // 树筛选
         const treeFilter = ref('')
 
         // 树展开节点
-        const treeExpanded = ref([0])
+        const treeExpanded = format(expanded)
 
         // 树选择数据
         const treeSelected = ref(0)
@@ -90,13 +110,34 @@ export default {
             return currentValue.value
         }
 
+        /**
+         * 格式化列表
+         */
+        function format(val) {
+
+            if (val) {
+
+                if (isRef(val)) {
+                    return ref(val.value)
+                }
+
+                if (utils.isFillArray(val)) {
+                    return ref(val)
+                }
+            }
+
+            return ref([])
+        }
+
         // ==========【返回】=============================================================================================
 
         return {
             // 树节点
             treeRef,
             // 树列表
-            treeLists,
+            treeNodes,
+            // 节点唯一键值
+            treeNodeKey,
             // 树筛选
             treeFilter,
             // 树展开节点

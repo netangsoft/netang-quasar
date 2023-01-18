@@ -1,3 +1,4 @@
+import { isRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 /**
@@ -47,17 +48,24 @@ function getChildren(data, callback) {
 utils.$tree = function(params) {
 
     const {
+        // 树节点列表
+        nodes,
+        // 树展开节点
+        expanded,
         // 权限按钮列表
         roleBtnLists,
-        // 数列表
-        treeLists,
         // 原始表单数据
         rawFormData,
         // 表单数据
         formData,
         // 重新加载
         reload,
-    } = params
+        // 是否开启展开节点缓存
+        cache,
+    } = Object.assign({
+        // 是否开启展开节点缓存
+        cache: false,
+    }, params)
 
     // 如果没有地址, 则使用当前路由地址
     let url = ''
@@ -66,11 +74,29 @@ utils.$tree = function(params) {
         url = useRoute().fullPath
     }
 
+    // 是否有展开节点
+    const hasExpanded = ! _.isNil(expanded) && isRef(expanded)
+
+    // 如果开启展开节点缓存
+    if (hasExpanded && cache) {
+
+        // 设置树展开节点初始缓存
+        expanded.value = getExpandedCache(expanded.value)
+
+        /**
+         * 监听树展开节点
+         */
+        watch(expanded, function(val) {
+            // 设置树展开节点缓存
+            setExpandedCache(val)
+        })
+    }
+
     /**
      * 获取节点
      */
     function getNode(nodeId) {
-        return getTreeNode(treeLists.value, nodeId)
+        return getTreeNode(nodes.value, nodeId)
     }
 
     /**
@@ -224,6 +250,8 @@ utils.$tree = function(params) {
 
             // 移至节点上
             case 'moveUp':
+            // 移至节点内
+            case 'moveIn':
             // 移至节点下
             case 'moveDown':
 
@@ -232,21 +260,20 @@ utils.$tree = function(params) {
                     return
                 }
 
-                // 是否上移
-                const isMoveUp = o.type === 'moveUp'
-
                 // 创建对话框
                 utils.$dialog.create({
                     // 标题
-                    title: `移动至节点的${isMoveUp ? '上方' : '下方'}`,
+                    title: `移动至节点的${o.type === 'moveUp' ? '上方' : (o.type === 'moveDown' ? '下方' : '内部')}`,
                     width: 500,
                     minWidth: 500,
                     // 组件标识
                     name: 'moveToTree',
                     // 传参
                     props: {
-                        // 数据
-                        data: treeLists,
+                        // 树节点列表
+                        nodes,
+                        // 树展开节点
+                        expanded,
                     },
                     // 显示取消按钮
                     cancel: true,
@@ -279,10 +306,7 @@ utils.$tree = function(params) {
                         }
 
                         // 克隆当前树列表数据
-                        const treeListsClone = _.cloneDeep(treeLists.value)
-
-                        // 获取移动至节点的父节点
-                        const moveParentNodeItem = getNode(moveNodeItem.attr.pid)
+                        const nodesClone = _.cloneDeep(nodes.value)
 
                         // 获取当前节点
                         const nodeItem = getNode(o.node.id)
@@ -290,38 +314,77 @@ utils.$tree = function(params) {
                         // 获取当前节点的父节点
                         const parentNodeItem = getNode(o.node.attr.pid)
 
-                        // 修改节点数据
-                        nodeItem.attr.pid = moveNodeItem.attr.pid
-                        nodeItem.attr.sort = moveNodeItem.attr.sort + (isMoveUp ? 0 : 1)
-
                         // 移动列表数据
-                        const moveLists = [
-                            {
+                        const moveLists = []
+
+                        // 如果是移动至节点内部
+                        // --------------------------------------------------
+                        if (o.type === 'moveIn') {
+
+                            // 修改当前节点数据
+                            nodeItem.attr.pid = moveNodeItem.attr.id
+                            // console.log('moveNodeItem.children', moveNodeItem.children)
+
+                            nodeItem.attr.sort =
+                                // 如果移动至的节点有子节点
+                                moveNodeItem.children.length
+                                    // 则获取移动至的节点中最后一个子节点的排序号 + 1
+                                    ? moveNodeItem.children[moveNodeItem.children.length - 1].attr.sort + 1
+                                    // 否则排序号设为 1
+                                    : 1
+
+                            // 添加移动列表数据
+                            moveLists.push({
                                 id: nodeItem.id,
                                 pid: nodeItem.attr.pid,
                                 sort: nodeItem.attr.sort,
-                            }
-                        ]
-
-                        // 获取移动至节点的索引
-                        const moveNodeItemIndex = _.findIndex(moveParentNodeItem.children, { id: moveNodeId })
-
-                        for (let i = moveNodeItemIndex + (isMoveUp ? 0 : 1); i < moveParentNodeItem.children.length; i++) {
-                            const item = moveParentNodeItem.children[i]
-                            item.attr.sort = item.attr.sort + 1
-                            moveLists.push({
-                                id: item.id,
-                                pid: item.attr.pid,
-                                sort: item.attr.sort,
                             })
+
+                            // 将本节点从原父节点中删除
+                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
+                            parentNodeItem.children.splice(nodeItemIndex, 1)
+
+                            // 将本节点添加至移动至的节点的子节点中
+                            moveNodeItem.children.push(nodeItem)
+
+                        // 否则移动至节点的上方/下方
+                        // --------------------------------------------------
+                        } else {
+
+                            // 获取移动至节点的父节点
+                            let moveParentNodeItem = getNode(moveNodeItem.attr.pid)
+
+                            // 修改当前节点数据
+                            nodeItem.attr.pid = moveNodeItem.attr.pid
+                            nodeItem.attr.sort = moveNodeItem.attr.sort + (o.type === 'moveUp' ? 0 : 1)
+
+                            // 添加移动列表数据
+                            moveLists.push({
+                                id: nodeItem.id,
+                                pid: nodeItem.attr.pid,
+                                sort: nodeItem.attr.sort,
+                            })
+
+                            // 获取移动至节点的索引
+                            const moveNodeItemIndex = _.findIndex(moveParentNodeItem.children, { id: moveNodeId })
+
+                            for (let i = moveNodeItemIndex + (o.type === 'moveUp' ? 0 : 1); i < moveParentNodeItem.children.length; i++) {
+                                const item = moveParentNodeItem.children[i]
+                                item.attr.sort = item.attr.sort + 1
+                                moveLists.push({
+                                    id: item.id,
+                                    pid: item.attr.pid,
+                                    sort: item.attr.sort,
+                                })
+                            }
+
+                            // 将本节点从原父节点中删除
+                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
+                            parentNodeItem.children.splice(nodeItemIndex, 1)
+
+                            // 将本节点插入移动至位置
+                            moveParentNodeItem.children.splice(moveNodeItemIndex + (o.type === 'moveUp' ? 0 : 1), 0, nodeItem)
                         }
-
-                        // 将本节点从原父节点中删除
-                        const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
-                        parentNodeItem.children.splice(nodeItemIndex, 1)
-
-                        // 将本节点插入移动至位置
-                        moveParentNodeItem.children.splice(moveNodeItemIndex + (isMoveUp ? 0 : 1), 0, nodeItem)
 
                         // 请求 - 移动
                         const { status } = await utils.http({
@@ -332,7 +395,7 @@ utils.$tree = function(params) {
                         })
                         if (! status) {
                             // 移动失败, 还原数据
-                            treeLists.value = treeListsClone
+                            nodes.value = nodesClone
                             return false
                         }
                     },
@@ -531,9 +594,9 @@ utils.$tree = function(params) {
     /**
      * 设置展开节点缓存
      */
-    function setExpandedCache(treeExpanded) {
+    function setExpandedCache(expanded) {
         // 设置展开节点缓存(永久缓存)
-        utils.storage.set('tree_expanded_' + url, treeExpanded, 0)
+        utils.storage.set('tree_expanded_' + url, expanded, 0)
     }
 
     return {

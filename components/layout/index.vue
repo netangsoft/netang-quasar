@@ -1,10 +1,5 @@
 <template>
     <q-layout
-        :view="view"
-        :container="container"
-        :onScroll="onScroll"
-        :onScrollHeight="onScrollHeight"
-        :onResize="onResize"
         v-bind="$attrs"
     >
         <!-- 错误提示 -->
@@ -19,9 +14,7 @@
     </q-layout>
 
     <!-- 加载 -->
-    <!---->
     <q-inner-loading
-        style="background:rgba(204,204,204,0.3);"
         :showing="pageLoading"
     />
 </template>
@@ -41,13 +34,6 @@ export default {
      * 声明属性
      */
     props: {
-        view: String,
-        container: Boolean,
-        onScroll: Function,
-        onScrollHeight: Function,
-        onResize: Function,
-        name: String,
-
         // 页面加载
         pageLoading: Boolean,
         // 页面状态
