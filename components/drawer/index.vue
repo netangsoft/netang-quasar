@@ -1,22 +1,10 @@
 <template>
     <q-drawer
         v-model="isShow"
-        :dark="dark"
         :side="side"
-        :width="currentWidth"
-        :mini="mini"
-        :miniWidth="miniWidth"
-        :miniToOverlay="miniToOverlay"
         :breakpoint="breakpoint"
-        :showIfAbove="showIfAbove"
-        :behavior="behavior"
-        :bordered="bordered"
-        :elevated="elevated"
-        :overlay="overlay"
-        :persistent="persistent"
-        :noSwipeOpen="noSwipeOpen"
-        :noSwipeClose="noSwipeClose"
-        :noSwipeBackdrop="noSwipeBackdrop"
+        :width="currentWidth"
+        v-bind="$attrs"
     >
         <!-- 插槽 -->
         <slot />
@@ -32,11 +20,10 @@
 </template>
 
 <script>
-import { ref, inject, watch, nextTick } from 'vue'
+import { ref, inject, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute } from 'vue-router'
 
-import { useDarkProps } from 'quasar/src/composables/private/use-dark.js'
 import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols.js'
 
 import { NLayoutKey } from '../../utils/symbols'
@@ -52,8 +39,6 @@ export default {
      * 声明属性
      */
     props: {
-        ...useDarkProps,
-
         side: {
             type: String,
             default: 'left',
@@ -63,31 +48,12 @@ export default {
             type: Number,
             default: 300
         },
-        mini: Boolean,
-        miniToOverlay: Boolean,
-        miniWidth: {
-            type: Number,
-            default: 57
-        },
         breakpoint: {
             type: Number,
-            default: 1000
+            default: 1000,
         },
-        showIfAbove: Boolean,
-        behavior: {
-            type: String,
-            validator: v => [ 'default', 'desktop', 'mobile' ].includes(v),
-            default: 'default'
-        },
-        bordered: Boolean,
-        elevated: Boolean,
-        overlay: Boolean,
-        persistent: Boolean,
-        noSwipeOpen: Boolean,
-        noSwipeClose: Boolean,
-        noSwipeBackdrop: Boolean,
 
-        // 【自定义事件】
+        // 【自定义属性】
         // --------------------------------------------------
         // 是否显示
         show: Boolean,

@@ -4,7 +4,8 @@
         v-model="currentValue"
         @update:model-value="onInput"
         @blur="onBlur"
-        v-bind="inputProps"
+        v-on="$listeners"
+        v-bind="$attrs"
     >
         <template #prepend>
             <q-btn
@@ -33,71 +34,7 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
-
-import inputProps from '../../props/quasar/input'
 import { formatNumbers, addNumber } from './number'
-
-// 自定义声明属性
-const currentProps = {
-    // 值
-    modelValue: {
-        required: false
-    },
-    // 最小值
-    min: {
-        type: [Number, String],
-        default: 1,
-    },
-    // 最大值
-    max: {
-        type: [Number, String],
-        default: Infinity,
-    },
-    // 初始值，当 v-model 为空时生效
-    defaultValue: {
-        type: [Number, String],
-        default: 1,
-    },
-    // 步长，每次点击时改变的值
-    step: {
-        type: [Number, String],
-        default: 1,
-    },
-    // 固定显示的小数位数
-    decimalLength: [Number, String],
-    // 是否只允许输入整数
-    integer: {
-        type: Boolean,
-        default: true,
-    },
-    // 是否禁用步进器
-    disabled: Boolean,
-    // 是否禁用增加按钮
-    disablePlus: Boolean,
-    // 是否禁用减少按钮
-    disableMinus: Boolean,
-    // 是否禁用输入框
-    disableInput: Boolean,
-    // 是否开启异步变更，开启后需要手动控制输入值
-    asyncChange: Boolean,
-    // 是否显示增加按钮
-    showPlus: {
-        type: Boolean,
-        default: true,
-    },
-    // 是否显示减少按钮
-    showMinus: {
-        type: Boolean,
-        default: true,
-    },
-    // 是否允许输入的值为空
-    allowEmpty: Boolean,
-    // 显示文字
-    showText: {
-        type: Boolean,
-        default: true,
-    },
-}
 
 export default {
 
@@ -110,10 +47,64 @@ export default {
      * 声明属性
      */
     props: {
-        ...inputProps,
-
-        // 自定义声明属性
-        ...currentProps,
+        // 值
+        modelValue: {
+            required: false
+        },
+        // 最小值
+        min: {
+            type: [Number, String],
+            default: 1,
+        },
+        // 最大值
+        max: {
+            type: [Number, String],
+            default: Infinity,
+        },
+        // 初始值，当 v-model 为空时生效
+        defaultValue: {
+            type: [Number, String],
+            default: 1,
+        },
+        // 步长，每次点击时改变的值
+        step: {
+            type: [Number, String],
+            default: 1,
+        },
+        // 固定显示的小数位数
+        decimalLength: [Number, String],
+        // 是否只允许输入整数
+        integer: {
+            type: Boolean,
+            default: true,
+        },
+        // 是否禁用步进器
+        disabled: Boolean,
+        // 是否禁用增加按钮
+        disablePlus: Boolean,
+        // 是否禁用减少按钮
+        disableMinus: Boolean,
+        // 是否禁用输入框
+        disableInput: Boolean,
+        // 是否开启异步变更，开启后需要手动控制输入值
+        asyncChange: Boolean,
+        // 是否显示增加按钮
+        showPlus: {
+            type: Boolean,
+            default: true,
+        },
+        // 是否显示减少按钮
+        showMinus: {
+            type: Boolean,
+            default: true,
+        },
+        // 是否允许输入的值为空
+        allowEmpty: Boolean,
+        // 显示文字
+        showText: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     /**
@@ -134,9 +125,6 @@ export default {
     setup(props, { emit }) {
 
         // ==========【数据】============================================================================================
-
-        // 输入框组件传参
-        const inputProps = _.omit(props, Object.keys(currentProps))
 
         // 当前值
         const defaultValue = props.modelValue ?? props.defaultValue
@@ -296,8 +284,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 字段组件传参
-            inputProps,
             // 当前值
             currentValue,
 

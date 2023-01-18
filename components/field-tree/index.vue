@@ -1,8 +1,8 @@
 <template>
     <q-field
         :model-value="modelValue"
-        v-bind="fieldProps"
         @clear="onClear"
+        v-bind="$attrs"
     >
         <template v-slot:control>
 
@@ -79,42 +79,6 @@
 
 <script>
 import { ref, computed, watch } from 'vue'
-import fieldProps from '../../props/quasar/field'
-
-// 自定义声明属性
-const currentProps = {
-    // 值
-    modelValue: [Array, String, Number],
-    // 树展开节点
-    expanded: Array, // v-model:expanded
-    // 占位符
-    placeholder: String,
-    // 节点数组
-    nodes: Array,
-    // 唯一的节点 id
-    nodeKey: {
-        type: String,
-        default: 'id',
-    },
-    // label 字段
-    labelKey: {
-        type: String,
-        default: 'label',
-    },
-    // 是否可选任意一级(true:可选任意一级, false: 仅能选叶子节点)
-    strict: Boolean,
-    // 是否多选
-    multiple: Boolean,
-    // 手风琴模式
-    accordion: Boolean,
-    // 输入框中是否显示选中值的完整路径
-    showAllLevels: {
-        type: Boolean,
-        default: true,
-    },
-    // 多选模式下是否折叠 Tag
-    collapseTags: Boolean,
-}
 
 export default {
 
@@ -127,10 +91,37 @@ export default {
      * 声明属性
      */
     props: {
-        ...fieldProps,
-
-        // 自定义声明属性
-        ...currentProps,
+        // 值
+        modelValue: [Array, String, Number],
+        // 树展开节点
+        expanded: Array, // v-model:expanded
+        // 占位符
+        placeholder: String,
+        // 节点数组
+        nodes: Array,
+        // 唯一的节点 id
+        nodeKey: {
+            type: String,
+            default: 'id',
+        },
+        // label 字段
+        labelKey: {
+            type: String,
+            default: 'label',
+        },
+        // 是否可选任意一级(true:可选任意一级, false: 仅能选叶子节点)
+        strict: Boolean,
+        // 是否多选
+        multiple: Boolean,
+        // 手风琴模式
+        accordion: Boolean,
+        // 输入框中是否显示选中值的完整路径
+        showAllLevels: {
+            type: Boolean,
+            default: true,
+        },
+        // 多选模式下是否折叠 Tag
+        collapseTags: Boolean,
     },
 
     /**
@@ -147,8 +138,6 @@ export default {
 
         // ==========【数据】============================================================================================
 
-        // 字段组件传参
-        const fieldProps = _.omit(props, Object.keys(currentProps))
         // 弹出层节点
         const popupRef = ref(null)
         // 树节点
@@ -384,8 +373,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 字段组件传参
-            fieldProps,
             // 弹出层节点
             popupRef,
             // 树节点

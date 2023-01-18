@@ -2,8 +2,9 @@
     <q-field
         :class="fieldFocused ? 'q-field--float q-field--focused q-field--highlighted' : ''"
         :model-value="modelValue"
-        v-bind="fieldProps"
+        :readonly="readonly"
         @clear="onClear"
+        v-bind="$attrs"
     >
         <template v-slot:control>
 
@@ -32,7 +33,7 @@
             @before-show="onPopupBeforeShow"
             @before-hide="onPopupBeforeHide"
             @hide="onPopupHide"
-            v-if="! fieldProps.readonly"
+            v-if="! readonly"
         >
             <!-- 单选 -->
             <template v-if="isSelect">
@@ -137,35 +138,7 @@
 import { ref, reactive, computed, watch, nextTick } from 'vue'
 import { date as quasarDate } from 'quasar'
 
-import fieldProps from '../../props/quasar/field'
 import { quickRange, getQuickRange } from './methods'
-
-// 自定义声明属性
-const currentProps = {
-    // 值
-    modelValue: [String, Number],
-    // 结束值
-    end: [String, Number],
-    // 占位符
-    placeholder: String,
-    // 类型, 可选值 year month day time datetime daterange datetimerange
-    type: {
-        type: String,
-        default: 'day',
-    },
-    // 是否截止时间
-    endDate: Boolean,
-    // 显示在输入框中的格式
-    format: String,
-    // 绑定值的格式(默认:秒时间戳)
-    // 格式 YYYY-MM-DD HH:mm:ss
-    valueFormat: {
-        type: String,
-        default: 'X',
-    },
-    // 是否显示秒
-    showSecond: Boolean,
-}
 
 export default {
 
@@ -178,10 +151,29 @@ export default {
      * 声明属性
      */
     props: {
-        ...fieldProps,
-
-        // 自定义声明属性
-        ...currentProps,
+        // 值
+        modelValue: [String, Number],
+        // 结束值
+        end: [String, Number],
+        // 占位符
+        placeholder: String,
+        // 类型, 可选值 year month day time datetime daterange datetimerange
+        type: {
+            type: String,
+            default: 'day',
+        },
+        // 是否截止时间
+        endDate: Boolean,
+        // 显示在输入框中的格式
+        format: String,
+        // 绑定值的格式(默认:秒时间戳)
+        // 格式 YYYY-MM-DD HH:mm:ss
+        valueFormat: {
+            type: String,
+            default: 'X',
+        },
+        // 是否只读
+        readonly: Boolean,
     },
 
     /**
@@ -280,9 +272,6 @@ export default {
         })
 
         // ==========【数据】============================================================================================
-
-        // 字段组件传参
-        const fieldProps = _.omit(props, Object.keys(currentProps))
 
         // 字段组件获取焦点
         const fieldFocused = ref(false)
@@ -783,8 +772,6 @@ export default {
             // 选择数据列表
             selectLists,
 
-            // 字段组件传参
-            fieldProps,
             // 字段组件获取焦点
             fieldFocused,
             // 弹出层节点

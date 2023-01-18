@@ -668,55 +668,65 @@ async function request(params) {
         // 如果请求成功
         if (res.status) {
 
-            // 轻提示
-            utils.toast({
-                type: 'positive',
-                message: '恭喜您，操作成功',
-            })
+            // 下一步
+            function next() {
 
-            // 请求成功执行
-            utils.run(o.requestSuccess)(resultData)
+                // 轻提示
+                utils.toast({
+                    type: 'positive',
+                    message: '恭喜您，操作成功',
+                })
 
-            // 判断是否有请求成功后的操作动作
-            if (_.has(o.data, 'requestSuccess.type')) {
-                switch (o.data.requestSuccess.type) {
+                // 判断是否有请求成功后的操作动作
+                if (_.has(o.data, 'requestSuccess.type')) {
+                    switch (o.data.requestSuccess.type) {
 
-                    // 关闭当前页面
-                    case 'close':
-                    // 关闭窗口并跳转页面
-                    case 'closePush':
-                    // 关闭窗口、跳转并刷新页面
-                    case 'closePushRefresh':
+                        // 关闭当前页面
+                        case 'close':
+                        // 关闭窗口并跳转页面
+                        case 'closePush':
+                        // 关闭窗口、跳转并刷新页面
+                        case 'closePushRefresh':
 
-                        const opts = {
-                            type: 'closeCurrentTab',
-                        }
+                            const opts = {
+                                type: 'closeCurrentTab',
+                            }
 
-                        // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                        if (o.data.requestSuccess.type !== 'close') {
-                            Object.assign(opts, {
-                                // 跳转页面地址
-                                pushPage: o.data.requestSuccess.params,
-                                // 是否跳转并刷新页面
-                                isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
-                            })
-                        }
+                            // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
+                            if (o.data.requestSuccess.type !== 'close') {
+                                Object.assign(opts, {
+                                    // 跳转页面地址
+                                    pushPage: o.data.requestSuccess.params,
+                                    // 是否跳转并刷新页面
+                                    isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
+                                })
+                            }
 
-                        // 关闭当前标签页
-                        utils.bus.emit('main', opts)
-                        break
+                            // 关闭当前标签页
+                            utils.bus.emit('main', opts)
+                            break
 
-                    // 重置表单
-                    case 'resetForm':
-                        utils.run(o.resetForm)()
-                        break
+                        // 重置表单
+                        case 'resetForm':
+                            utils.run(o.resetForm)()
+                            break
 
-                    // 刷新表格
-                    case 'refreshTable':
-                        utils.run(o.tableRefresh)()
-                        break
+                        // 刷新表格
+                        case 'refreshTable':
+                            utils.run(o.tableRefresh)()
+                            break
+                    }
                 }
             }
+
+            // 请求成功执行
+            const res = await utils.runAsync(o.requestSuccess)(Object.assign({ next }, resultData))
+            if (res === false) {
+                return
+            }
+
+            // 下一步
+            next()
 
         } else {
             // 请求失败执行

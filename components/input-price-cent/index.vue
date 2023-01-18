@@ -2,7 +2,7 @@
     <q-input
         v-model="currentValue"
         @blur="onBlur"
-        v-bind="inputProps"
+        v-bind="$attrs"
     >
         <template
             v-for="slotName in slotNames"
@@ -15,21 +15,6 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
-
-import inputProps from '../../props/quasar/input'
-
-// 自定义声明属性
-const currentProps = {
-    // 值
-    modelValue: [String, Number],
-    // 最小值(元)
-    min: {
-        type: Number,
-        default: 1,
-    },
-    // 最大值(元)
-    max: Number,
-}
 
 /**
  * 金额(分转元)
@@ -45,10 +30,15 @@ export default {
      * 声明属性
      */
     props: {
-        ...inputProps,
-
-        // 自定义声明属性
-        ...currentProps,
+        // 值
+        modelValue: [String, Number],
+        // 最小值(分)
+        min: {
+            type: Number,
+            default: 1,
+        },
+        // 最大值(分)
+        max: Number,
     },
 
     /**
@@ -65,9 +55,6 @@ export default {
 
         // ==========【数据】============================================================================================
 
-        // 输入框组件传参
-        const inputProps = _.omit(props, Object.keys(currentProps))
-
         // 当前值
         const currentValue = ref(formatModelValue())
 
@@ -81,6 +68,32 @@ export default {
                 return Object.keys(slots)
             }
             return []
+        })
+
+        /**
+         * 最大值
+         */
+        const maxValue = computed(function() {
+            const maxValue = new BigNumber(props.max)
+            if (maxValue.isFinite()) {
+                return maxValue
+                    .dividedBy(100)
+                    .toNumber()
+            }
+            return null
+        })
+
+        /**
+         * 最小值
+         */
+        const minValue = computed(function() {
+            const maxValue = new BigNumber(props.min)
+            if (maxValue.isFinite()) {
+                return maxValue
+                    .dividedBy(100)
+                    .toNumber()
+            }
+            return null
         })
 
         // ==========【监听数据】=========================================================================================
@@ -138,11 +151,11 @@ export default {
                     }
 
                     // 如果值 >= 最大值
-                    if (Number.isFinite(props.max)) {
-                        if (val.isGreaterThanOrEqualTo(props.max)) {
+                    if (maxValue.value !== null) {
+                        if (val.isGreaterThanOrEqualTo(maxValue.value)) {
 
                             // 更新当前值
-                            currentValue.value = props.max
+                            currentValue.value = maxValue.value
 
                             // 提交值
                             emitModelValue(currentValue.value)
@@ -151,11 +164,11 @@ export default {
                     }
 
                     // 如果值 <= 最小值
-                    if (Number.isFinite(props.min)) {
-                        if (val.isLessThanOrEqualTo(props.min)) {
+                    if (minValue.value !== null) {
+                        if (val.isLessThanOrEqualTo(minValue.value)) {
 
                             // 更新当前值
-                            currentValue.value = props.min
+                            currentValue.value = minValue.value
 
                             // 提交值
                             emitModelValue(currentValue.value)
@@ -187,8 +200,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 输入框组件传参
-            inputProps,
             // 当前值
             currentValue,
             // 插槽标识数组

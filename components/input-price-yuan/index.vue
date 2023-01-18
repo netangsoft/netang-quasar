@@ -2,7 +2,7 @@
     <q-input
         v-model="currentValue"
         @blur="onBlur"
-        v-bind="inputProps"
+        v-bind="$attrs"
     >
         <template
             v-for="slotName in slotNames"
@@ -15,21 +15,6 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
-
-import inputProps from '../../props/quasar/input'
-
-// 自定义声明属性
-const currentProps = {
-    // 值
-    modelValue: [String, Number],
-    // 最小值(元)
-    min: {
-        type: Number,
-        default: 1,
-    },
-    // 最大值(元)
-    max: Number,
-}
 
 /**
  * 金额(元)
@@ -45,10 +30,15 @@ export default {
      * 声明属性
      */
     props: {
-        ...inputProps,
-
-        // 自定义声明属性
-        ...currentProps,
+        // 值
+        modelValue: [String, Number],
+        // 最小值(元)
+        min: {
+            type: Number,
+            default: 1,
+        },
+        // 最大值(元)
+        max: Number,
     },
 
     /**
@@ -64,9 +54,6 @@ export default {
     setup(props, { emit, slots }) {
 
         // ==========【数据】============================================================================================
-
-        // 输入框组件传参
-        const inputProps = _.omit(props, Object.keys(currentProps))
 
         // 当前值
         const currentValue = ref(props.modelValue)
@@ -179,8 +166,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 输入框组件传参
-            inputProps,
             // 当前值
             currentValue,
             // 插槽标识数组

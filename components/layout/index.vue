@@ -5,15 +5,25 @@
         :onScroll="onScroll"
         :onScrollHeight="onScrollHeight"
         :onResize="onResize"
+        v-bind="$attrs"
     >
+        <!-- 错误提示 -->
         <q-page-container v-if="pageStatus === false">
             <q-page class="q-pa-lg flex flex-center">
                 {{emptyDescription}}
             </q-page>
         </q-page-container>
 
+        <!-- 插槽 -->
         <slot :data="data" v-else-if="pageStatus === true" />
     </q-layout>
+
+    <!-- 加载 -->
+    <!--style="background:rgba(204,204,204,0.3);"-->
+    <q-inner-loading
+        :showing="pageLoading"
+        dark
+    />
 </template>
 
 <script>
@@ -38,6 +48,8 @@ export default {
         onResize: Function,
         name: String,
 
+        // 页面加载
+        pageLoading: Boolean,
         // 页面状态
         pageStatus: {
             type: Boolean,

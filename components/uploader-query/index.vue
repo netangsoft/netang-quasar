@@ -435,7 +435,7 @@ export default {
             if (props.size) {
                 return props.size
             }
-            return uploaderProps.type === 'image' ? 90 : 50
+            return uploaderProps.type === 'image' ? 70 : 50
         })
 
         /**
