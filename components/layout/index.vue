@@ -19,10 +19,10 @@
     </q-layout>
 
     <!-- 加载 -->
-    <!--style="background:rgba(204,204,204,0.3);"-->
+    <!---->
     <q-inner-loading
+        style="background:rgba(204,204,204,0.3);"
         :showing="pageLoading"
-        dark
     />
 </template>
 
