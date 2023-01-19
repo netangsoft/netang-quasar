@@ -6,11 +6,11 @@ utils.getImage = function(src, params) {
     if (src) {
 
         // 如果为数组, 则获取第一个
-        if (utils.isFillArray(src)) {
+        if (utils.isValidArray(src)) {
             src = src[0]
 
         // 如果为对象
-        } else if (utils.isFillObject(src)) {
+        } else if (utils.isValidObject(src)) {
 
             if (_.has(src, 'params')) {
                 params = src.params
@@ -21,7 +21,7 @@ utils.getImage = function(src, params) {
             }
         }
 
-        if (utils.isFillString(src)) {
+        if (utils.isValidString(src)) {
 
             // http(s):// 或 data: 或 blob: 开头的地址
             if (/^(http(s)?:\/\/|data:|blob:)/i.test(src)) {
@@ -29,7 +29,7 @@ utils.getImage = function(src, params) {
             }
 
             // 如果为对象定义的规格
-            if (utils.isFillObject(params)) {
+            if (utils.isValidObject(params)) {
 
                 // 【自动缩放】
                 // 如果没有定义 w

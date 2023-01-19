@@ -229,7 +229,7 @@ export default {
          */
         const currentRoleBtnLists = computed(function() {
 
-            if (utils.isFillArray(props.modelValue)) {
+            if (utils.isValidArray(props.modelValue)) {
 
                 const lists = _.filter(utils.$role.formatRoleBtnLists(props.modelValue), e => e.type > 2)
 
@@ -248,7 +248,7 @@ export default {
                             item.show = false
 
                             // 如果有数据
-                            if (utils.isFillArray(props.tableSelected)) {
+                            if (utils.isValidArray(props.tableSelected)) {
 
                                 // 如果是单个显示
                                 if (isSingle) {
@@ -282,12 +282,12 @@ export default {
             const query = {}
 
             // 合并路由传参
-            if (utils.isFillObject($route.query)) {
+            if (utils.isValidObject($route.query)) {
                 Object.assign(query, $route.query)
             }
 
             // 合并声明传参
-            if (utils.isFillObject(props.query)) {
+            if (utils.isValidObject(props.query)) {
                 Object.assign(query, props.query)
             }
 

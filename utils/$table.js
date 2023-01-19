@@ -21,7 +21,7 @@ function getUrlQuery(url) {
 
         url = arr[0]
         const urlQuery = parse(arr[1])
-        if (utils.isFillObject(urlQuery)) {
+        if (utils.isValidObject(urlQuery)) {
             utils.forIn(urlQuery, function (val, key) {
 
                 key = utils.trimString(key)
@@ -58,7 +58,7 @@ function dialogSetting($dialog, o) {
     } = dialogProps
 
     // 如果是路由组件地址
-    if (utils.isFillString(route)) {
+    if (utils.isValidString(route)) {
         o.url = utils.slash(route, 'start', false)
     }
 
@@ -325,7 +325,7 @@ function create(params) {
             // 非手机模式
             ! $q.platform.is.mobile
             // 有权限列表
-            && utils.isFillArray(o.roleBtnLists.value)
+            && utils.isValidArray(o.roleBtnLists.value)
         ) {
             for (const item of o.roleBtnLists.value) {
                 if (_.has(item, 'data.dbclick') === true) {
@@ -374,7 +374,7 @@ function create(params) {
         const index = utils.indexOf(tableVisibleColumns.value, 'settings')
 
         // 如果有固定在右边的权限按钮列表
-        if (utils.isFillArray(lists)) {
+        if (utils.isValidArray(lists)) {
 
             // 如果设置不在可见列中
             if (index === -1) {
@@ -418,7 +418,7 @@ function create(params) {
 
         const newQuery = {}
 
-        if (utils.isFillObject(query)) {
+        if (utils.isValidObject(query)) {
 
             // 搜索参数键值数组
             const searchQueryKey = []
@@ -539,7 +539,7 @@ function create(params) {
 
         // 获取搜索值
         const search = utils.$search.formatValue(rawSearchOptions, tableSearchValue.value)
-        if (utils.isFillArray(search)) {
+        if (utils.isValidArray(search)) {
             data.search = _.has(data, 'search') ? _.concat(data.search, search) : search
         }
 
@@ -599,7 +599,7 @@ function create(params) {
             // 如果请求表格合计
             if (isRequestSummary) {
                 const summary = _.get(res, 'summary')
-                tableSummary.value = utils.isFillObject(summary) ? summary : null
+                tableSummary.value = utils.isValidObject(summary) ? summary : null
             }
 
             // 更新页码

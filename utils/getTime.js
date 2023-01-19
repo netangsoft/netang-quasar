@@ -6,7 +6,7 @@ import { date as quasarDate } from 'quasar'
 utils.getTime = function(time, params, defaultValue = '') {
 
     if (! time) {
-        return utils.isFillString(params) ? params : defaultValue
+        return utils.isValidString(params) ? params : defaultValue
     }
 
     let {

@@ -68,7 +68,7 @@ export default {
          */
         const isDrag = computed(function() {
             return props.drag
-                && utils.isFillArray(props.modelValue)
+                && utils.isValidArray(props.modelValue)
                 && props.modelValue.length > 1
         })
 

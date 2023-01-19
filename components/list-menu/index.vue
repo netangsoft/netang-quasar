@@ -117,7 +117,7 @@ export default {
         watch([()=>props.data, ()=>props.activeValue], function() {
 
             // 设置激活状态
-            if (utils.isFillArray(props.data)) {
+            if (utils.isValidArray(props.data)) {
                 setActive()
             }
 

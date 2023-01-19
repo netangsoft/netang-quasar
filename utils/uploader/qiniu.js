@@ -92,7 +92,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
             onCancel(cancel) {
                 // 设置中断上传
                 fileItem.abort = function(msg) {
-                    cancel(utils.isFillString(msg) ? msg : '已取消')
+                    cancel(utils.isValidString(msg) ? msg : '已取消')
                 }
             },
             // 监听上传进度
@@ -305,7 +305,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         Object.assign(fileItem, query)
 
         return Object.assign({}, query, {
-            json: utils.isFillObject(json) ? JSON.stringify(json) : ''
+            json: utils.isValidObject(json) ? JSON.stringify(json) : ''
         })
     }
 }

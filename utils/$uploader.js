@@ -85,7 +85,7 @@ function create(params) {
     }
 
     // 如果有单个文件的限制后缀
-    if (utils.isFillArray(props.exts)) {
+    if (utils.isValidArray(props.exts)) {
         configLimit.exts = props.exts
     }
 
@@ -573,7 +573,7 @@ function create(params) {
                 ! ext
                 // 如果后缀名不在允许范围内, 则无效
                 || (
-                    utils.isFillArray(exts)
+                    utils.isValidArray(exts)
                     && exts.indexOf(ext) === -1
                 )
             ) {
@@ -648,7 +648,7 @@ function create(params) {
         }
 
         // 如果有存在的文件列表
-        if (utils.isFillArray(resExisted)) {
+        if (utils.isValidArray(resExisted)) {
 
             // 已存在文件数量
             let existedNum = 0
@@ -858,7 +858,7 @@ function create(params) {
             // 大小
             size,
             // 信息
-            json: utils.isFillObject(fileJson) ? fileJson : {},
+            json: utils.isValidObject(fileJson) ? fileJson : {},
             // 状态
             status: UPLOAD_STATUS.success,
             // 进度
@@ -987,7 +987,7 @@ function create(params) {
             // 否则是文件
             : utils.getFile(fileItem.hash)
 
-        if (utils.isFillString(url)) {
+        if (utils.isValidString(url)) {
             utils.copy(url, '复制地址成功')
         }
     }

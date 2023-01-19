@@ -414,7 +414,7 @@ export default {
          */
         const currentDrag = computed(function() {
             return props.drag
-                && utils.isFillArray(query.value)
+                && utils.isValidArray(query.value)
                 && query.value.length > 1
         })
 
@@ -459,7 +459,7 @@ export default {
             return _.has(fileItem, '__img') ?
                 fileItem.__img
                 : (
-                    utils.isFillString(fileItem.hash) ?
+                    utils.isValidString(fileItem.hash) ?
                         utils.getImage(fileItem.hash, { w: $q.platform.is.mobile ? currentSize.value * 2 : currentSize.value })
                         : ''
                 )

@@ -168,7 +168,7 @@ utils.http = createHttp({
             // #if IS_DEBUG
             if (
                 data.code === dicts.CODE__SERVER_ERROR
-                && utils.isFillString(_.get(r, 'response.data'))
+                && utils.isValidString(_.get(r, 'response.data'))
             ) {
                 message = r.response.data
             }

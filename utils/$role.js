@@ -9,7 +9,7 @@ import { stateRole } from '../store'
 function setData(data) {
 
     // 如果没有角色数据
-    if (! utils.isFillObject(data)) {
+    if (! utils.isValidObject(data)) {
         return
     }
 
@@ -18,7 +18,7 @@ function setData(data) {
         v,
     } = data
 
-    if (! utils.isFillArray(rows) || ! v) {
+    if (! utils.isValidArray(rows) || ! v) {
         return
     }
 
@@ -38,7 +38,7 @@ function setData(data) {
         if (item.data) {
             item.data = utils.json.parse(item.data)
         }
-        item.data = utils.isFillObject(item.data) ? utils.numberDeep(item.data) : {}
+        item.data = utils.isValidObject(item.data) ? utils.numberDeep(item.data) : {}
 
         // 设置数据类型
         item.data.type = item.data_type
@@ -48,7 +48,7 @@ function setData(data) {
         item.name = ''
 
         // 如果有 url
-        if (utils.isFillString(item.url)) {
+        if (utils.isValidString(item.url)) {
 
             // url 首位加上反斜杠
             item.url = utils.slash(_.toLower(utils.trimString(item.url)), 'start', true)
@@ -223,32 +223,32 @@ async function getData() {
 function parseQuery(data, settings) {
 
     // 如果配置是字符串
-    if (utils.isFillString(settings)) {
+    if (utils.isValidString(settings)) {
 
         // 如果返回所有传参
         if (settings === 'all') {
-            return utils.isFillObject(data) ? data : {}
+            return utils.isValidObject(data) ? data : {}
         }
 
         // 将字符串放到数组中
         settings = [settings]
 
     // 如果配置是对象
-    } else if (utils.isFillObject(settings)) {
+    } else if (utils.isValidObject(settings)) {
         settings = [settings]
     }
 
     const query = {}
 
     // 如果配置是数组
-    if (utils.isFillArray(settings)) {
+    if (utils.isValidArray(settings)) {
 
         // 别名
         const alias = {}
 
         for (let item of settings) {
             // 如果是需要的字段
-            if (utils.isFillString(item)) {
+            if (utils.isValidString(item)) {
 
                 // 将字段转小写
                 item = _.toLower(utils.trimString(item))
@@ -266,16 +266,16 @@ function parseQuery(data, settings) {
                 }
 
             // 否则如果是自定义传参
-            } else if (utils.isFillObject(item)) {
+            } else if (utils.isValidObject(item)) {
                 Object.assign(query, item)
             }
         }
 
         if (
             // 如果有参数数据
-            utils.isFillObject(data)
+            utils.isValidObject(data)
             // 如果有定义别名
-            && utils.isFillObject(alias)
+            && utils.isValidObject(alias)
         ) {
             utils.forIn(data, function(value, key) {
 
@@ -325,13 +325,13 @@ function formatRoleBtnLists(roleBtnLists, filterBtns, toObject = false) {
             && !! newItem.icon
 
         // 如果是对象
-        if (utils.isFillObject(filterBtns)) {
+        if (utils.isValidObject(filterBtns)) {
             if (_.has(filterBtns, name)) {
                 newLists.push(_.merge(newItem, filterBtns[name]))
             }
 
         // 如果是数组
-        } else if (utils.isFillArray(filterBtns)) {
+        } else if (utils.isValidArray(filterBtns)) {
             if (utils.indexOf(filterBtns, name) > -1) {
                 newLists.push(_.merge(newItem, filterBtns[name]))
             }
@@ -364,7 +364,7 @@ function getRequestQuery(o) {
     // 如果有请求传参的传参设置
     if (_.has(o.data, 'requestQuery.query')) {
         const resQuery = parseQuery(o.query, o.data.requestQuery.query)
-        if (utils.isFillObject(resQuery)) {
+        if (utils.isValidObject(resQuery)) {
             Object.assign(query, resQuery)
         }
     }
@@ -378,7 +378,7 @@ function getRequestQuery(o) {
         // 如果有请求传参的表格设置
         && _.has(o.data, 'requestQuery.table')
         // 如果有表格数据
-        && utils.isFillArray(o.tableSelected)
+        && utils.isValidArray(o.tableSelected)
     ) {
         let newQuery = {}
 
@@ -402,7 +402,7 @@ function getRequestQuery(o) {
         }
 
         const resTable = parseQuery(newQuery, o.data.requestQuery.table)
-        if (utils.isFillObject(resTable)) {
+        if (utils.isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
     }
@@ -425,11 +425,11 @@ function formatQuery(query, isJoinArr) {
             newQuery[key] = _.isNumber(value) ? value : Number(value)
 
         // 如果是字符串
-        } else if (utils.isFillString(value)) {
+        } else if (utils.isValidString(value)) {
             newQuery[key] = utils.trimString(value)
 
         // 如果是数组
-        } else if (utils.isFillArray(value)) {
+        } else if (utils.isValidArray(value)) {
             const arr = []
             for (const val of value) {
                 // 如果是数字
@@ -437,7 +437,7 @@ function formatQuery(query, isJoinArr) {
                     arr.push(_.isNumber(val) ? val : Number(val))
 
                 // 如果是字符串
-                } else if (utils.isFillString(val)) {
+                } else if (utils.isValidString(val)) {
                     arr.push(utils.trimString(val))
                 }
             }
@@ -506,7 +506,7 @@ async function request(params) {
             // 如果没有跳转页面地址
             ! _.has(o.data, 'toPage')
             // 或跳转页面地址为空
-            || ! utils.isFillString(o.data.toPage)
+            || ! utils.isValidString(o.data.toPage)
         ) {
             // 【调试模式】
             // --------------------------------------------------
@@ -584,7 +584,7 @@ async function request(params) {
         }
 
         // 判断表单数据
-        if (! utils.isFillObject(o.formData)) {
+        if (! utils.isValidObject(o.formData)) {
 
             // 【调试模式】
             // --------------------------------------------------
@@ -629,7 +629,7 @@ async function request(params) {
             // 确认框
             utils.confirm({
                 // 重要操作，请输入登录密码并确认后操作
-                message: utils.isFillString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
+                message: utils.isValidString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
             })
                 // 点击确认执行
                 .onOk(onRequest)

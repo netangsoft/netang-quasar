@@ -234,13 +234,13 @@ export default {
                     }
 
                     // 如果是父节点
-                    if (utils.isFillArray(item.children)) {
+                    if (utils.isValidArray(item.children)) {
                         getChildren(item.children, item.id, path)
                     }
                 }
             }
 
-            if (utils.isFillArray(props.nodes)) {
+            if (utils.isValidArray(props.nodes)) {
                 getChildren(props.nodes, 0, '')
             }
 
@@ -266,7 +266,7 @@ export default {
                 function getParent({ id, pid, children }) {
 
                     // 如果是父级节点
-                    if (utils.isFillArray(children)) {
+                    if (utils.isValidArray(children)) {
                         // 设为展开
                         expanded.push(id)
                     }
@@ -292,7 +292,7 @@ export default {
          */
         function formatModelValue() {
             if (props.multiple) {
-                if (utils.isFillArray(props.modelValue)) {
+                if (utils.isValidArray(props.modelValue)) {
                     return props.modelValue
                 }
                 return []
@@ -321,7 +321,7 @@ export default {
             if (props.multiple) {
 
                 // 如果是父节点
-                if (utils.isFillArray(children)) {
+                if (utils.isValidArray(children)) {
                     // 则无任何操作
                     return
                 }
@@ -343,7 +343,7 @@ export default {
 
                 if (
                     // 如果是父节点
-                    utils.isFillArray(children)
+                    utils.isValidArray(children)
                     // 如果仅可选择叶子节点
                     && ! props.strict
                 ) {

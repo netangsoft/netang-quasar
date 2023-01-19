@@ -202,7 +202,7 @@ utils.$tree = function(params) {
         }
 
         return {
-            all: utils.isFillObject(allRoleBtn),
+            all: utils.isValidObject(allRoleBtn),
             update: _.has(allRoleBtn, 'update'),
             move: _.has(allRoleBtn, 'move'),
             copy: _.has(allRoleBtn, 'copy'),
@@ -281,7 +281,7 @@ utils.$tree = function(params) {
                     async onConfirm({ value: moveNodeId }) {
 
                         // 是否为正确的 id
-                        if (! utils.isId(moveNodeId)) {
+                        if (! utils.hasId(moveNodeId)) {
                             utils.toast({
                                 message: '请选择节点',
                             })
@@ -445,7 +445,7 @@ utils.$tree = function(params) {
                     if (isLeafNode) {
 
                         // 如果返回了 id
-                        if (utils.isId(res)) {
+                        if (utils.hasId(res)) {
 
                             // 更新数据
                             Object.assign(newAttr, res)
@@ -588,7 +588,7 @@ utils.$tree = function(params) {
     function getExpandedCache(defaultValue = []) {
         // 获取展开节点缓存
         const res = utils.storage.get('tree_expanded_' + url)
-        return utils.isFillArray(res) ? res : defaultValue
+        return utils.isValidArray(res) ? res : defaultValue
     }
 
     /**

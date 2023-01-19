@@ -24,7 +24,7 @@ function _getData(areaData, level, params) {
             const rows = []
 
             // 是否有忽略省市区 id
-            const isIgnore = utils.isFillArray(para.ignore)
+            const isIgnore = utils.isValidArray(para.ignore)
             function checkIgnore(id) {
                 return isIgnore && _.indexOf(para.ignore, id) > -1
             }
@@ -45,7 +45,7 @@ function _getData(areaData, level, params) {
                 }
 
                 // 市
-                if (level > 1 && utils.isFillArray(item1[2])) {
+                if (level > 1 && utils.isValidArray(item1[2])) {
 
                     for (let index2 = 0, len2 = item1[2].length; index2 < len2; index2++) {
                         const item2 = item1[2][index2]
@@ -64,7 +64,7 @@ function _getData(areaData, level, params) {
                         item1[2][index2] = all[item2[1]]
 
                         // 区
-                        if (level > 2 && utils.isFillArray(item2[2])) {
+                        if (level > 2 && utils.isValidArray(item2[2])) {
                             for (let index3 = 0, len3 = item2[2].length; index3 < len3; index3++) {
                                 const item3 = item2[2][index3]
 
@@ -196,7 +196,7 @@ async function getInfo(params) {
                     ) {
 
                        // 获取市 start --------------------------------------------------
-                       if (utils.isFillArray(children1)) {
+                       if (utils.isValidArray(children1)) {
 
                             for (const item2 of children1) {
 
@@ -216,7 +216,7 @@ async function getInfo(params) {
                                         : regionText.indexOf(_text2) > -1
                                 ) {
                                     // 获取区 start --------------------------------------------------
-                                    if (utils.isFillArray(children2)) {
+                                    if (utils.isValidArray(children2)) {
 
                                         if (areaText || regionText) {
 

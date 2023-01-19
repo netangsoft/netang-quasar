@@ -272,7 +272,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            if (utils.isFillObject(slots)) {
+            if (utils.isValidObject(slots)) {
                 return Object.keys(slots)
             }
             return []
@@ -299,7 +299,7 @@ export default {
                         return
                     }
 
-                    if (utils.isFillObject(res)) {
+                    if (utils.isValidObject(res)) {
 
                         // 设置表格传参
                         $table.tableQuery.value = res

@@ -64,7 +64,7 @@ export default {
          * 插槽标识数组
          */
         const slotNames = computed(function() {
-            if (utils.isFillObject(slots)) {
+            if (utils.isValidObject(slots)) {
                 return Object.keys(slots)
             }
             return []

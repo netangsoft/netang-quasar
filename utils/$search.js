@@ -121,7 +121,7 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
                 searchQueryKey.push(newItem.name)
 
             // 否则, 如果表格参数中有设置初始值
-            } else if (_.has(item, 'search.value') && utils.isFillArray(item.search.value)) {
+            } else if (_.has(item, 'search.value') && utils.isValidArray(item.search.value)) {
                 value = _.merge([], value, item.search.value)
             }
 
@@ -159,7 +159,7 @@ async function getOptions(rawSearchOptions, format) {
 
     const lists = []
 
-    if (utils.isFillArray(rawSearchOptions)) {
+    if (utils.isValidArray(rawSearchOptions)) {
         for (const item of rawSearchOptions) {
 
             const newItem = Object.assign({}, item)
@@ -167,7 +167,7 @@ async function getOptions(rawSearchOptions, format) {
             // 格式化单个参数
             if (_.isFunction(format)) {
                 const res = await utils.runAsync(format)(newItem)
-                if (utils.isFillObject(res)) {
+                if (utils.isValidObject(res)) {
                     _.merge(newItem, res)
                 }
             }

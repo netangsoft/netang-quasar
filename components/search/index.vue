@@ -1,5 +1,5 @@
 <template>
-    <div class="flex column absolute-full" v-if="utils.isFillArray(options)">
+    <div class="flex column absolute-full" v-if="utils.isValidArray(options)">
         <q-scroll-area class="n-flex-1">
 
             <div class="n-search q-pa-sm q-pt-md q-gutter-md">

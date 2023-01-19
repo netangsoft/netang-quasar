@@ -29,7 +29,7 @@ function updateLogin(res) {
     return _updateAdminUserInfo({
         id: i,
         token: t,
-        info: utils.isFillObject(admin_user_info) ? admin_user_info : {},
+        info: utils.isValidObject(admin_user_info) ? admin_user_info : {},
     })
 }
 
@@ -61,7 +61,7 @@ function _updateAdminUserInfo(res) {
     // 设置已登录
     res.isLogin = true
 
-    if (! utils.isFillObject(res.info)) {
+    if (! utils.isValidObject(res.info)) {
         res.info = {}
     }
 

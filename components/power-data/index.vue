@@ -348,7 +348,7 @@ export default {
 
             if (utils.isJson(props.modelValue)) {
                 const data = utils.json.parse(props.modelValue)
-                if (utils.isFillObject(data)) {
+                if (utils.isValidObject(data)) {
                     obj = data
                 }
             }
@@ -356,14 +356,14 @@ export default {
             // 格式化参数
             if (
                 _.has(obj, 'requestSuccess')
-                && ! utils.isFillObject(obj.requestSuccess)
+                && ! utils.isValidObject(obj.requestSuccess)
             ) {
                 delete(obj.requestSuccess)
             }
 
             if (
                 _.has(obj, 'requestQuery')
-                && ! utils.isFillObject(obj.requestQuery)
+                && ! utils.isValidObject(obj.requestQuery)
             ) {
                 delete(obj.requestQuery)
             }
@@ -407,12 +407,12 @@ export default {
             obj.confirmContent = ''
             if (obj.confirmPassword) {
                 confirm = 2
-                if (utils.isFillString(obj.confirmPassword)) {
+                if (utils.isValidString(obj.confirmPassword)) {
                     obj.confirmContent = obj.confirmPassword
                 }
             } else if (obj.confirm) {
                 confirm = 1
-                if (utils.isFillString(obj.confirm)) {
+                if (utils.isValidString(obj.confirm)) {
                     obj.confirmContent = obj.confirm
                 }
             }
@@ -421,9 +421,9 @@ export default {
 
             // 【格式化请求参数中的 table】
             // ------------------------------------------------------------
-            if (utils.isFillString(obj.requestQuery.table)) {
+            if (utils.isValidString(obj.requestQuery.table)) {
                 obj.requestQuery.table = [obj.requestQuery.table]
-            } else if (! utils.isFillArray(obj.requestQuery.table)) {
+            } else if (! utils.isValidArray(obj.requestQuery.table)) {
                 obj.requestQuery.table = ['']
             }
 
@@ -435,11 +435,11 @@ export default {
                     obj.requestQuery.query = [obj.requestQuery.query]
 
                 // 如果是对象
-                } else if (utils.isFillObject(obj.requestQuery.query)) {
+                } else if (utils.isValidObject(obj.requestQuery.query)) {
                     obj.requestQuery.query = [utils.json.stringify(obj.requestQuery.query)]
 
                 // 如果是数组
-                } else if (utils.isFillArray(obj.requestQuery.query)) {
+                } else if (utils.isValidArray(obj.requestQuery.query)) {
                     const query = []
                     utils.forEach(obj.requestQuery.query, function(item, key) {
 
@@ -448,7 +448,7 @@ export default {
                             query.push(item)
 
                         // 如果是对象
-                        } else if (utils.isFillObject(item)) {
+                        } else if (utils.isValidObject(item)) {
                             query.push(utils.json.stringify(item))
                         }
                     })
@@ -470,10 +470,10 @@ export default {
                 obj.params = ''
 
             // 如果不是字符串
-            } else if (! utils.isFillString(obj.params)) {
-                if (utils.isFillObject(obj.params)) {
+            } else if (! utils.isValidString(obj.params)) {
+                if (utils.isValidObject(obj.params)) {
                     obj.params = utils.json.stringify(obj.params)
-                } else if (utils.isFillArray(obj.params)) {
+                } else if (utils.isValidArray(obj.params)) {
                     obj.params = utils.json.stringify(obj.params)
                 } else {
                     obj.params = ''
@@ -619,11 +619,11 @@ export default {
 
                         // 如果是(1:提交前确认)
                         if (data.confirm === 1) {
-                            obj.confirm = utils.isFillString(data.confirmContent) ? data.confirmContent : true
+                            obj.confirm = utils.isValidString(data.confirmContent) ? data.confirmContent : true
 
                         // 否则是(2:提交前确认登录密码)
                         } else {
-                            obj.confirmPassword = utils.isFillString(data.confirmContent) ? data.confirmContent : true
+                            obj.confirmPassword = utils.isValidString(data.confirmContent) ? data.confirmContent : true
                         }
                     }
 
@@ -650,7 +650,7 @@ export default {
             }
 
             // 转为 json
-            return utils.isFillObject(obj) ? utils.json.stringify(obj) : ''
+            return utils.isValidObject(obj) ? utils.json.stringify(obj) : ''
         }
 
         // ==========【返回】=============================================================================================

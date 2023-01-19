@@ -121,7 +121,7 @@ export default {
                     return ref(val.value)
                 }
 
-                if (utils.isFillArray(val)) {
+                if (utils.isValidArray(val)) {
                     return ref(val)
                 }
             }
