@@ -44,9 +44,47 @@ function getUrlQuery(url) {
 }
 
 /**
+ * 对话框设置
+ */
+function dialogSetting($dialog, o) {
+
+    const {
+        dialogProps,
+        props,
+    } = $dialog
+
+    const {
+        route
+    } = dialogProps
+
+    // 如果是路由组件地址
+    if (utils.isFillString(route)) {
+        o.url = utils.slash(route, 'start', false)
+    }
+
+    const {
+        // 是否多选
+        multiple,
+        query,
+    } = props
+
+    // 是否多选
+    o.selection = multiple ? 'multiple' : 'single'
+
+    // 合并参数
+    Object.assign(o.query, query)
+}
+
+/**
  * 创建表格
  */
 function create(params) {
+
+    // ==========【注入】=================================================================================================
+
+    // 获取对话框注入
+    const $dialog = utils.$dialog.inject()
+    const inDialog = !! $dialog
 
     // ==========【数据】=================================================================================================
 
@@ -54,7 +92,8 @@ function create(params) {
     const $q = useQuasar()
 
     // 每页显示行数选项
-    const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
+    // const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
+    const rowsPerPageOptions = [4, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
     const o = _.merge({
@@ -111,6 +150,12 @@ function create(params) {
         // 从参数中获取搜索值
         searchFromQuery: true,
     }, params)
+
+    // 如果是对话框注入
+    if (inDialog) {
+        // 对话框设置
+        dialogSetting($dialog, o)
+    }
 
     // 如果没有地址, 则使用当前路由地址
     if (! o.url) {
@@ -227,6 +272,14 @@ function create(params) {
     // 获取 url 参数
     const resUrl = getUrlQuery(o.url)
     o.url = resUrl.url
+
+    // 如果在表格内部
+    if (inDialog) {
+        // 提交表格已选数据给对话框
+        $dialog.submit(function() {
+            return tableSelected.value
+        })
+    }
 
     const {
         // 原始参数
@@ -496,17 +549,21 @@ function create(params) {
         }
 
         // 请求数据
-        const { status, data: res } = _.isFunction(o.request) ?
-            // 如果有自定义请求方法
-            await utils.runAsync(o.request)({
+        let result
+
+        // 如果有自定义请求方法
+        if (_.isFunction(o.request)) {
+            result = await utils.runAsync(o.request)({
                 data,
                 props,
                 tableRef,
                 rows: tableRows,
                 selected: tableSelected,
             })
-            // 否则请求服务器数据
-            : await utils.http(Object.assign({
+
+        // 否则请求服务器
+        } else {
+            const opts = Object.assign({
                 // 请求 - 登录
                 url: o.url,
                 // 请求数据
@@ -514,7 +571,20 @@ function create(params) {
                 // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
                 // 关闭防抖(允许重复请求)
                 // debounce: false,
-            }, o.httpSettings))
+            }, o.httpSettings)
+
+            // 如果在对话框内部
+            if (inDialog) {
+                opts.headers = {
+                    // 添加头部查看请求
+                    Rview: 1,
+                }
+            }
+
+            result = await utils.http(opts)
+        }
+
+        const { status, data: res } = result
 
         // 请求成功
         if (status) {
@@ -570,7 +640,6 @@ function create(params) {
      * 单击表格行
      */
     function tableRowClick(e, row, index) {
-
         // 如果选择类型为无
         if (o.selection === 'none') {
             // 则无任何操作
@@ -608,6 +677,13 @@ function create(params) {
         // 如果选择类型为无
         if (o.selection === 'none') {
             // 则无任何操作
+            return
+        }
+
+        // 如果在对话框内部 && 如果是单选
+        if (inDialog && o.selection === 'single') {
+            tableSelected.value = [ row ]
+            $dialog.confirm()
             return
         }
 

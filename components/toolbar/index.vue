@@ -19,7 +19,7 @@
 
             <!-- 中间插槽 -->
             <q-toolbar-title>
-                <q-scroll-area style="height:50px;">
+                <q-scroll-area style="height:50px;" v-if="! inDialog">
                     <div class="n-toolbar__body">
 
                             <!-- 权限按钮 -->
@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import { inject, computed } from 'vue'
+import { inject, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 
@@ -210,6 +210,9 @@ export default {
 
         // 获取布局注入数据
         const $nLayout = inject(NLayoutKey)
+
+        // 是否在对话框中
+        const inDialog = ref(!! utils.$dialog.inject())
 
         // ==========【数据】============================================================================================
 
@@ -362,6 +365,8 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
+            // 是否在对话框中
+            inDialog,
             // 布局数据
             layoutData: $nLayout.data,
             // 当前权限按钮

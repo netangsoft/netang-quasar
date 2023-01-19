@@ -143,12 +143,16 @@ export default {
         provide(NDialogKey, {
             // 值
             value: dialogValue,
+            // 表格参数
+            dialogProps: props,
             // 传参
             props: props.props,
             // 提交值
             submit(cb) {
                 compSubmit = cb
             },
+            // 提交
+            confirm: onDialogConfirm,
         })
 
         // ==========【计算属性】=========================================================================================

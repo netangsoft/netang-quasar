@@ -365,6 +365,10 @@ utils.$tree = function(params) {
                                 sort: nodeItem.attr.sort,
                             })
 
+                            // 将本节点从原父节点中删除
+                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
+                            parentNodeItem.children.splice(nodeItemIndex, 1)
+
                             // 获取移动至节点的索引
                             const moveNodeItemIndex = _.findIndex(moveParentNodeItem.children, { id: moveNodeId })
 
@@ -377,10 +381,6 @@ utils.$tree = function(params) {
                                     sort: item.attr.sort,
                                 })
                             }
-
-                            // 将本节点从原父节点中删除
-                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
-                            parentNodeItem.children.splice(nodeItemIndex, 1)
 
                             // 将本节点插入移动至位置
                             moveParentNodeItem.children.splice(moveNodeItemIndex + (o.type === 'moveUp' ? 0 : 1), 0, nodeItem)

@@ -10,7 +10,7 @@ import { NDialogKey } from './symbols'
 function create(params) {
     if (
         // 如果是路由组件
-        _.has(params, 'router')
+        _.has(params, 'route')
         // 或自定义组件
         || _.has(params, 'name')
     ) {

@@ -246,7 +246,7 @@ function formatValue(rawSearchOptions, searchValue) {
                     })
                     if (vals.length) {
                         lists.push({
-                            name,
+                            field: name,
                             type: value1.type,
                             value: vals,
                         })
@@ -256,7 +256,7 @@ function formatValue(rawSearchOptions, searchValue) {
 
                 // 否则添加值1
                 lists.push({
-                    name,
+                    field: name,
                     type: value1.type,
                     value: utils.numberDeep(value1.value),
                 })
@@ -286,14 +286,14 @@ function formatValue(rawSearchOptions, searchValue) {
                     lists.push(
                         // 日期起
                         {
-                            name,
+                            field: name,
                             // ≥
                             type: dicts.SEARCH_TYPE__GTE,
                             value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.from} ${res.time.from}`), 'X')),
                         },
                         // 日期止
                         {
-                            name,
+                            field: name,
                             // ≤
                             type: dicts.SEARCH_TYPE__LTE,
                             value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.to} ${res.time.to}`), 'X')),
@@ -311,7 +311,7 @@ function formatValue(rawSearchOptions, searchValue) {
                 const value2 = searchValue[itemIndex][1]
                 if (utils.isValidValue(value2.value)) {
                     lists.push({
-                        name,
+                        field: name,
                         type: value2.type,
                         value: utils.numberDeep(value2.value),
                     })

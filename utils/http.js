@@ -1,6 +1,7 @@
 import { isRef } from 'vue'
 import axios from 'axios'
 import createHttp from '@netang/utils/http'
+import { stateRole } from '../store'
 
 /**
  * 初始化 http
@@ -96,7 +97,15 @@ utils.http = createHttp({
                 // 如果已登录
                 if (utils.$auth.isLogin()) {
                     const { token } = utils.$auth.getAdminUserInfo()
+
+                    // 头部添加鉴权认证
                     options.headers.Authorization = token
+
+                    // 如果有权限
+                    if (stateRole.value.v) {
+                        // 头部添加权限版本号
+                        options.headers.Rv = stateRole.value.v
+                    }
 
                 // 否则未登录 && 如果开启强制登录, 则跳转登录页面
                 } else if (para.login) {
