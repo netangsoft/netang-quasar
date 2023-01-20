@@ -11,7 +11,7 @@
                 round
                 flat
                 @click="layoutData.left.toggle"
-                v-if="hiddenLeft ? ! layoutData.left.show() : (layoutData.left.data !== null)"
+                v-if="layoutData.left.showButton()"
             />
 
             <!-- 左边插槽 -->
@@ -99,6 +99,8 @@
                 </q-menu>
             </q-btn>
 
+            <span>{{layoutData.right.data}}</span>
+
             <!-- 右边按钮-->
             <q-btn
                 :icon="rightIcon"
@@ -106,7 +108,7 @@
                 round
                 flat
                 @click="layoutData.right.toggle"
-                v-if="hiddenRight ? ! layoutData.right.show() : (layoutData.right.data !== null)"
+                v-if="layoutData.right.showButton()"
             />
         </q-toolbar>
     </container>
@@ -175,20 +177,11 @@ export default {
             type: String,
             default: 'format_list_bulleted',
         },
-        // 默认隐藏左边(宽屏不显示, 小屏自动显示)
-        hiddenLeft: Boolean,
         // 左边图标
         rightIcon: {
             type: String,
             default: 'search',
         },
-        // 是否请求权限按钮数据
-        getRoleBtn: {
-            type: Boolean,
-            default: true,
-        },
-        // 是否隐藏右边(宽屏不显示, 小屏自动显示)
-        hiddenRight: Boolean,
         // 是否头部
         header: Boolean,
     },

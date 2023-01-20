@@ -108,12 +108,8 @@ export default {
         const $route = useRoute()
 
         // 是否显示
-        const isShow = ref($q.screen.width < props.breakpoint ? false : props.show)
-
-        // 更新布局数据
-        $nLayout.update(function(data) {
-            data[props.side].data = isShow
-        })
+        const isShow = $nLayout.data[props.side].modelValue
+        isShow.value = $q.screen.width < props.breakpoint ? false : props.show
 
         // 缓存名
         let cacheName = ''

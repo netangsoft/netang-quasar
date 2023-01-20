@@ -97,91 +97,22 @@
         </q-popup-proxy>
     </q-field>
 
-    <q-dialog v-model="showDialog">
-        <q-card>
-            123123123
-            <!--<q-table-->
-            <!--    ref="tableRef"-->
-            <!--    class="n-table"-->
-            <!--    style="min-width:500px;max-width:90vw;height: 300px;"-->
-            <!--    v-model:pagination="tablePagination"-->
-            <!--    v-model:selected="tableSelected"-->
-            <!--    :row-key="tableRowKey"-->
-            <!--    :rows="tableRows"-->
-            <!--    :columns="tableColumns"-->
-            <!--    :selection="tableSelection"-->
-            <!--    :loading="tableLoading"-->
-            <!--    :rows-per-page-options="tableRowsPerPageOptions"-->
-            <!--    @row-click="tableRowClick"-->
-            <!--    @row-dblclick="tableRowDblclick"-->
-            <!--    @request="tableRequest"-->
-            <!--    flat-->
-            <!--    virtual-scroll-->
-            <!--    dense-->
-            <!--&gt;-->
-            <!--    &lt;!&ndash; 图片 &ndash;&gt;-->
-            <!--    <template-->
-            <!--        v-for="imgName in tableImgNames"-->
-            <!--        v-slot:[`body-cell-${imgName}`]="props"-->
-            <!--    >-->
-            <!--        <q-td :props="props">-->
-            <!--            &lt;!&ndash; 缩略图 &ndash;&gt;-->
-            <!--            <n-thumbnail-->
-            <!--                :src="props.row[imgName]"-->
-            <!--                preview-->
-            <!--            />-->
-            <!--        </q-td>-->
-            <!--    </template>-->
-
-            <!--    &lt;!&ndash; 插槽 &ndash;&gt;-->
-            <!--    <template-->
-            <!--        v-for="slotName in slotNames"-->
-            <!--        v-slot:[slotName]="props"-->
-            <!--    >-->
-            <!--        <q-td :props="props">-->
-            <!--            <slot-->
-            <!--                :name="slotName"-->
-            <!--                v-bind="props"-->
-            <!--            />-->
-            <!--        </q-td>-->
-            <!--    </template>-->
-
-            <!--    &lt;!&ndash; 合计 &ndash;&gt;-->
-            <!--    &lt;!&ndash;<template v-slot:bottom-row="props" v-if="tableSummary">&ndash;&gt;-->
-            <!--    &lt;!&ndash;    <n-table-summary&ndash;&gt;-->
-            <!--    &lt;!&ndash;        :props="props"&ndash;&gt;-->
-            <!--    &lt;!&ndash;        :data="tableSummary"&ndash;&gt;-->
-            <!--    &lt;!&ndash;        :selection="tableSelection"&ndash;&gt;-->
-            <!--    &lt;!&ndash;    />&ndash;&gt;-->
-            <!--    &lt;!&ndash;</template>&ndash;&gt;-->
-
-            <!--    &lt;!&ndash; 翻页 &ndash;&gt;-->
-            <!--    <template v-slot:pagination="props">-->
-            <!--        <n-table-pagination-->
-            <!--            :props="props"-->
-            <!--            :table-refresh="tableRefresh"-->
-            <!--        />-->
-            <!--    </template>-->
-            <!--</q-table>-->
-            <!--<q-card-section>-->
-            <!--    <div class="text-h6">Alert</div>-->
-            <!--</q-card-section>-->
-
-            <!--<q-card-section class="q-pt-none">-->
-            <!--    Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis perferendis totam, ea at omnis vel numquam exercitationem aut, natus minima, porro labore.-->
-            <!--</q-card-section>-->
-
-            <!--<q-card-actions align="right">-->
-            <!--    <q-btn flat label="OK" color="primary" v-close-popup />-->
-            <!--</q-card-actions>-->
-        </q-card>
-    </q-dialog>
+    <n-dialog
+        title="选择商品"
+        v-model="showDialog"
+    >
+        <q-page>
+            <n-table
+                page-status
+                @load="onPopupShow"
+            />
+        </q-page>
+    </n-dialog>
 </template>
 
 <script>
-import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue'
-import { date as quasarDate } from 'quasar'
-import NDialog from "../dialog";
+import { ref, reactive, computed, provide, watch, nextTick, onMounted } from 'vue'
+import { NFieldTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -189,7 +120,7 @@ export default {
      * 标识
      */
     name: 'NFieldTable',
-    components: {NDialog},
+
     /**
      * 声明属性
      */
@@ -267,10 +198,18 @@ export default {
             rowKey: props.rowKey,
             // 选择类型, 可选值 single multiple none
             selection: props.multiple ? 'multiple' : 'none',
-            // 关闭宫格
-            showGrid: false,
-            // 关闭可见列
-            showVisibleColumns: false,
+            // // 关闭宫格
+            // showGrid: false,
+            // // 关闭可见列
+            // showVisibleColumns: false,
+        })
+
+        // ==========【注入】============================================================================================
+
+        // 向后代注入数据
+        provide(NFieldTableKey, {
+            // 表格实例
+            $table,
         })
 
         // ==========【计算属性】=========================================================================================
@@ -284,6 +223,25 @@ export default {
             }
             return []
         })
+
+        /**
+         * 获取表格列数据
+         */
+        // const tableColumns = computed(function () {
+        //
+        //     // 获取原始表格列数据
+        //     const rawTableColumns = props.route
+        //         // 如果有路由组件路径
+        //         ? utils.$table.config(props.route, 'columns')
+        //         // 否则为自定义表格列数据
+        //         : props.columns
+        //
+        //     // 如果有原始表格列数据
+        //     return utils.isValidArray(rawTableColumns)
+        //         // 克隆原始表格列数据
+        //         ? _.cloneDeep(rawTableColumns)
+        //         : []
+        // })
 
         // ==========【监听数据】=========================================================================================
 
@@ -301,40 +259,54 @@ export default {
          */
         function getTableColumns() {
 
-            const columns = []
-
             // 获取原始表格列数据
-            let rawTableColumns = props.route
+            const rawTableColumns = props.route
                 // 如果有路由组件路径
                 ? utils.$table.config(props.route, 'columns')
                 // 否则为自定义表格列数据
                 : props.columns
 
             // 如果有原始表格列数据
-            if (utils.isValidArray(rawTableColumns)) {
-
+            return utils.isValidArray(rawTableColumns)
                 // 克隆原始表格列数据
-                rawTableColumns = _.cloneDeep(rawTableColumns)
+                ? _.cloneDeep(rawTableColumns)
+                // 否则为空
+                : []
 
-                // 快捷表格显示的属性名称数组
-                utils.forEach(props.showKeys, function (key) {
-                    for (const item of rawTableColumns) {
-                        if (item.name === key) {
-                            // 删除搜索字段
-                            if (_.has(item, 'search')) {
-                                delete item.search
-                            }
-                            // 删除可见字段
-                            if (_.has(item, 'visible')) {
-                                delete item.visible
-                            }
-                            columns.push(item)
-                        }
-                    }
-                })
-            }
-
-            return columns
+            // const columns = []
+            //
+            // // 获取原始表格列数据
+            // let rawTableColumns = props.route
+            //     // 如果有路由组件路径
+            //     ? utils.$table.config(props.route, 'columns')
+            //     // 否则为自定义表格列数据
+            //     : props.columns
+            //
+            // // 如果有原始表格列数据
+            // if (utils.isValidArray(rawTableColumns)) {
+            //
+            //     // 克隆原始表格列数据
+            //     rawTableColumns = _.cloneDeep(rawTableColumns)
+            //
+            //     // 快捷表格显示的属性名称数组
+            //     utils.forEach(props.showKeys, function (key) {
+            //         for (const item of rawTableColumns) {
+            //             if (item.name === key) {
+            //                 // 删除搜索字段
+            //                 if (_.has(item, 'search')) {
+            //                     delete item.search
+            //                 }
+            //                 // 删除可见字段
+            //                 if (_.has(item, 'visible')) {
+            //                     delete item.visible
+            //                 }
+            //                 columns.push(item)
+            //             }
+            //         }
+            //     })
+            // }
+            //
+            // return columns
         }
 
         /**
@@ -394,9 +366,7 @@ export default {
          * 显示对话框
          */
         function onDialog() {
-
             showDialog.value = true
-            console.log('ssss')
         }
 
         // ==========【生命周期】=========================================================================================

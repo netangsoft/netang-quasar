@@ -2,6 +2,7 @@
     <q-dialog
         class="n-dialog-proxy"
         ref="dialogRef"
+        v-model="currentModelValue"
         v-bind="dialogProps"
         @hide="onDialogHide"
     >
@@ -23,9 +24,14 @@
                     container
                 >
                     <q-page-container>
+                        <slot
+                            v-bind="props"
+                            v-if="$slots.default"
+                        />
                         <component
                             :is="comp"
                             v-bind="props"
+                            v-else
                         />
                     </q-page-container>
                 </q-layout>
@@ -43,7 +49,7 @@
 </template>
 
 <script>
-import { ref, computed, defineAsyncComponent, provide } from 'vue'
+import { ref, computed, defineAsyncComponent, provide, watch } from 'vue'
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 
 import routers from '@/router/routers'
@@ -62,6 +68,11 @@ export default {
      * 声明属性
      */
     props: {
+        // 值
+        modelValue: {
+            type: Boolean,
+            default: true,
+        },
         // 对话框传参
         dialogProps: Object,
         // 组件标识
@@ -103,24 +114,40 @@ export default {
         },
         // 是否全屏
         fullscreen: Boolean,
+        // 页面容器
+        pageContainer: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     /**
      * 声明事件
      */
     emits: [
+        'update:modelValue',
         ...useDialogPluginComponent.emits
     ],
 
     /**
      * 组合式
      */
-    setup(props) {
+    setup(props, { emit }) {
 
         // ==========【数据】============================================================================================
 
         // quasar 对象
         const $q = useQuasar()
+
+        const currentModelValue = ref(props.modelValue)
+
+        watch(()=>props.modelValue, function (val) {
+            currentModelValue.value = val
+        })
+
+        watch(currentModelValue, function (val) {
+            emit('update:modelValue', val)
+        })
 
         const {
             // 对话框节点
@@ -283,6 +310,7 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
+            currentModelValue,
             // 自定义样式
             customStyle,
             // 组件

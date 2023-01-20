@@ -21,7 +21,8 @@
             :table-refresh="tableRefresh"
             v-bind="toolbarProps"
             header
-        />
+        >
+        </n-toolbar>
         <!-- 左侧分类 -->
         <n-drawer
             side="left"
@@ -166,8 +167,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
+
+import { NFieldTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -236,6 +239,12 @@ export default {
      */
     setup(props, { emit, slots }) {
 
+        // ==========【注入】============================================================================================
+
+        // 获取文本框表格注入
+        const $fieldTable = inject(NFieldTableKey)
+        const inFieldTable = !! $fieldTable
+
         // ==========【数据】============================================================================================
 
         // 树节点
@@ -264,7 +273,7 @@ export default {
         }
 
         // 创建表格
-        const $table = utils.$table.create(tableParams)
+        const $table = inFieldTable ? $fieldTable.$table : utils.$table.create(tableParams)
 
         // ==========【计算属性】==========================================================================================
 

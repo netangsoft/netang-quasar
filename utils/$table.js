@@ -307,6 +307,10 @@ function create(params) {
     // 表格搜索数据值
     const tableSearchValue = ref(firstTableSearchValue)
 
+    watch(tableSearchValue, function (val) {
+        console.log('tableSearchValue', val)
+    })
+
     // 表格搜索参数
     const tableSearchOptions = ref()
 

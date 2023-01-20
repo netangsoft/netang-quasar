@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { provide } from 'vue'
+import { provide, ref } from 'vue'
 import { NLayoutKey } from '../../utils/symbols'
 
 export default {
@@ -55,17 +55,40 @@ export default {
 
         // ==========【注入】============================================================================================
 
+        const leftModelValue = ref(null)
+        const rightModelValue = ref(null)
+
         // 布局数据
         const data = {
             // 左边侧滑菜单数据
             left: {
                 // 是否显示
-                data: null,
+                modelValue: leftModelValue,
+                // 是否显示切换按钮
+                showButton() {
+                    return leftModelValue.value !== null
+                },
+                // 切换
+                toggle() {
+                    if (leftModelValue.value !== null) {
+                        leftModelValue.value = ! leftModelValue.value
+                    }
+                },
             },
             // 右边侧滑菜单数据
             right: {
                 // 是否显示
-                data: null,
+                modelValue: rightModelValue,
+                // 是否显示切换按钮
+                showButton() {
+                    return rightModelValue.value !== null
+                },
+                // 切换
+                toggle() {
+                    if (rightModelValue.value !== null) {
+                        rightModelValue.value = ! rightModelValue.value
+                    }
+                },
             },
             // 权限数据
             role: {},
@@ -73,22 +96,6 @@ export default {
             table: {},
             // 上传器
             uploader: [],
-        }
-        data.left.show = function() {
-            return data.left.data !== null ? data.left.data.value : false
-        }
-        data.left.toggle = function () {
-            if (data.left.data !== null) {
-                data.left.data.value = ! data.left.data.value
-            }
-        }
-        data.right.show = function() {
-            return data.right.data !== null ? data.right.data.value : false
-        }
-        data.right.toggle = function () {
-            if (data.right.data !== null) {
-                data.right.data.value = ! data.right.data.value
-            }
         }
 
         // 向后代注入数据
