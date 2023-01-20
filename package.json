@@ -1,21 +1,21 @@
 {
-  "name": "@netang/admin",
-  "version": "0.0.19",
-  "description": "netang-admin",
+  "name": "@netang/quasar",
+  "version": "0.0.20",
+  "description": "netang-quasar",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netangsoft/netang-admin.git"
+    "url": "git+https://github.com/netangsoft/netang-quasar.git"
   },
   "keywords": [
-    "netang-admin"
+    "netang-quasar"
   ],
   "author": "Netang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netangsoft/netang-admin/issues"
+    "url": "https://github.com/netangsoft/netang-quasar/issues"
   },
-  "homepage": "https://github.com/netangsoft/netang-admin#readme"
+  "homepage": "https://github.com/netangsoft/netang-quasar#readme"
 }
