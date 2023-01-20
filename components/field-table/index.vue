@@ -99,69 +99,70 @@
 
     <q-dialog v-model="showDialog">
         <q-card>
-            <q-table
-                ref="tableRef"
-                class="n-table"
-                style="min-width:500px;max-width:90vw;height: 300px;"
-                v-model:pagination="tablePagination"
-                v-model:selected="tableSelected"
-                :row-key="tableRowKey"
-                :rows="tableRows"
-                :columns="tableColumns"
-                :selection="tableSelection"
-                :loading="tableLoading"
-                :rows-per-page-options="tableRowsPerPageOptions"
-                @row-click="tableRowClick"
-                @row-dblclick="tableRowDblclick"
-                @request="tableRequest"
-                flat
-                virtual-scroll
-                dense
-            >
-                <!-- 图片 -->
-                <template
-                    v-for="imgName in tableImgNames"
-                    v-slot:[`body-cell-${imgName}`]="props"
-                >
-                    <q-td :props="props">
-                        <!-- 缩略图 -->
-                        <n-thumbnail
-                            :src="props.row[imgName]"
-                            preview
-                        />
-                    </q-td>
-                </template>
+            123123123
+            <!--<q-table-->
+            <!--    ref="tableRef"-->
+            <!--    class="n-table"-->
+            <!--    style="min-width:500px;max-width:90vw;height: 300px;"-->
+            <!--    v-model:pagination="tablePagination"-->
+            <!--    v-model:selected="tableSelected"-->
+            <!--    :row-key="tableRowKey"-->
+            <!--    :rows="tableRows"-->
+            <!--    :columns="tableColumns"-->
+            <!--    :selection="tableSelection"-->
+            <!--    :loading="tableLoading"-->
+            <!--    :rows-per-page-options="tableRowsPerPageOptions"-->
+            <!--    @row-click="tableRowClick"-->
+            <!--    @row-dblclick="tableRowDblclick"-->
+            <!--    @request="tableRequest"-->
+            <!--    flat-->
+            <!--    virtual-scroll-->
+            <!--    dense-->
+            <!--&gt;-->
+            <!--    &lt;!&ndash; 图片 &ndash;&gt;-->
+            <!--    <template-->
+            <!--        v-for="imgName in tableImgNames"-->
+            <!--        v-slot:[`body-cell-${imgName}`]="props"-->
+            <!--    >-->
+            <!--        <q-td :props="props">-->
+            <!--            &lt;!&ndash; 缩略图 &ndash;&gt;-->
+            <!--            <n-thumbnail-->
+            <!--                :src="props.row[imgName]"-->
+            <!--                preview-->
+            <!--            />-->
+            <!--        </q-td>-->
+            <!--    </template>-->
 
-                <!-- 插槽 -->
-                <template
-                    v-for="slotName in slotNames"
-                    v-slot:[slotName]="props"
-                >
-                    <q-td :props="props">
-                        <slot
-                            :name="slotName"
-                            v-bind="props"
-                        />
-                    </q-td>
-                </template>
+            <!--    &lt;!&ndash; 插槽 &ndash;&gt;-->
+            <!--    <template-->
+            <!--        v-for="slotName in slotNames"-->
+            <!--        v-slot:[slotName]="props"-->
+            <!--    >-->
+            <!--        <q-td :props="props">-->
+            <!--            <slot-->
+            <!--                :name="slotName"-->
+            <!--                v-bind="props"-->
+            <!--            />-->
+            <!--        </q-td>-->
+            <!--    </template>-->
 
-                <!-- 合计 -->
-                <!--<template v-slot:bottom-row="props" v-if="tableSummary">-->
-                <!--    <n-table-summary-->
-                <!--        :props="props"-->
-                <!--        :data="tableSummary"-->
-                <!--        :selection="tableSelection"-->
-                <!--    />-->
-                <!--</template>-->
+            <!--    &lt;!&ndash; 合计 &ndash;&gt;-->
+            <!--    &lt;!&ndash;<template v-slot:bottom-row="props" v-if="tableSummary">&ndash;&gt;-->
+            <!--    &lt;!&ndash;    <n-table-summary&ndash;&gt;-->
+            <!--    &lt;!&ndash;        :props="props"&ndash;&gt;-->
+            <!--    &lt;!&ndash;        :data="tableSummary"&ndash;&gt;-->
+            <!--    &lt;!&ndash;        :selection="tableSelection"&ndash;&gt;-->
+            <!--    &lt;!&ndash;    />&ndash;&gt;-->
+            <!--    &lt;!&ndash;</template>&ndash;&gt;-->
 
-                <!-- 翻页 -->
-                <template v-slot:pagination="props">
-                    <n-table-pagination
-                        :props="props"
-                        :table-refresh="tableRefresh"
-                    />
-                </template>
-            </q-table>
+            <!--    &lt;!&ndash; 翻页 &ndash;&gt;-->
+            <!--    <template v-slot:pagination="props">-->
+            <!--        <n-table-pagination-->
+            <!--            :props="props"-->
+            <!--            :table-refresh="tableRefresh"-->
+            <!--        />-->
+            <!--    </template>-->
+            <!--</q-table>-->
             <!--<q-card-section>-->
             <!--    <div class="text-h6">Alert</div>-->
             <!--</q-card-section>-->
