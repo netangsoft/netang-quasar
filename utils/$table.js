@@ -3,6 +3,9 @@ import { useRoute } from 'vue-router'
 import { date, useQuasar } from 'quasar'
 import { parse } from 'qs'
 
+// 表格配置
+import tablesConfig from '@/tables'
+
 import {
     // 设置单个搜索值
     setItemValue,
@@ -103,13 +106,13 @@ function create(params) {
         query: {},
         // 表格节点
         ref: null,
-        // id key
+        // 表格行唯一键值
         rowKey: 'id',
         // 选择类型, 可选值 single multiple none
         selection: 'multiple',
         // 表格加载状态
         loading: false,
-        // 表格列数据
+        // 表格列数据(对象数组)
         columns: [],
         // 可见列
         visibleColumns: [],
@@ -149,6 +152,10 @@ function create(params) {
         roleBtnLists: null,
         // 从参数中获取搜索值
         searchFromQuery: true,
+        // 显示宫格
+        showGrid: true,
+        // 显示可见列
+        showVisibleColumns: true,
     }, params)
 
     // 如果是对话框注入
@@ -163,6 +170,9 @@ function create(params) {
         o.url = useRoute().fullPath
     }
 
+    // 是否显示权限按钮
+    const showRoleBtn = o.roleBtnLists !== null
+
     // 宫格模式缓存名
     const gridCacheName = 'table_grid_' + o.url
 
@@ -173,10 +183,12 @@ function create(params) {
     const tableColumns = []
 
     // 添加操作列
-    o.columns.push({
-        label: '操作',
-        name: 'settings',
-    })
+    if (showRoleBtn) {
+        o.columns.push({
+            label: '操作',
+            name: 'settings',
+        })
+    }
 
     // 表格图片标识数组
     const tableImgNames = ref([])
@@ -219,7 +231,6 @@ function create(params) {
 
         // 如果有路由
         if (_.get(item, 'router')) {
-
             // 如果该值在当前路由路径中, 则显示
             if (utils.indexOf(o.url, item.router) > -1) {
                 tableColumns.push(item)
@@ -231,7 +242,7 @@ function create(params) {
     })
 
     // 获取可见列缓存
-    const visibleColumnsCache = utils.storage.get(visibleColumnsCacheName)
+    const visibleColumnsCache = o.showVisibleColumns ? utils.storage.get(visibleColumnsCacheName) : []
 
     // 表格可见列
     const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : _.uniq([...o.visibleColumns]))
@@ -255,7 +266,7 @@ function create(params) {
     const tableSelected = ref(o.selected)
 
     // 表格宫格
-    const tableGrid = ref(utils.storage.get(gridCacheName) === true)
+    const tableGrid = ref(o.showGrid ? utils.storage.get(gridCacheName) === true : false)
 
     // 表格传参
     const tableQuery = ref({})
@@ -302,7 +313,7 @@ function create(params) {
     // ==========【计算属性】=============================================================================================
 
     // 固定在右边的权限按钮列表
-    const tableFixedRoleBtnLists = computed(function () {
+    const tableFixedRoleBtnLists = showRoleBtn ? computed(function () {
 
         const lists = []
 
@@ -315,12 +326,12 @@ function create(params) {
         })
 
         return lists
-    })
+    }) : []
 
     /**
      * 表格双击权限按钮
      */
-    const tableDbClickRoleBtn = computed(function () {
+    const tableDbClickRoleBtn = o.roleBtnLists ? computed(function () {
         if (
             // 非手机模式
             ! $q.platform.is.mobile
@@ -333,7 +344,7 @@ function create(params) {
                 }
             }
         }
-    })
+    }) : null
 
     /**
      * 是否显示固定在右边的权限按钮列表
@@ -347,63 +358,69 @@ function create(params) {
     /**
      * 监听表格宫格模式
      */
-    watch(tableGrid, function(val) {
+    if (o.showGrid) {
+        watch(tableGrid, function(val) {
 
-        // 设置宫格模式缓存(永久缓存)
-        // #if ! IS_DEV
+            // 设置宫格模式缓存(永久缓存)
+            // #if ! IS_DEV
             utils.storage.set(gridCacheName, val, 0)
-        // #endif
-    })
+            // #endif
+        })
+    }
 
     /**
      * 监听表格可见列
      */
-    watch(tableVisibleColumns, function(val) {
+    if (o.showVisibleColumns) {
+        watch(tableVisibleColumns, function(val) {
 
-        // 设置可见列缓存(永久缓存)
-        // #if ! IS_DEV
-        utils.storage.set(visibleColumnsCacheName, val, 0)
-        // #endif
-    })
+            // 设置可见列缓存(永久缓存)
+            // #if ! IS_DEV
+            utils.storage.set(visibleColumnsCacheName, val, 0)
+            // #endif
+        })
+    }
 
     /**
      * 监听固定在右边的权限按钮列表
      */
-    watch(tableFixedRoleBtnLists, function (lists) {
+    if (showRoleBtn) {
+        watch(tableFixedRoleBtnLists, function (lists) {
 
-        const index = utils.indexOf(tableVisibleColumns.value, 'settings')
+            const index = utils.indexOf(tableVisibleColumns.value, 'settings')
 
-        // 如果有固定在右边的权限按钮列表
-        if (utils.isValidArray(lists)) {
+            // 如果有固定在右边的权限按钮列表
+            if (utils.isValidArray(lists)) {
 
-            // 如果设置不在可见列中
-            if (index === -1) {
+                // 如果设置不在可见列中
+                if (index === -1) {
 
-                // 如果非手机模式
-                if (! $q.platform.is.mobile) {
+                    // 如果非手机模式
+                    if (! $q.platform.is.mobile) {
 
-                    // 则将设置加入可见列中
-                    tableVisibleColumns.value.push('settings')
+                        // 则将设置加入可见列中
+                        tableVisibleColumns.value.push('settings')
+                    }
+
+                // 否则在可见列中 && 如果是手机模式
+                } else if ($q.platform.is.mobile) {
+
+                    // 则将设置从可见列中删除
+                    tableVisibleColumns.value.splice(index, 1)
                 }
 
-            // 否则在可见列中 && 如果是手机模式
-            } else if ($q.platform.is.mobile) {
+            // 否则如果设置在可见列中
+            } else if (index > -1) {
 
                 // 则将设置从可见列中删除
                 tableVisibleColumns.value.splice(index, 1)
             }
 
-        // 否则如果设置在可见列中
-        } else if (index > -1) {
-
-            // 则将设置从可见列中删除
-            tableVisibleColumns.value.splice(index, 1)
-        }
-
-    }, {
-        // 立即执行
-        immediate: true,
-    })
+        }, {
+            // 立即执行
+            immediate: true,
+        })
+    }
 
     /**
      * 监听表格传参
@@ -688,7 +705,7 @@ function create(params) {
         }
 
         // 有双击的权限按钮
-        if (tableDbClickRoleBtn.value) {
+        if (tableDbClickRoleBtn && tableDbClickRoleBtn.value) {
             tableToolbarRef.value?.onClick(tableDbClickRoleBtn.value, [ row ])
         }
     }
@@ -722,7 +739,7 @@ function create(params) {
         tableSelection: o.selection,
         // 表格每页显示行数选项
         tableRowsPerPageOptions: rowsPerPageOptions,
-        // 表格列数据
+        // 表格列数据(对象数组)
         tableColumns,
         // 表格可见列
         tableVisibleColumns,
@@ -768,9 +785,18 @@ function create(params) {
 }
 
 /**
+ * 获取配置
+ */
+function config(routePath, path, defaultValue) {
+    return _.get(tablesConfig, utils.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue)
+}
+
+/**
  * 业务表格
  */
 utils.$table = {
     // 创建表格
     create,
+    // 获取配置
+    config,
 }

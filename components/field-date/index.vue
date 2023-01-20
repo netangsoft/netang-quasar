@@ -525,7 +525,7 @@ export default {
                 return ''
             }
 
-            if (! utils.isValidValue(dateValue)) {
+            if (! utils.isRequired(dateValue)) {
                 return ''
             }
 

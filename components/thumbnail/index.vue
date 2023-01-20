@@ -38,7 +38,7 @@ export default {
         // 图片尺寸
         size: {
             type: Number,
-            default: 50,
+            default: 40,
         },
         // 点击预览
         preview: Boolean,
