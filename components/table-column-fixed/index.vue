@@ -1,8 +1,8 @@
 <template>
     <q-td :props="props">
-        <div class="q-gutter-sm">
+        <div class="q-gutter-sm" v-if="tableFixedRoleBtnLists.length">
             <q-btn
-                v-for="item in roleBtnLists"
+                v-for="item in tableFixedRoleBtnLists"
                 :key="`btn-item-${item.id}`"
                 class="n-button-icon"
                 :icon="item.icon"
@@ -19,7 +19,8 @@
 
 <script>
 import { inject } from 'vue'
-import { NLayoutKey } from '../../utils/symbols'
+
+import { NPowerKey, NTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -34,8 +35,6 @@ export default {
     props: {
         // 传值
         props: Object,
-        // 权限按钮列表
-        roleBtnLists: Array,
     },
 
     /**
@@ -43,10 +42,19 @@ export default {
      */
     setup(props) {
 
-        // ==========【注入】============================================================================================
+        // ==========【数据】============================================================================================
 
-        // 获取布局注入数据
-        const $nLayout = inject(NLayoutKey)
+        // 获取权限注入
+        const {
+            // 权限按钮点击
+            powerBtnClick,
+        } = inject(NPowerKey)
+
+        // 获取表格注入
+        const {
+            // 固定在右边的权限按钮列表
+            tableFixedRoleBtnLists,
+        } = inject(NTableKey)
 
         // ==========【方法】=============================================================================================
 
@@ -54,13 +62,15 @@ export default {
          * 点击
          */
         function onClick(item) {
-            $nLayout.data.role?.click(item, [ props.props.row ])
+            powerBtnClick(item, [ props.props.row ])
         }
 
         // ==========【返回】=============================================================================================
 
         return {
-            // 点击
+            // 固定在右边的权限按钮列表
+            tableFixedRoleBtnLists,
+            // 权限按钮点击
             onClick,
         }
     },

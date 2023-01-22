@@ -1,37 +1,24 @@
 <template>
-    <n-layout
+    <q-layout
         class="absolute-full"
         :class="{
             'n-table--grid': tableGrid,
         }"
         view="lHr LpR lff"
         container
-        :page-status="pageStatus"
-        :empty-description="emptyDescription"
     >
         <!-- 头部 -->
-        <n-toolbar
-            ref="tableToolbarRef"
-            :model-value="roleBtnLists"
-            v-model:table-grid="tableGrid"
-            v-model:table-visible-columns="tableVisibleColumns"
-            :query="tableQuery"
-            :table-columns="tableColumns"
-            :table-selected="tableSelected"
-            :table-refresh="tableRefresh"
-            v-bind="toolbarProps"
-            header
-        >
-        </n-toolbar>
+        <n-toolbar header />
+
         <!-- 左侧分类 -->
         <n-drawer
+            :model-value="true"
             side="left"
             :width="200"
             :min-width="150"
             bordered
-            show
             drag
-            :cache="currentUrl"
+            cache
             v-if="treeNodes.length"
         >
             <q-scroll-area class="absolute-full">
@@ -121,7 +108,6 @@
                     <template v-slot:body-cell-settings="props">
                         <n-table-column-fixed
                             :props="props"
-                            :role-btn-lists="tableFixedRoleBtnLists"
                         />
                     </template>
 
@@ -129,8 +115,6 @@
                     <template v-slot:bottom-row="props" v-if="tableSummary">
                         <n-table-summary
                             :props="props"
-                            :data="tableSummary"
-                            :selection="tableSelection"
                         />
                     </template>
 
@@ -138,7 +122,6 @@
                     <template v-slot:pagination="props">
                         <n-table-pagination
                             :props="props"
-                            :table-refresh="tableRefresh"
                         />
                     </template>
                 </q-table>
@@ -147,12 +130,12 @@
 
         <!-- 右侧搜索 -->
         <n-drawer
+            :model-value="true"
             side="right"
             :min-width="320"
             bordered
             drag
-            :cache="currentUrl"
-            show
+            cache
             v-if="! noSearch && tableSearchValue.length"
         >
             <!-- 搜索 -->
@@ -163,14 +146,13 @@
                 :on-reset="tableSearchReset"
             />
         </n-drawer>
-    </n-layout>
+    </q-layout>
 </template>
 
 <script>
-import { ref, onMounted, watch, computed, inject } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, watch, computed, inject } from 'vue'
 
-import { NFieldTableKey } from '../../utils/symbols'
+import { NPowerKey, NTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -185,10 +167,6 @@ export default {
     props: {
         // 表格请求地址
         url: String,
-        // 表格参数
-        tableParams: Object,
-        // 权限按钮列表
-        roleBtnLists: Array,
         // 树节点唯一键值
         treeNodeKey: {
             type: String,
@@ -208,44 +186,21 @@ export default {
         treeNodeClick: Function,
         // 显示树筛选
         treeFilter: Boolean,
-        // 页面状态
-        pageStatus: {
-            type: Boolean,
-            default: null,
-        },
-        // 空状态描述
-        emptyDescription: {
-            type: String,
-            default: '发生未知错误',
-        },
-        // 工具栏声明属性
-        toolbarProps: Object,
         // 不显示搜索
         noSearch: Boolean,
-        // 表格加载回调
-        load: Function,
     },
-
-    /**
-     * 声明事件
-     */
-    emits: [
-        // 表格加载回调
-        'load',
-    ],
 
     /**
      * 组合式
      */
-    setup(props, { emit, slots }) {
-
-        // ==========【注入】============================================================================================
-
-        // 获取文本框表格注入
-        const $fieldTable = inject(NFieldTableKey)
-        const inFieldTable = !! $fieldTable
+    setup(props, { slots }) {
 
         // ==========【数据】============================================================================================
+
+        // 获取权限注入
+        const $power = inject(NPowerKey)
+
+        const $table = inject(NTableKey)
 
         // 树节点
         const treeRef = ref(null)
@@ -257,23 +212,18 @@ export default {
         const treeSelected = ref('')
 
         // 当前请求地址
-        const currentUrl = ref(props.url ? props.url : useRoute().fullPath)
+        // const currentUrl = ref(props.url ? props.url : useRoute().fullPath)
 
-        // 表格参数
-        const tableParams = Object.assign({}, props.tableParams, {
-            // 请求地址
-            url: currentUrl.value,
-            // 权限按钮列表
-            roleBtnLists: computed(()=>props.roleBtnLists),
-        })
-
-        // 如果不显示搜索
-        if (props.noSearch) {
-            tableParams.search = false
-        }
-
-        // 创建表格
-        const $table = inFieldTable ? $fieldTable.$table : utils.$table.create(tableParams)
+        // // 表格参数
+        // const tableParams = Object.assign({}, props.tableParams, {
+        //     // 请求地址
+        //     url: currentUrl.value,
+        // })
+        //
+        // // 如果不显示搜索
+        // if (props.noSearch) {
+        //     tableParams.search = false
+        // }
 
         // ==========【计算属性】==========================================================================================
 
@@ -320,21 +270,11 @@ export default {
             })
         }
 
-        // ==========【生命周期】=========================================================================================
-
-        /**
-         * 实例被挂载后调用
-         */
-        onMounted( async function() {
-
-            // 表格加载回调
-            emit('load', { $table })
-            await utils.runAsync(props.load)({ $table })
-        })
-
         // ==========【返回】=============================================================================================
 
         return {
+            // 解构权限实例
+            ...$power,
             // 解构表格实例
             ...$table,
 
@@ -344,9 +284,6 @@ export default {
             treeFilterValue,
             // 树选择数据
             treeSelected,
-
-            // 当前请求地址
-            currentUrl,
 
             // 插槽 body 单元格标识
             slotNames,

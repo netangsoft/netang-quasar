@@ -57,12 +57,46 @@
             dense
             flat
             @click="tableRefresh"
-            v-if="tableRefresh"
+            v-if="hasTable"
         />
+
+        <!-- 当前页面工具栏无权限按钮时显示 -->
+        <template v-if="! toolbarPowerBtns.length">
+
+            <!-- 左边侧滑菜单切换按钮-->
+            <q-btn
+                :icon="leftDrawer.icon"
+                dense
+                round
+                flat
+                @click="leftDrawer.toggle"
+                v-if="leftDrawer.showButton()"
+            />
+
+            <!-- 表格筛选可见列按钮 -->
+            <table-visible-columns-button v-if="hasTable" />
+
+            <!-- 右边侧滑菜单切换按钮-->
+            <q-btn
+                :icon="rightDrawer.icon"
+                dense
+                round
+                flat
+                @click="rightDrawer.toggle"
+                v-if="rightDrawer.showButton()"
+            />
+
+        </template>
+
     </div>
 </template>
 
 <script>
+import { inject } from 'vue'
+
+import TableVisibleColumnsButton from '../private/table-visible-columns-button'
+import { NPowerKey, NTableKey } from '../../utils/symbols'
+
 export default {
 
     /**
@@ -71,13 +105,59 @@ export default {
     name: 'NTablePagination',
 
     /**
+     * 容器
+     */
+    components: {
+        TableVisibleColumnsButton,
+    },
+
+    /**
      * 声明属性
      */
     props: {
         // 传值
         props: Object,
-        // 表格刷新
-        tableRefresh: Function,
+    },
+
+    /**
+     * 组合式
+     */
+    setup() {
+
+        // ==========【数据】============================================================================================
+
+        // 获取权限注入
+        const $power = inject(NPowerKey)
+        const {
+            // 左边侧滑菜单数据
+            leftDrawer,
+            // 右边侧滑菜单数据
+            rightDrawer,
+            // 当前页面工具栏权限按钮
+            toolbarPowerBtns,
+        } = $power
+
+        // 获取表格注入
+        const $table = inject(NTableKey)
+        const {
+            // 表格刷新
+            tableRefresh,
+        } = $table
+
+        // ==========【返回】=============================================================================================
+
+        return {
+            // 是否有表格
+            hasTable: !! $table,
+            // 表格刷新
+            tableRefresh,
+            // 当前页面工具栏权限按钮
+            toolbarPowerBtns,
+            // 左边侧滑菜单数据
+            leftDrawer,
+            // 右边侧滑菜单数据
+            rightDrawer,
+        }
     },
 }
 </script>

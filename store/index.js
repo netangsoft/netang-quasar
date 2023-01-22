@@ -5,6 +5,20 @@ import { initAuthStore } from '../utils/useAuth'
  * 公共变量
  */
 
+// 权限数据
+export const statePower = ref({
+    // 角色权限版本
+    v: null,
+    // all id
+    all: {},
+    // 页面
+    urls: {},
+    // 按钮
+    btns: {},
+    // 菜单
+    menus: [],
+})
+
 // 角色数据
 export const stateRole = ref({
     // 角色权限版本

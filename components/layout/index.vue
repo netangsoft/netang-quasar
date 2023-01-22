@@ -91,7 +91,9 @@ export default {
                 },
             },
             // 权限数据
-            role: {},
+            role: {
+                showRoleBtn: ref(null)
+            },
             // 表格数据
             table: {},
             // 上传器

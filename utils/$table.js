@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, provide, inject, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { date, useQuasar } from 'quasar'
 import { parse } from 'qs'
@@ -10,6 +10,8 @@ import {
     // 设置单个搜索值
     setItemValue,
 } from './$search'
+
+import { NPowerKey, NTableKey } from './symbols'
 
 /**
  * 获取 url 参数
@@ -132,8 +134,6 @@ function create(params) {
             // 是否降序排列
             descending: true,
         },
-        // 已选数据
-        selected: [],
         // 每页显示行数选项
         rowsPerPageOptions,
         // 请求方法
@@ -158,6 +158,19 @@ function create(params) {
         showVisibleColumns: true,
     }, params)
 
+    // 获取权限注入
+    const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+
+    const {
+        // 当前页面权限按钮
+        powerBtns,
+        // 表格已选数据
+        tableSelected,
+    } = $power
+
+    // 是否有权限按钮
+    const hasPowerBtns = ! powerBtns.value.length
+
     // 如果是对话框注入
     if (inDialog) {
         // 对话框设置
@@ -170,9 +183,6 @@ function create(params) {
         o.url = useRoute().fullPath
     }
 
-    // 是否显示权限按钮
-    const showRoleBtn = o.roleBtnLists !== null
-
     // 宫格模式缓存名
     const gridCacheName = 'table_grid_' + o.url
 
@@ -182,8 +192,9 @@ function create(params) {
     // 表格列
     const tableColumns = []
 
-    // 添加操作列
-    if (showRoleBtn) {
+    // 如果有权限按钮
+    if (hasPowerBtns) {
+        // 添加操作列
         o.columns.push({
             label: '操作',
             name: 'settings',
@@ -262,9 +273,6 @@ function create(params) {
     // 表格翻页参数
     const tablePagination = ref(o.pagination)
 
-    // 表格已选数据
-    const tableSelected = ref(o.selected)
-
     // 表格宫格
     const tableGrid = ref(o.showGrid ? utils.storage.get(gridCacheName) === true : false)
 
@@ -316,13 +324,16 @@ function create(params) {
 
     // ==========【计算属性】=============================================================================================
 
-    // 固定在右边的权限按钮列表
-    const tableFixedRoleBtnLists = showRoleBtn ? computed(function () {
+    /**
+     * 固定在表格右边的权限按钮列表
+     */
+    const tableFixedRoleBtnLists = ! hasPowerBtns ? ref([]) : computed(function () {
 
         const lists = []
 
         // 先格式化权限按钮列表
-        utils.forEach(utils.$role.formatRoleBtnLists(o.roleBtnLists.value), function(item) {
+        utils.forEach(utils.$power.formatBtns(powerBtns.value), function(item) {
+
             // 如果是固定按钮
             if (item.fixed) {
                 lists.push(item)
@@ -330,12 +341,12 @@ function create(params) {
         })
 
         return lists
-    }) : []
+    })
 
     /**
-     * 表格双击权限按钮
+     * 获取权限按钮中可双击的按钮
      */
-    const tableDbClickRoleBtn = o.roleBtnLists ? computed(function () {
+    const tableDbClickRoleBtn = ! hasPowerBtns ? ref(null) : computed(function () {
         if (
             // 非手机模式
             ! $q.platform.is.mobile
@@ -348,7 +359,7 @@ function create(params) {
                 }
             }
         }
-    }) : null
+    })
 
     /**
      * 是否显示固定在右边的权限按钮列表
@@ -388,7 +399,7 @@ function create(params) {
     /**
      * 监听固定在右边的权限按钮列表
      */
-    if (showRoleBtn) {
+    if (hasPowerBtns) {
         watch(tableFixedRoleBtnLists, function (lists) {
 
             const index = utils.indexOf(tableVisibleColumns.value, 'settings')
@@ -730,7 +741,7 @@ function create(params) {
 
     // ==========【返回】=================================================================================================
 
-    return {
+    const tableData = {
         // 表格工具栏节点
         tableToolbarRef,
         // 表格节点
@@ -786,6 +797,15 @@ function create(params) {
         // 设置表格搜索参数
         setTableSearchOptions,
     }
+
+    $power.update(function(data, _data) {
+        _data.$table = tableData
+    })
+
+    // 提供可以被后代组件注入的值
+    provide(NTableKey, tableData)
+
+    return tableData
 }
 
 /**

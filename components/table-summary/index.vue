@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
+
+import { NTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -40,13 +42,21 @@ export default {
      */
     setup(props) {
 
+        // ==========【数据】============================================================================================
+
+        // 获取表格注入
+        const {
+            // 表格选择类型
+            tableSelection,
+        } = inject(NTableKey)
+
         // ==========【计算属性】============================================================================================
 
         const columns = computed(function () {
 
             const lists = []
 
-            if (props.selection !== 'none') {
+            if (tableSelection.value !== 'none') {
                 lists.push({
                     css: 'q-table--col-auto-width text-center',
                     name: '',
@@ -85,6 +95,8 @@ export default {
         return {
             // 栏目
             columns,
+            // 表格选择类型
+            tableSelection,
         }
     },
 }

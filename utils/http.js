@@ -1,7 +1,7 @@
 import { isRef } from 'vue'
 import axios from 'axios'
 import createHttp from '@netang/utils/http'
-import { stateRole } from '../store'
+import { statePower } from '../store'
 
 /**
  * 初始化 http
@@ -102,9 +102,9 @@ utils.http = createHttp({
                     options.headers.Authorization = token
 
                     // 如果有权限
-                    if (stateRole.value.v) {
+                    if (statePower.value.v) {
                         // 头部添加权限版本号
-                        options.headers.Rv = stateRole.value.v
+                        options.headers.Pv = statePower.value.v
                     }
 
                 // 否则未登录 && 如果开启强制登录, 则跳转登录页面
@@ -126,8 +126,8 @@ utils.http = createHttp({
 
         // 如果请求成功
         if (res.status && para.checkCode && para.token) {
-            // 设置角色数据
-            utils.$role.setData(_.get(res, 'response.data.role'))
+            // 设置权限数据
+            utils.$power.setData(_.get(res, 'response.data.power'))
         }
 
         return res

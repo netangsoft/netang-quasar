@@ -1,6 +1,6 @@
 <template>
     <q-drawer
-        v-model="isShow"
+        v-model="currentModelValue"
         :side="side"
         :breakpoint="breakpoint"
         :width="currentWidth"
@@ -20,13 +20,13 @@
 </template>
 
 <script>
-import { ref, inject, nextTick } from 'vue'
+import { ref, inject, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute } from 'vue-router'
 
 import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols.js'
 
-import { NLayoutKey } from '../../utils/symbols'
+import { NPowerKey } from '../../utils/symbols'
 
 export default {
 
@@ -39,11 +39,15 @@ export default {
      * 声明属性
      */
     props: {
+        // 值
+        modelValue: Boolean,
+        // 位置
         side: {
             type: String,
             default: 'left',
             validator: v => [ 'left', 'right' ].includes(v)
         },
+        // 宽度
         width: {
             type: Number,
             default: 300
@@ -55,8 +59,6 @@ export default {
 
         // 【自定义属性】
         // --------------------------------------------------
-        // 是否显示
-        show: Boolean,
         // 手机端宽度(px / %)
         mobileWidth: {
             type: [String, Number],
@@ -83,23 +85,25 @@ export default {
     },
 
     /**
+     * 声明事件
+     */
+    emits: [
+        'update:modelValue',
+    ],
+
+    /**
      * 组合式
      */
-    setup(props) {
+    setup(props, { emit }) {
 
-        // ==========【注入】============================================================================================
+        // ==========【数据】============================================================================================
 
         // 获取 quasar 注入
-        const $layout = inject(layoutKey, emptyRenderFn)
-        if ($layout === emptyRenderFn) {
+        const $quasarLayout = inject(layoutKey, emptyRenderFn)
+        if ($quasarLayout === emptyRenderFn) {
             console.error('NDrawer needs to be child of QLayout')
             return emptyRenderFn
         }
-
-        // 获取布局注入数据
-        const $nLayout = inject(NLayoutKey)
-
-        // ==========【数据】============================================================================================
 
         // quasar 对象
         const $q = useQuasar()
@@ -107,9 +111,22 @@ export default {
         // 获取当前路由
         const $route = useRoute()
 
+        // 获取权限注入数据
+        const $power = inject(NPowerKey)
+
         // 是否显示
-        const isShow = $nLayout.data[props.side].modelValue
-        isShow.value = $q.screen.width < props.breakpoint ? false : props.show
+        let currentModelValue
+        if ($power) {
+            currentModelValue = $power[`${props.side}Drawer`].modelValue
+            if ($q.screen.width < props.breakpoint) {
+                currentModelValue.value = false
+                emit('update:modelValue', false)
+            } else {
+                currentModelValue.value = props.modelValue
+            }
+        } else {
+            currentModelValue = ref(props.modelValue)
+        }
 
         // 缓存名
         let cacheName = ''
@@ -156,9 +173,25 @@ export default {
 
         // 下次 DOM 更新
         nextTick(function() {
-            if (isShow.value && $layout.totalWidth.value < props.breakpoint) {
-                isShow.value = false
+            if (currentModelValue.value && $quasarLayout.totalWidth.value < props.breakpoint) {
+                currentModelValue.value = false
             }
+        })
+
+        // ==========【监听数据】==========================================================================================
+
+        /**
+         * 监听声明值
+         */
+        watch(()=>props.modelValue, function (val) {
+            currentModelValue.value = val
+        })
+
+        /**
+         * 监听当前值
+         */
+        watch(currentModelValue, function (val) {
+            emit('update:modelValue', val)
         })
 
         // ==========【方法】=============================================================================================
@@ -190,7 +223,7 @@ export default {
 
             // if (
             //     // 如果显示
-            //     isShow.value
+            //     currentModelValue.value
             //     // 如果开启折叠
             //     && props.dragCollapse
             //     // 如果有最小宽度
@@ -200,7 +233,7 @@ export default {
             //
             //     // 如果 拖拽宽度 < 折叠宽度
             //     if (dragWidth < collapseWidth) {
-            //         isShow.value = false
+            //         currentModelValue.value = false
             //     }
             // }
 
@@ -218,7 +251,7 @@ export default {
 
         return {
             // 是否显示
-            isShow,
+            currentModelValue,
             // 当前宽度
             currentWidth,
 
