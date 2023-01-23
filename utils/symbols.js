@@ -1,6 +1,7 @@
 export const NPowerKey = '_n_power_'
 export const NLayoutKey = '_n_layout_'
 export const NTableKey = '_n_table_'
+export const NFormKey = '_n_form_'
 export const NDialogKey = '_n_dialog_'
 export const NFieldTableKey = '_n_field_table_'
 export const NUploaderKey = '_n_uploader_'

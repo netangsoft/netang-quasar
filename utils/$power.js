@@ -1,9 +1,8 @@
-import { provide, isRef, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { provide, inject, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 
 import { statePower } from '../store'
-import { NPowerKey } from './symbols'
+import { NPowerKey, NFormKey, NTableKey } from './symbols'
 
 /**
  * 创建权限实例
@@ -12,6 +11,10 @@ function create(params) {
 
     // 获取参数
     const o = Object.assign({
+        // 路由路径
+        path: '',
+        // 路由参数
+        query: {},
         // 页面加载
         pageLoading: false,
         // 页面状态
@@ -24,7 +27,26 @@ function create(params) {
         leftDrawerIcon: 'format_list_bulleted',
         // 右边侧滑菜单图标
         rightDrawerIcon: 'search',
+
+        // 请求前执行
+        requestBefore: null,
+        // 请求成功执行
+        requestSuccess: null,
+        // 请求失败执行
+        requestFail: null,
+        // 请求后执行
+        requestAfter: null,
     }, params)
+
+    // 获取权限路由
+    const $route = utils.isValidString(o.path) ?
+        // 如果为自定义路由
+        utils.router.resolve({
+            path: o.path,
+            query: o.query,
+        })
+        // 否则获取当前路由
+        : utils.router.getRoute()
 
     // quasar 对象
     const $q = useQuasar()
@@ -65,6 +87,17 @@ function create(params) {
         pageStatus: ref(o.pageStatus),
         // 空状态描述
         emptyDescription: ref(o.emptyDescription),
+
+        // 当前路由全路径
+        routeFullPath: $route.fullPath,
+        // 当前路由路径
+        routePath: $route.path,
+        // 当前路由参数
+        routeQuery: $route.query,
+        // 获取当前路由
+        getRoute() {
+            return $route
+        },
 
         // 左边侧滑菜单数据
         leftDrawer: {
@@ -112,7 +145,7 @@ function create(params) {
     if (o.power) {
 
         // 获取当前页面角色权限
-        const { status, data: res } = getPageData()
+        const { status, data: res } = getPageData($route)
         if (! status) {
             o.pageStatus = false
             o.emptyDescription = res.msg
@@ -120,7 +153,7 @@ function create(params) {
 
         } else {
             // 当前页面权限
-            data.powerPage = ref(res.page)
+            data.powerPage = res.page
             // 当前页面权限按钮
             data.powerBtns = ref(res.btns)
             // 当前页面工具栏权限按钮
@@ -180,28 +213,21 @@ function create(params) {
                     data,
                     // 表格选中数据
                     tableSelected,
-                    // 检查是否正在上传文件
-                    checkUploading,
                     // 表格实例
                     $table: _data.$table,
                     // 表单实例
                     $form: _data.$form,
-                    // 传参
-                    // query: roleQuery.value,
-                    // 表格刷新
-                    // tableRefresh,
-                    // // 表单节点
-                    // formRef: props.formRef,
-                    // // 表单数据
-                    // formData: props.formData,
-                    // // 重置表单
-                    // resetForm: props.resetForm,
-                    // // 请求前执行
-                    // requestBefore: props.requestBefore,
-                    // // 请求成功执行
-                    // requestSuccess: props.requestSuccess,
-                    // // 请求后执行
-                    // requestAfter: props.requestAfter,
+                    // 检查是否正在上传文件
+                    checkUploading,
+
+                    // 请求前执行
+                    requestBefore: o.requestBefore,
+                    // 请求成功执行
+                    requestSuccess: o.requestSuccess,
+                    // 请求失败执行
+                    requestFail: o.requestFail,
+                    // 请求后执行
+                    requestAfter: o.requestAfter,
                 })
             }
         }
@@ -210,7 +236,7 @@ function create(params) {
     // 如果没有开启权限
     if (! o.power) {
         // 当前页面权限
-        data.powerPage = ref({})
+        data.powerPage = {}
         // 当前页面权限按钮
         data.powerBtns = ref([])
         // 当前页面工具栏权限按钮
@@ -686,28 +712,12 @@ async function request(params) {
     const o = Object.assign({
         // 按钮数据
         data: {},
-        // 表格选中数据
-        tableSelected: [],
-        // 表格实例
-        $table: null,
-        // 表单实例
-        $form: null,
-
-
         // 参数
         query: {},
-        // 布局数据
-        layoutData: {},
-        // 表格刷新
-        tableRefresh: null,
+        // 表格选中数据
+        tableSelected: [],
         // 检查是否正在上传文件
         checkUploading: null,
-        // 表单节点
-        formRef: null,
-        // 表单数据
-        formData: null,
-        // 重置表单
-        resetForm: null,
         // 请求前执行
         requestBefore: null,
         // 请求成功执行
@@ -783,50 +793,29 @@ async function request(params) {
     // --------------------------------------------------
     if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
+        // 获取表单注入
+        o.$form = _.has(params, '$form') ? params.$form : inject(NFormKey)
+
+        if (! o.$form) {
+            throw new Error('没有创建表单实例')
+        }
+
         // 如果验证表单
         if (_.get(o.data, 'validate') !== false) {
 
-            let formRef
-            if (o.formRef) {
-                if (isRef(o.formRef)) {
-                    formRef = o.formRef.value
-                } else if (_.isFunction(o.formRef)) {
-                    formRef = o.formRef()
-                } else {
-                    formRef = o.formRef
-                }
-            }
-
-            // 如果没有绑定表单节点
-            if (! formRef) {
-
-                // 【调试模式】
-                // --------------------------------------------------
-                // #ifdef IS_DEBUG
-                console.log('没有绑定 fromRef')
-                // #endif
-                // --------------------------------------------------
-
-                return
+            if (! o.$form.formRef) {
+                throw new Error('没有绑定 fromRef')
             }
 
             // 验证表单
-            if (! await formRef.validate()) {
+            if (! await o.$form.formRef.value.validate()) {
                 return
             }
         }
 
-        // 判断表单数据
-        if (! utils.isValidObject(o.formData)) {
-
-            // 【调试模式】
-            // --------------------------------------------------
-            // #ifdef IS_DEBUG
-            console.log('没有获取到表单数据')
-            // #endif
-            // --------------------------------------------------
-
-            return
+        // 验证表单数据
+        if (! utils.isValidObject(o.$form.formData.value)) {
+            throw new Error('没有获取到表单数据')
         }
 
         // 检查是否正在上传文件
@@ -839,11 +828,14 @@ async function request(params) {
         }
 
         // 获取请求数据
-        requestData = _.merge({}, formatQuery(query, false), o.formData)
+        requestData = _.merge({}, formatQuery(query, false), o.$form.formData.value)
 
     // 如果是请求数据
     // --------------------------------------------------
     } else {
+        // 获取表格注入
+        o.$table = _.has(params, '$table') ? params.$table : inject(NTableKey)
+
         // 获取请求数据
         requestData = formatQuery(query, false)
     }
@@ -943,12 +935,12 @@ async function request(params) {
 
                         // 重置表单
                         case 'resetForm':
-                            utils.run(o.resetForm)()
+                            utils.run(o.$form?.resetForm)()
                             break
 
                         // 刷新表格
                         case 'refreshTable':
-                            utils.run(o.tableRefresh)()
+                            utils.run(o.$table?.tableRefresh)()
                             break
                     }
                 }
@@ -979,7 +971,7 @@ async function request(params) {
 function getPageData($route) {
 
     if (! $route) {
-        $route = useRoute()
+        $route = utils.router.getRoute()
     }
 
     const path = _.get($route, 'path')

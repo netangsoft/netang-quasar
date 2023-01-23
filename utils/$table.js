@@ -1,5 +1,4 @@
 import { ref, computed, provide, inject, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { date, useQuasar } from 'quasar'
 import { parse } from 'qs'
 
@@ -12,41 +11,6 @@ import {
 } from './$search'
 
 import { NPowerKey, NTableKey } from './symbols'
-
-/**
- * 获取 url 参数
- */
-function getUrlQuery(url) {
-
-    const query = {}
-
-    if (utils.indexOf(url, '?') > -1) {
-
-        const arr = url.split('?')
-
-        url = arr[0]
-        const urlQuery = parse(arr[1])
-        if (utils.isValidObject(urlQuery)) {
-            utils.forIn(urlQuery, function (val, key) {
-
-                key = utils.trimString(key)
-                val = utils.trimString(val)
-
-                if (key && val) {
-                    if (val.indexOf(',') > -1) {
-                        val = val.split(',')
-                    }
-                    query[key] = utils.numberDeep(val)
-                }
-            })
-        }
-    }
-
-    return {
-        url,
-        query,
-    }
-}
 
 /**
  * 对话框设置
@@ -85,12 +49,6 @@ function dialogSetting($dialog, o) {
  */
 function create(params) {
 
-    // ==========【注入】=================================================================================================
-
-    // 获取对话框注入
-    const $dialog = utils.$dialog.inject()
-    const inDialog = !! $dialog
-
     // ==========【数据】=================================================================================================
 
     // quasar 对象
@@ -102,9 +60,9 @@ function create(params) {
 
     // 获取参数
     const o = _.merge({
-        // 请求地址
-        url: '',
-        // 参数
+        // 路由路径
+        path: '',
+        // 路由参数
         query: {},
         // 表格节点
         ref: null,
@@ -160,16 +118,27 @@ function create(params) {
 
     // 获取权限注入
     const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const hasPowr = !! $power
 
-    const {
-        // 当前页面权限按钮
-        powerBtns,
-        // 表格已选数据
-        tableSelected,
-    } = $power
+    // 获取对话框注入
+    const $dialog = utils.$dialog.inject()
+    const inDialog = !! $dialog
+
+    // 获取权限路由
+    const $route = utils.isValidString(o.path) ?
+        // 如果为自定义路由
+        utils.router.resolve({
+            path: o.path,
+            query: o.query,
+        })
+        // 否则获取当前路由
+        : (hasPowr ? $power.getRoute() : utils.router.getRoute())
 
     // 是否有权限按钮
-    const hasPowerBtns = ! powerBtns.value.length
+    const hasPowerBtns = hasPowr ? ! $power.powerBtns.value.length : false
+
+    // 表格已选数据
+    const tableSelected = hasPowr ? $power.tableSelected : ref([])
 
     // 如果是对话框注入
     if (inDialog) {
@@ -177,17 +146,11 @@ function create(params) {
         dialogSetting($dialog, o)
     }
 
-    // 如果没有地址, 则使用当前路由地址
-    if (! o.url) {
-        // 当前路由
-        o.url = useRoute().fullPath
-    }
-
     // 宫格模式缓存名
-    const gridCacheName = 'table_grid_' + o.url
+    const gridCacheName = 'table_grid_' + $route.fullPath
 
     // 可见列缓存名
-    const visibleColumnsCacheName = 'table_visible_columns_' + o.url
+    const visibleColumnsCacheName = 'table_visible_columns_' + $route.fullPath
 
     // 表格列
     const tableColumns = []
@@ -241,9 +204,9 @@ function create(params) {
         }
 
         // 如果有路由
-        if (_.get(item, 'router')) {
+        if (_.get(item, 'route')) {
             // 如果该值在当前路由路径中, 则显示
-            if (utils.indexOf(o.url, item.router) > -1) {
+            if (utils.indexOf($route.fullPath, item.route) > -1) {
                 tableColumns.push(item)
             }
 
@@ -288,10 +251,6 @@ function create(params) {
     // 表格合计
     const tableSummary = ref(null)
 
-    // 获取 url 参数
-    const resUrl = getUrlQuery(o.url)
-    o.url = resUrl.url
-
     // 如果在表格内部
     if (inDialog) {
         // 提交表格已选数据给对话框
@@ -310,7 +269,7 @@ function create(params) {
         // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
         firstTableSearchValue,
         // 表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
-    } = utils.$search.getRawData(tableColumns, Object.assign({}, o.query, resUrl.query), o.searchFromQuery)
+    } = utils.$search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
 
     // 表格搜索数据值
     const tableSearchValue = ref(firstTableSearchValue)
@@ -332,7 +291,7 @@ function create(params) {
         const lists = []
 
         // 先格式化权限按钮列表
-        utils.forEach(utils.$power.formatBtns(powerBtns.value), function(item) {
+        utils.forEach(utils.$power.formatBtns($power.powerBtns.value), function(item) {
 
             // 如果是固定按钮
             if (item.fixed) {
@@ -597,7 +556,7 @@ function create(params) {
         } else {
             const opts = Object.assign({
                 // 请求 - 登录
-                url: o.url,
+                url: $route.fullPath,
                 // 请求数据
                 data,
                 // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
@@ -741,7 +700,7 @@ function create(params) {
 
     // ==========【返回】=================================================================================================
 
-    const tableData = {
+    const resTable = {
         // 表格工具栏节点
         tableToolbarRef,
         // 表格节点
@@ -799,13 +758,13 @@ function create(params) {
     }
 
     $power.update(function(data, _data) {
-        _data.$table = tableData
+        _data.$table = resTable
     })
 
     // 提供可以被后代组件注入的值
-    provide(NTableKey, tableData)
+    provide(NTableKey, resTable)
 
-    return tableData
+    return resTable
 }
 
 /**
