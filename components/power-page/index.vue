@@ -1,17 +1,21 @@
 <template>
-    <!-- 空数据 -->
-    <n-empty
-        :empty-description="emptyDescription"
-        v-if="pageStatus === false"
-    />
+    <q-page
+        v-bind="$attrs"
+    >
+        <!-- 空数据 -->
+        <n-empty
+            :empty-description="emptyDescription"
+            v-if="pageStatus === false"
+        />
 
-    <!-- 插槽 -->
-    <slot v-else-if="pageStatus === true" />
+        <!-- 插槽 -->
+        <slot v-else-if="pageStatus === true" />
 
-    <!-- 加载 -->
-    <q-inner-loading
-        :showing="pageLoading"
-    />
+        <!-- 加载 -->
+        <q-inner-loading
+            :showing="pageLoading"
+        />
+    </q-page>
 </template>
 
 <script>

@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import {onMounted, ref, provide, inject} from 'vue'
-import { NUploaderKey, NLayoutKey } from '../../utils/symbols'
+import { onMounted, ref, provide, inject } from 'vue'
+import { NPowerKey, NUploaderKey, NLayoutKey } from '../../utils/symbols'
 
 export default {
 
@@ -75,12 +75,10 @@ export default {
      */
     setup(props, { emit }) {
 
-        // ==========【注入】============================================================================================
-
-        // 获取布局注入数据
-        const $nLayout = inject(NLayoutKey)
-
         // ==========【数据】============================================================================================
+
+        // 获取权限注入数据
+        const $power = inject(NPowerKey)
 
         // 页面状态
         const pageStatus = ref(false)
@@ -111,7 +109,7 @@ export default {
         })
 
         // 更新布局数据
-        $nLayout.update(function(data) {
+        $power.update(function(data) {
             data.uploader.push(uploader)
         })
 

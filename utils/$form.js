@@ -20,19 +20,15 @@ function create(params) {
     // 获取权限注入
     const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
 
-    // 表单节点
-    const formRef = ref(null)
-
-    // 表单数据
-    const formData = ref(o.formData)
-
     // ==========【返回】=================================================================================================
 
     const resForm = {
         // 表单节点
-        formRef,
+        formRef: ref(null),
+        // 原始表单数据
+        rawFormData: o.formData,
         // 表单数据
-        formData,
+        formData: ref(o.formData),
     }
 
     if ($power) {

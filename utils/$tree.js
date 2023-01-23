@@ -1,5 +1,5 @@
 import { isRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { NPowerKey } from './symbols'
 
 /**
  * 获取节点
@@ -43,17 +43,19 @@ function getChildren(data, callback) {
 }
 
 /**
- * 树业务
+ * 创建树实例
  */
-utils.$tree = function(params) {
+function create(params) {
 
     const {
+        // 路由路径
+        path,
+        // 路由参数
+        query,
         // 树节点列表
         nodes,
         // 树展开节点
         expanded,
-        // 权限按钮列表
-        roleBtnLists,
         // 原始表单数据
         rawFormData,
         // 表单数据
@@ -63,16 +65,30 @@ utils.$tree = function(params) {
         // 是否开启展开节点缓存
         cache,
     } = Object.assign({
+        // 路由路径
+        path: '',
+        // 路由参数
+        query: {},
         // 是否开启展开节点缓存
         cache: false,
     }, params)
 
-    // 如果没有地址, 则使用当前路由地址
-    let url = ''
-    if (! _.get(params, 'url')) {
-        // 当前路由
-        url = useRoute().fullPath
-    }
+    // 获取权限注入
+    const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const hasPowr = !! $power
+
+    // 获取权限路由
+    const $route = utils.isValidString(path) ?
+        // 如果为自定义路由
+        utils.router.resolve({
+            path,
+            query,
+        })
+        // 否则获取当前路由
+        : (hasPowr ? $power.getRoute() : utils.router.getRoute())
+
+    // 权限按钮
+    const powerBtns = hasPowr ? $power.powerBtns : ref([])
 
     // 是否有展开节点
     const hasExpanded = ! _.isNil(expanded) && isRef(expanded)
@@ -194,21 +210,21 @@ utils.$tree = function(params) {
         maps[o.deleteName] = 'delete'
         maps[o.statusName] = 'status'
 
-        const allRoleBtn = {}
-        for (const item of roleBtnLists.value) {
+        const allPowerBtn = {}
+        for (const item of powerBtns.value) {
             if (_.has(maps, _.get(item, 'name'))) {
-                allRoleBtn[maps[item.name]] = item
+                allPowerBtn[maps[item.name]] = item
             }
         }
 
         return {
-            all: utils.isValidObject(allRoleBtn),
-            update: _.has(allRoleBtn, 'update'),
-            move: _.has(allRoleBtn, 'move'),
-            copy: _.has(allRoleBtn, 'copy'),
-            delete: _.has(allRoleBtn, 'delete'),
-            status: _.has(allRoleBtn, 'status'),
-            allRoleBtn,
+            all: utils.isValidObject(allPowerBtn),
+            update: _.has(allPowerBtn, 'update'),
+            move: _.has(allPowerBtn, 'move'),
+            copy: _.has(allPowerBtn, 'copy'),
+            delete: _.has(allPowerBtn, 'delete'),
+            status: _.has(allPowerBtn, 'status'),
+            allPowerBtn,
         }
     }
 
@@ -255,7 +271,7 @@ utils.$tree = function(params) {
             // 移至节点下
             case 'moveDown':
 
-                if (! _.get(o.menuStatus, 'value.allRoleBtn.move.url')) {
+                if (! _.get(o.menuStatus, 'value.allPowerBtn.move.url')) {
                     console.error('没有找到复制地址')
                     return
                 }
@@ -388,7 +404,7 @@ utils.$tree = function(params) {
 
                         // 请求 - 移动
                         const { status } = await utils.http({
-                            url: o.menuStatus.value.allRoleBtn.move.url,
+                            url: o.menuStatus.value.allPowerBtn.move.url,
                             data: {
                                 data: moveLists,
                             },
@@ -407,7 +423,7 @@ utils.$tree = function(params) {
                 // 确认菜单
                 confirmMenu(async function() {
 
-                    if (! _.get(o.menuStatus, 'value.allRoleBtn.copy.url')) {
+                    if (! _.get(o.menuStatus, 'value.allPowerBtn.copy.url')) {
                         console.error('没有找到复制地址')
                         return
                     }
@@ -432,7 +448,7 @@ utils.$tree = function(params) {
 
                     // 请求 - 复制
                     const { status, data: res } = await utils.http({
-                        url: o.menuStatus.value.allRoleBtn.copy.url,
+                        url: o.menuStatus.value.allPowerBtn.copy.url,
                         data: {
                             data: copyLists,
                         },
@@ -489,7 +505,7 @@ utils.$tree = function(params) {
                     return
                 }
 
-                if (! _.get(o.menuStatus, 'value.allRoleBtn.delete.url')) {
+                if (! _.get(o.menuStatus, 'value.allPowerBtn.delete.url')) {
                     console.error('没有找到删除地址')
                     return
                 }
@@ -499,7 +515,7 @@ utils.$tree = function(params) {
 
                     // 请求 - 删除
                     const { status } = await utils.http({
-                        url: o.menuStatus.value.allRoleBtn.delete.url,
+                        url: o.menuStatus.value.allPowerBtn.delete.url,
                         data: {
                             id: o.node.id,
                         },
@@ -524,7 +540,7 @@ utils.$tree = function(params) {
             // 全部正常
             case 'statusNormal':
 
-                if (! _.get(o.menuStatus, 'value.allRoleBtn.status.url')) {
+                if (! _.get(o.menuStatus, 'value.allPowerBtn.status.url')) {
                     console.error('没有找到状态地址')
                     return
                 }
@@ -550,7 +566,7 @@ utils.$tree = function(params) {
 
                     // 请求 - 全部禁用/正常
                     const { status } = await utils.http({
-                        url: o.menuStatus.value.allRoleBtn.status.url,
+                        url: o.menuStatus.value.allPowerBtn.status.url,
                         data: {
                             // ids
                             ids: statusIds,
@@ -587,7 +603,7 @@ utils.$tree = function(params) {
      */
     function getExpandedCache(defaultValue = []) {
         // 获取展开节点缓存
-        const res = utils.storage.get('tree_expanded_' + url)
+        const res = utils.storage.get('tree_expanded_' + $route.fullPath)
         return utils.isValidArray(res) ? res : defaultValue
     }
 
@@ -596,12 +612,12 @@ utils.$tree = function(params) {
      */
     function setExpandedCache(expanded) {
         // 设置展开节点缓存(永久缓存)
-        utils.storage.set('tree_expanded_' + url, expanded, 0)
+        utils.storage.set('tree_expanded_' + $route.fullPath, expanded, 0)
     }
 
     return {
         // 当前地址
-        url,
+        fullPath: $route.fullPath,
         // 获取节点
         getNode,
         // 更新节点
@@ -617,4 +633,12 @@ utils.$tree = function(params) {
         // 设置展开节点缓存
         setExpandedCache,
     }
+}
+
+/**
+ * 树业务
+ */
+utils.$tree = {
+    // 创建树实例
+    create,
 }

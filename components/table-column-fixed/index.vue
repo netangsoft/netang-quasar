@@ -1,8 +1,8 @@
 <template>
     <q-td :props="props">
-        <div class="q-gutter-sm" v-if="tableFixedRoleBtnLists.length">
+        <div class="q-gutter-sm" v-if="tableFixedPowerBtns.length">
             <q-btn
-                v-for="item in tableFixedRoleBtnLists"
+                v-for="item in tableFixedPowerBtns"
                 :key="`btn-item-${item.id}`"
                 class="n-button-icon"
                 :icon="item.icon"
@@ -53,7 +53,7 @@ export default {
         // 获取表格注入
         const {
             // 固定在右边的权限按钮列表
-            tableFixedRoleBtnLists,
+            tableFixedPowerBtns,
         } = inject(NTableKey)
 
         // ==========【方法】=============================================================================================
@@ -69,7 +69,7 @@ export default {
 
         return {
             // 固定在右边的权限按钮列表
-            tableFixedRoleBtnLists,
+            tableFixedPowerBtns,
             // 权限按钮点击
             onClick,
         }

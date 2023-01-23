@@ -106,8 +106,6 @@ function create(params) {
         search: true,
         // 是否开启合计
         summary: false,
-        // 权限按钮列表
-        roleBtnLists: null,
         // 从参数中获取搜索值
         searchFromQuery: true,
         // 显示宫格
@@ -286,7 +284,7 @@ function create(params) {
     /**
      * 固定在表格右边的权限按钮列表
      */
-    const tableFixedRoleBtnLists = ! hasPowerBtns ? ref([]) : computed(function () {
+    const tableFixedPowerBtns = ! hasPowerBtns ? ref([]) : computed(function () {
 
         const lists = []
 
@@ -305,14 +303,14 @@ function create(params) {
     /**
      * 获取权限按钮中可双击的按钮
      */
-    const tableDbClickRoleBtn = ! hasPowerBtns ? ref(null) : computed(function () {
+    const tableDbClickPowerBtn = ! hasPowerBtns ? ref(null) : computed(function () {
         if (
             // 非手机模式
             ! $q.platform.is.mobile
             // 有权限列表
-            && utils.isValidArray(o.roleBtnLists.value)
+            && utils.isValidArray($power.powerBtns.value)
         ) {
-            for (const item of o.roleBtnLists.value) {
+            for (const item of $power.powerBtns.value) {
                 if (_.has(item, 'data.dbclick') === true) {
                     return item
                 }
@@ -359,7 +357,7 @@ function create(params) {
      * 监听固定在右边的权限按钮列表
      */
     if (hasPowerBtns) {
-        watch(tableFixedRoleBtnLists, function (lists) {
+        watch(tableFixedPowerBtns, function (lists) {
 
             const index = utils.indexOf(tableVisibleColumns.value, 'settings')
 
@@ -679,8 +677,8 @@ function create(params) {
         }
 
         // 有双击的权限按钮
-        if (tableDbClickRoleBtn && tableDbClickRoleBtn.value) {
-            tableToolbarRef.value?.onClick(tableDbClickRoleBtn.value, [ row ])
+        if (tableDbClickPowerBtn && tableDbClickPowerBtn.value) {
+            tableToolbarRef.value?.onClick(tableDbClickPowerBtn.value, [ row ])
         }
     }
 
@@ -724,7 +722,7 @@ function create(params) {
         // 表格已选数据
         tableSelected,
         // 固定在右边的权限按钮列表
-        tableFixedRoleBtnLists,
+        tableFixedPowerBtns,
         // 是否显示固定在右边的权限按钮列表
         showTableFixed,
         // 表格图片标识
