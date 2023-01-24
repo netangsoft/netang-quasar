@@ -23,7 +23,7 @@ function create(params) {
 
     // 每页显示行数选项
     // const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
-    const rowsPerPageOptions = [2, 40, 50, 100, 200, 500, 1000]
+    const rowsPerPageOptions = [3, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
     const o = _.merge({
@@ -35,6 +35,8 @@ function create(params) {
         rowKey: 'id',
         // 选择类型, 可选值 single multiple none
         selection: 'multiple',
+        // 已选数据
+        selected: [],
         // 表格加载状态
         loading: false,
         // 表格列数据(对象数组)
@@ -79,6 +81,8 @@ function create(params) {
         showVisibleColumns: true,
         // 开启缓存
         cache: true,
+        // 刷新后清空已选数据
+        refreshResetSelected: true,
     }, params)
 
     // 获取权限注入
@@ -100,6 +104,9 @@ function create(params) {
 
     // 表格已选数据
     const tableSelected = hasPowr ? $power.tableSelected : ref([])
+    if (utils.isValidArray(o.selected)) {
+        tableSelected.value = o.selected
+    }
 
     // 是否开启缓存
     const isCache = !! o.cache
@@ -220,6 +227,9 @@ function create(params) {
 
     // 表格搜索参数
     const tableSearchOptions = ref()
+
+    // 是否已加载
+    let isTableLoaded = false
 
     // ==========【计算属性】=============================================================================================
 
@@ -394,16 +404,33 @@ function create(params) {
         if (o.summary) {
             isRequestSummary = true
         }
+
         // 请求表格数据
         tableRef.value.requestServerInteraction()
+
         // 清空表格已选数据
-        tableSelected.value = []
+        if (o.refreshResetSelected) {
+            tableSelected.value = []
+        }
     }
 
     /**
      * 表格重新加载
      */
-    function tableReload() {
+    function tableReload(loadOnce = false) {
+
+        if (
+            // 如果只加载一次
+            loadOnce
+            // 如果已加载
+            && isTableLoaded
+        ) {
+            // 则无任何操作
+            return
+        }
+
+        // 表格已加载
+        isTableLoaded = true
 
         if (! $route.fullPath) {
             return
@@ -413,12 +440,16 @@ function create(params) {
         if (o.summary) {
             isRequestSummary = true
         }
+
         // 请求表格数据
         tableRef.value.requestServerInteraction({
             pagination: o.pagination,
         })
+
         // 清空表格已选数据
-        tableSelected.value = []
+        if (o.refreshResetSelected) {
+            tableSelected.value = []
+        }
     }
 
     /**
@@ -481,7 +512,7 @@ function create(params) {
         // 获取搜索值
         const search = utils.$search.formatValue(rawSearchOptions, tableSearchValue.value)
         if (utils.isValidArray(search)) {
-            data.search = _.has(data, 'search') ? _.concat(data.search, search) : search
+            data.n_search = _.has(data, 'search') ? _.concat(data.search, search) : search
         }
 
         // 如果请求表格合计

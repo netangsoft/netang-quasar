@@ -36,10 +36,10 @@
                 class="n-table"
                 style="min-width:500px;max-width:90vw;height: 300px;"
                 v-model:pagination="tablePagination"
-                v-model:selected="quickTableSelected"
+                v-model:selected="selected"
                 :row-key="tableRowKey"
                 :rows="tableRows"
-                :columns="quickTableColumns"
+                :columns="columns"
                 :selection="multiple ? 'multiple' : 'none'"
                 :loading="tableLoading"
                 :rows-per-page-options="tableRowsPerPageOptions"
@@ -122,7 +122,17 @@ export default {
      */
     props: {
         // 值
-        modelValue: [String, Number],
+        modelValue: [ String, Number, Array ],
+        // 已选数据
+        selected: Array,
+        // 初始加载选择数据
+        loadSelected: {
+            type: Boolean,
+            default: true,
+        },
+
+        // 值是否为数组
+        valueArray: Boolean,
         // 占位符
         placeholder: String,
         // 是否只读
@@ -163,6 +173,7 @@ export default {
      */
     emits: [
         'update:modelValue',
+        'update:selected',
     ],
 
     /**
@@ -199,19 +210,19 @@ export default {
             rows: props.rows,
             // 选择类型, 可选值 single multiple none
             selection: props.multiple ? 'multiple' : 'single',
+            // 已选数据
+            selected: props.selected,
             // http 设置
             httpSettings: {
                 // 头部请求
                 headers: {
                     // 添加头部查看请求
-                    Rview: 1,
+                    Pview: 1,
                 },
             },
-            search: false,
+            // 刷新后清空已选数据
+            refreshResetSelected: false,
         })
-
-        // 快捷表格选择数据
-        const quickTableSelected = ref([...$table.tableSelected.value])
 
         // 字段组件获取焦点
         const fieldFocused = ref(false)
@@ -222,11 +233,18 @@ export default {
         // 是否显示对话框
         const showDialog = ref(false)
 
-        // 表格是否已加载
-        let tableLoaded = false
+        // 当前已选数据
+        const selected = ref([...$table.tableSelected.value])
 
-        // 快捷表格列数据
-        const quickTableColumns = getQuickTableColumns()
+        // 当前表格列数据
+        const columns = getQuickTableColumns()
+
+        // 如果有已选数据
+        if (utils.isValidArray(selected.value)) {
+
+            // 检查值更新
+            checkModelValueChange()
+        }
 
         // ==========【计算属性】=========================================================================================
 
@@ -237,35 +255,166 @@ export default {
             return utils.isValidObject(slots) ? Object.keys(slots) : []
         })
 
-        /**
-         * 获取表格列数据
-         */
-        // const tableColumns = computed(function () {
-        //
-        //     // 获取原始表格列数据
-        //     const rawTableColumns = props.route
-        //         // 如果有路由组件路径
-        //         ? utils.$table.config(props.route, 'columns')
-        //         // 否则为自定义表格列数据
-        //         : props.columns
-        //
-        //     // 如果有原始表格列数据
-        //     return utils.isValidArray(rawTableColumns)
-        //         // 克隆原始表格列数据
-        //         ? _.cloneDeep(rawTableColumns)
-        //         : []
-        // })
-
         // ==========【监听数据】=========================================================================================
 
         /**
-         * 获取快捷表格列数据
+         * 监听声明值
          */
-        // watch([()=>props.modelValue, ()=>props.end, ()=>props.type], function() {
-        //
-        // })
+        watch(()=>props.modelValue, async function() {
+
+            // 格式化值
+            let values = formatModelValue()
+
+            // 如果值不是有效数组
+            if (! utils.isValidArray(values)) {
+                // 则清空已选数据
+                selected.value = []
+                return
+            }
+            values = _.uniq(values)
+
+            // 已选数据值数组
+            const selectedValues = utils.isValidArray(selected.value)
+                // 如果有已选数据
+                ? _.uniq(selected.value.map(e => e[props.rowKey]))
+                // 否则为空
+                : []
+
+            // 需增删除的值
+            const removeValues = selectedValues.filter(e => values.indexOf(e) === -1)
+            if (removeValues.length) {
+                utils.forEachRight(selected.value, function (item, index) {
+                    if (removeValues.indexOf(item[props.rowKey]) > -1) {
+                        selected.value.splice(index, 1)
+                    }
+                })
+            }
+
+            // 需增加的值
+            const addValues = values.filter(e => selectedValues.indexOf(e) === -1)
+            if (addValues.length) {
+                // 请求选择数据
+                selected.value.push(...await onRequestSelected(addValues))
+            }
+        })
+
+        /**
+         * 监听声明选择数据
+         */
+        watch(()=>props.selected, function(val) {
+            if (val !== selected.value) {
+                // 设置选择数据
+                selected.value = val
+            }
+            // 检查值更新
+            checkModelValueChange()
+        }, {
+            deep: true
+        })
+
+        /**
+         * 监听当前已选数据
+         */
+        watch(selected, function(val) {
+            if (val !== props.selected) {
+                emit('update:selected', val)
+            }
+        }, {
+            // 深度监听
+            deep: true,
+        })
 
         // ==========【方法】=============================================================================================
+
+        /**
+         * 格式化值
+         */
+        function formatModelValue() {
+
+            // 如果值是数组
+            if (props.valueArray) {
+                return props.modelValue
+            }
+
+            // 否则值是字符串/数字
+            return utils.split(props.modelValue, ',')
+        }
+
+        /**
+         * 请求选择数据
+         */
+        async function onRequestSelected(value) {
+
+            // 请求数据
+            const { status, data } = await utils.http({
+                url: $table.routeFullPath,
+                data: {
+                    // 查看字段
+                    n_view: {
+                        // 查看字段
+                        field: props.rowKey,
+                        // 查看值
+                        value,
+                    },
+                },
+            })
+
+            return status && utils.isValidArray(_.get(data, 'rows')) ? data.rows : []
+        }
+
+        /**
+         * 初始加载选择数据
+         */
+        async function onLoadSelected() {
+
+            if (
+                // 如果初始不加载选择数据
+                ! props.loadSelected
+                // 如果没有请求路由路径
+                || ! routePath
+                // 如果有选择数据
+                || utils.isValidArray(selected.value)
+            ) {
+                // 则无任何操作
+                return
+            }
+
+            // 格式化值
+            const value = formatModelValue()
+
+            // 如果值不是有效数组
+            if (! utils.isValidArray(value)) {
+                // 则无任何操作
+                return
+            }
+
+            // 设置已选数据
+            selected.value = await onRequestSelected(value)
+        }
+
+        /**
+         * 检查值更新
+         */
+        function checkModelValueChange() {
+
+            let newModelValue = utils.isValidArray(selected.value)
+                // 如果有已选数据
+                ? selected.value.map(e => e[props.rowKey])
+                // 否则为空
+                : []
+
+            // 如果值为字符串或数字
+            if (! props.valueArray) {
+                newModelValue = utils.numberDeep(utils.join(newModelValue, ','))
+            }
+
+            // 如果值发生改变
+            if (! _.isEqual(newModelValue, props.modelValue)) {
+
+                // 提交更新值
+                emit('update:modelValue', newModelValue)
+            }
+        }
 
         /**
          * 获取表格列数据
@@ -277,10 +426,12 @@ export default {
                 return _.cloneDeep(props.columns)
             }
 
-            // 否则如果有路由表格列数据
-            const rawTableColumns = utils.$table.config(routePath, 'columns')
-            if (utils.isValidArray(rawTableColumns)) {
-                return _.cloneDeep(rawTableColumns)
+            if (routePath) {
+                // 否则如果有路由表格列数据
+                const rawTableColumns = utils.$table.config(routePath, 'columns')
+                if (utils.isValidArray(rawTableColumns)) {
+                    return _.cloneDeep(rawTableColumns)
+                }
             }
 
             return []
@@ -341,12 +492,7 @@ export default {
          * 弹出层显示回调
          */
         function onPopupShow() {
-
-            // 表格重新加载
-            if (! tableLoaded) {
-                $table.tableReload()
-                tableLoaded = true
-            }
+            $table.tableReload(true)
         }
 
         /**
@@ -385,8 +531,8 @@ export default {
          */
         function onDialogBeforeShow() {
 
-            // 快捷表格选择数据
-            $table.tableSelected.value = [...quickTableSelected.value]
+            // 设置当前已选数据
+            $table.tableSelected.value = [...selected.value]
 
             popupRef.value.hide()
         }
@@ -395,12 +541,7 @@ export default {
          * 弹出层显示回调
          */
         function onDialogShow() {
-
-            // 表格重新加载
-            if (! tableLoaded) {
-                $table.tableReload()
-                tableLoaded = true
-            }
+            $table.tableReload(true)
         }
 
         /**
@@ -429,22 +570,22 @@ export default {
                 opt[props.rowKey] = row[props.rowKey]
 
                 // 获取当前数据索引
-                const itemIndex = _.findIndex(quickTableSelected.value, opt)
+                const itemIndex = _.findIndex(selected.value, opt)
 
                 // 如果不存在
                 if (itemIndex === -1) {
                     // 则添加
-                    quickTableSelected.value.push(row)
+                    selected.value.push(row)
 
                 // 否则
                 } else {
                     // 删除
-                    quickTableSelected.value.splice(itemIndex, 1)
+                    selected.value.splice(itemIndex, 1)
                 }
 
             // 否则为单选
             } else {
-                quickTableSelected.value = [ row ]
+                selected.value = [ row ]
             }
         }
 
@@ -459,8 +600,19 @@ export default {
          * 弹出层隐藏后回调
          */
         function onDialogConfirm(data) {
-            quickTableSelected.value = [...data]
+            selected.value = [...data]
         }
+
+        // ==========【生命周期】=========================================================================================
+
+        /**
+         * 实例被挂载后调用
+         */
+        onMounted(async function() {
+
+            // 初始加载选择数据
+            await onLoadSelected()
+        })
 
         // ==========【返回】=============================================================================================
 
@@ -468,10 +620,10 @@ export default {
             // 解构表格实例
             ...$table,
 
-            // 快捷表格列数据
-            quickTableColumns,
-            // 快捷表格选择数据
-            quickTableSelected,
+            // 当前表格列数据
+            columns,
+            // 当前已选数据
+            selected,
 
             // 字段组件获取焦点
             fieldFocused,
