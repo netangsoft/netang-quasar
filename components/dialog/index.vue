@@ -3,7 +3,7 @@
         class="n-dialog-proxy"
         ref="dialogRef"
         v-model="currentModelValue"
-        v-bind="dialogProps"
+        v-bind="$attrs"
         @hide="onDialogHide"
     >
         <q-card class="flex column" :style="customStyle">
@@ -73,8 +73,6 @@ export default {
             type: Boolean,
             default: true,
         },
-        // 对话框传参
-        dialogProps: Object,
         // 组件标识
         name: String,
         // 路由组件路径

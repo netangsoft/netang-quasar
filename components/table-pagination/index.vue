@@ -1,11 +1,12 @@
 <template>
     <div>
         <!-- 页码 -->
-        <span class="q-table__bottom-item">{{props.pagination.page}} / {{Math.ceil(props.pagination.rowsNumber / props.pagination.rowsPerPage)}}</span>
+        <span class="q-table__bottom-item">{{props.pagination.page}} / {{props.pagesNumber}}</span>
 
         <!-- 第一页 -->
         <q-btn
             v-if="props.pagesNumber > 2"
+            :class="{ dense }"
             icon="first_page"
             color="grey-8"
             round
@@ -17,6 +18,7 @@
 
         <!-- 上页 -->
         <q-btn
+            :class="{ dense }"
             icon="chevron_left"
             color="grey-8"
             round
@@ -28,6 +30,7 @@
 
         <!-- 下页 -->
         <q-btn
+            :class="{ dense }"
             icon="chevron_right"
             color="grey-8"
             round
@@ -39,6 +42,7 @@
 
         <!-- 最后一页 -->
         <q-btn
+            :class="{ dense }"
             v-if="props.pagesNumber > 2"
             icon="last_page"
             color="grey-8"
@@ -51,20 +55,22 @@
 
         <!-- 刷新 -->
         <q-btn
+            :class="{ dense }"
             icon="refresh"
             color="grey-8"
             round
             dense
             flat
             @click="tableRefresh"
-            v-if="hasTable"
+            v-if="! noRefresh && hasRefresh"
         />
 
         <!-- 当前页面工具栏无权限按钮时显示 -->
-        <template v-if="! toolbarPowerBtns.length">
+        <template v-if="! noPower && ! toolbarPowerBtns.length">
 
             <!-- 左边侧滑菜单切换按钮-->
             <q-btn
+                :class="{ dense }"
                 :icon="leftDrawer.icon"
                 dense
                 round
@@ -74,10 +80,14 @@
             />
 
             <!-- 表格筛选可见列按钮 -->
-            <table-visible-columns-button v-if="hasTable" />
+            <table-visible-columns-button
+                :class="{ dense }"
+                v-if="hasTable"
+            />
 
             <!-- 右边侧滑菜单切换按钮-->
             <q-btn
+                :class="{ dense }"
                 :icon="rightDrawer.icon"
                 dense
                 round
@@ -117,6 +127,12 @@ export default {
     props: {
         // 传值
         props: Object,
+        // 是否关闭权限
+        noPower: Boolean,
+        // 是否关闭刷新按钮
+        noRefresh: Boolean,
+        // 紧凑模式
+        dense: Boolean,
     },
 
     /**
@@ -139,6 +155,8 @@ export default {
 
         // 获取表格注入
         const $table = inject(NTableKey)
+        const hasTable = !! $table
+
         const {
             // 表格刷新
             tableRefresh,
@@ -146,9 +164,12 @@ export default {
 
         // ==========【返回】=============================================================================================
 
+
         return {
             // 是否有表格
-            hasTable: !! $table,
+            hasTable,
+            // 是否有刷新按钮
+            hasRefresh: hasTable && !! $table.routeFullPath,
             // 表格刷新
             tableRefresh,
             // 当前页面工具栏权限按钮
@@ -161,3 +182,12 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import "@/assets/sass/var.scss";
+
+// 紧凑模式
+.dense {
+    font-size: 12px;
+}
+</style>

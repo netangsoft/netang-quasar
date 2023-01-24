@@ -284,7 +284,7 @@ function create(params) {
                     minWidth: 500,
                     // 组件标识
                     name: 'moveToTree',
-                    // 传参
+                    // 组件参数
                     props: {
                         // 树节点列表
                         nodes,

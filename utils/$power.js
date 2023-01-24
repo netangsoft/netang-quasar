@@ -39,14 +39,24 @@ function create(params) {
     }, params)
 
     // 获取权限路由
-    const $route = utils.isValidString(o.path) ?
-        // 如果为自定义路由
-        utils.router.resolve({
-            path: o.path,
-            query: o.query,
-        })
-        // 否则获取当前路由
-        : utils.router.getRoute()
+    const $route = o.path === false
+        // 如果没有路由
+        ? {
+            fullPath: '',
+            path: '',
+            query: utils.isValidObject(o.query) ? o.query : {},
+        }
+        // 否则获取路由
+        : (
+            utils.isValidString(o.path) ?
+                // 如果为自定义路由
+                utils.router.resolve({
+                    path: o.path,
+                    query: utils.isValidObject(o.query) ? o.query : {},
+                })
+                // 否则获取当前路由
+                : utils.router.getRoute()
+        )
 
     // quasar 对象
     const $q = useQuasar()

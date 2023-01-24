@@ -1,6 +1,5 @@
 import { ref, computed, provide, inject, watch } from 'vue'
 import { date, useQuasar } from 'quasar'
-import { parse } from 'qs'
 
 // 表格配置
 import tablesConfig from '@/tables'
@@ -10,39 +9,7 @@ import {
     setItemValue,
 } from './$search'
 
-import { NPowerKey, NTableKey } from './symbols'
-
-/**
- * 对话框设置
- */
-function dialogSetting($dialog, o) {
-
-    const {
-        dialogProps,
-        props,
-    } = $dialog
-
-    const {
-        route
-    } = dialogProps
-
-    // 如果是路由组件地址
-    if (utils.isValidString(route)) {
-        o.url = utils.slash(route, 'start', false)
-    }
-
-    const {
-        // 是否多选
-        multiple,
-        query,
-    } = props
-
-    // 是否多选
-    o.selection = multiple ? 'multiple' : 'single'
-
-    // 合并参数
-    Object.assign(o.query, query)
-}
+import { NPowerKey, NTableKey, NDialogKey } from './symbols'
 
 /**
  * 创建表格
@@ -56,7 +23,7 @@ function create(params) {
 
     // 每页显示行数选项
     // const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
-    const rowsPerPageOptions = [4, 40, 50, 100, 200, 500, 1000]
+    const rowsPerPageOptions = [2, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
     const o = _.merge({
@@ -64,8 +31,6 @@ function create(params) {
         path: '',
         // 路由参数
         query: {},
-        // 表格节点
-        ref: null,
         // 表格行唯一键值
         rowKey: 'id',
         // 选择类型, 可选值 single multiple none
@@ -112,22 +77,20 @@ function create(params) {
         showGrid: true,
         // 显示可见列
         showVisibleColumns: true,
+        // 开启缓存
+        cache: true,
     }, params)
 
     // 获取权限注入
     const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
     const hasPowr = !! $power
 
-    // 获取对话框注入
-    const $dialog = utils.$dialog.inject()
-    const inDialog = !! $dialog
-
     // 获取权限路由
     const $route = utils.isValidString(o.path) ?
         // 如果为自定义路由
         utils.router.resolve({
             path: o.path,
-            query: o.query,
+            query: utils.isValidObject(o.query) ? o.query : {},
         })
         // 否则获取当前路由
         : (hasPowr ? $power.getRoute() : utils.router.getRoute())
@@ -138,17 +101,11 @@ function create(params) {
     // 表格已选数据
     const tableSelected = hasPowr ? $power.tableSelected : ref([])
 
-    // 如果是对话框注入
-    if (inDialog) {
-        // 对话框设置
-        dialogSetting($dialog, o)
-    }
+    // 是否开启缓存
+    const isCache = !! o.cache
 
-    // 宫格模式缓存名
-    const gridCacheName = 'table_grid_' + $route.fullPath
-
-    // 可见列缓存名
-    const visibleColumnsCacheName = 'table_visible_columns_' + $route.fullPath
+    // 缓存名
+    const cacheName = $route.fullPath ? $route.fullPath : (utils.isValidString(o.cache) ? o.cache : '')
 
     // 表格列
     const tableColumns = []
@@ -214,16 +171,13 @@ function create(params) {
     })
 
     // 获取可见列缓存
-    const visibleColumnsCache = o.showVisibleColumns ? utils.storage.get(visibleColumnsCacheName) : []
+    const visibleColumnsCache = o.showVisibleColumns && isCache ? utils.storage.get('table_visible_columns_' + cacheName) : []
 
     // 表格可见列
     const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : _.uniq([...o.visibleColumns]))
 
-    // 表格工具栏节点
-    const tableToolbarRef = ref(null)
-
     // 表格节点
-    const tableRef = ref(o.ref)
+    const tableRef = ref(null)
 
     // 表格加载状态
     const tableLoading = ref(o.loading)
@@ -232,10 +186,10 @@ function create(params) {
     const tableRows = ref(o.rows)
 
     // 表格翻页参数
-    const tablePagination = ref(o.pagination)
+    const tablePagination = ref($route.fullPath ? o.pagination : {})
 
     // 表格宫格
-    const tableGrid = ref(o.showGrid ? utils.storage.get(gridCacheName) === true : false)
+    const tableGrid = ref(o.showGrid && isCache ? utils.storage.get('table_grid_' + cacheName) === true : false)
 
     // 表格传参
     const tableQuery = ref({})
@@ -248,14 +202,6 @@ function create(params) {
 
     // 表格合计
     const tableSummary = ref(null)
-
-    // 如果在表格内部
-    if (inDialog) {
-        // 提交表格已选数据给对话框
-        $dialog.submit(function() {
-            return tableSelected.value
-        })
-    }
 
     const {
         // 原始参数
@@ -270,11 +216,7 @@ function create(params) {
     } = utils.$search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
 
     // 表格搜索数据值
-    const tableSearchValue = ref(firstTableSearchValue)
-
-    watch(tableSearchValue, function (val) {
-        console.log('tableSearchValue', val)
-    })
+    const tableSearchValue = ref($route.fullPath ? firstTableSearchValue : [])
 
     // 表格搜索参数
     const tableSearchOptions = ref()
@@ -330,12 +272,12 @@ function create(params) {
     /**
      * 监听表格宫格模式
      */
-    if (o.showGrid) {
+    if (o.showGrid && isCache) {
         watch(tableGrid, function(val) {
 
             // 设置宫格模式缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set(gridCacheName, val, 0)
+            utils.storage.set('table_grid_' + cacheName, val, 0)
             // #endif
         })
     }
@@ -343,12 +285,12 @@ function create(params) {
     /**
      * 监听表格可见列
      */
-    if (o.showVisibleColumns) {
+    if (o.showVisibleColumns && isCache) {
         watch(tableVisibleColumns, function(val) {
 
             // 设置可见列缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set(visibleColumnsCacheName, val, 0)
+            utils.storage.set('table_visible_columns_' + cacheName, val, 0)
             // #endif
         })
     }
@@ -443,6 +385,11 @@ function create(params) {
      * 表格刷新
      */
     function tableRefresh() {
+
+        if (! $route.fullPath) {
+            return
+        }
+
         // 请求表格合计
         if (o.summary) {
             isRequestSummary = true
@@ -457,6 +404,11 @@ function create(params) {
      * 表格重新加载
      */
     function tableReload() {
+
+        if (! $route.fullPath) {
+            return
+        }
+
         // 请求表格合计
         if (o.summary) {
             isRequestSummary = true
@@ -562,14 +514,6 @@ function create(params) {
                 // debounce: false,
             }, o.httpSettings)
 
-            // 如果在对话框内部
-            if (inDialog) {
-                opts.headers = {
-                    // 添加头部查看请求
-                    Rview: 1,
-                }
-            }
-
             result = await utils.http(opts)
         }
 
@@ -628,33 +572,37 @@ function create(params) {
     /**
      * 单击表格行
      */
-    function tableRowClick(e, row, index) {
+    function tableRowClick(e, row) {
+
         // 如果选择类型为无
         if (o.selection === 'none') {
             // 则无任何操作
             return
         }
 
-        const opt = {}
-        opt[o.rowKey] = row[o.rowKey]
+        // 如果选择类型为单选
+        if (o.selection === 'single') {
+            tableSelected.value = [ row ]
 
-        // 获取当前数据索引
-        const itemIndex = _.findIndex(tableSelected.value, opt)
-
-        // 如果不存在, 则添加
-        if (itemIndex === -1) {
-
-            // 如果选择类型为单选
-            if (o.selection === 'single') {
-                tableSelected.value = [row]
-            // 否则为多选
-            } else {
-                tableSelected.value.push(row)
-            }
-
-        // 否则删除
+        // 否则为多选
         } else {
-            tableSelected.value.splice(itemIndex, 1)
+
+            const opt = {}
+            opt[o.rowKey] = row[o.rowKey]
+
+            // 获取当前数据索引
+            const itemIndex = _.findIndex(tableSelected.value, opt)
+
+            // 如果不存在
+            if (itemIndex === -1) {
+                // 则添加
+                tableSelected.value.push(row)
+
+            // 否则
+            } else {
+                // 删除
+                tableSelected.value.splice(itemIndex, 1)
+            }
         }
     }
 
@@ -669,16 +617,13 @@ function create(params) {
             return
         }
 
-        // 如果在对话框内部 && 如果是单选
-        if (inDialog && o.selection === 'single') {
-            tableSelected.value = [ row ]
-            $dialog.confirm()
-            return
-        }
-
-        // 有双击的权限按钮
-        if (tableDbClickPowerBtn && tableDbClickPowerBtn.value) {
-            tableToolbarRef.value?.onClick(tableDbClickPowerBtn.value, [ row ])
+        if (
+            // 有权限
+            hasPowr
+            // 有双击的权限按钮
+            && tableDbClickPowerBtn.value
+        ) {
+             $power.powerBtnClick(tableDbClickPowerBtn.value, [ row ])
         }
     }
 
@@ -699,8 +644,17 @@ function create(params) {
     // ==========【返回】=================================================================================================
 
     const resTable = {
-        // 表格工具栏节点
-        tableToolbarRef,
+        // 当前路由全路径
+        routeFullPath: $route.fullPath,
+        // 当前路由路径
+        routePath: $route.path,
+        // 当前路由参数
+        routeQuery: $route.query,
+        // 获取当前路由
+        getRoute() {
+            return $route
+        },
+
         // 表格节点
         tableRef,
         // 表格加载状态
@@ -755,9 +709,11 @@ function create(params) {
         setTableSearchOptions,
     }
 
-    $power.update(function(data, _data) {
-        _data.$table = resTable
-    })
+    if (hasPowr) {
+        $power.update(function(data, _data) {
+            _data.$table = resTable
+        })
+    }
 
     // 提供可以被后代组件注入的值
     provide(NTableKey, resTable)

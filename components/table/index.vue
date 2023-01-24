@@ -72,7 +72,7 @@
                     :rows-per-page-options="tableRowsPerPageOptions"
                     :grid="tableGrid"
                     @row-click="tableRowClick"
-                    @row-dblclick="tableRowDblclick"
+                    @row-dblclick="currentTableRowDblclick"
                     @request="tableRequest"
                     flat
                     virtual-scroll
@@ -152,7 +152,7 @@
 <script>
 import { ref, watch, computed, inject } from 'vue'
 
-import { NPowerKey, NTableKey } from '../../utils/symbols'
+import { NDialogKey, NTableKey } from '../../utils/symbols'
 
 export default {
 
@@ -197,10 +197,34 @@ export default {
 
         // ==========【数据】============================================================================================
 
-        // 获取权限注入
-        const $power = inject(NPowerKey)
-
+        // 获取表格注入
         const $table = inject(NTableKey)
+
+        // 获取对话框注入
+        const $dialog = inject(NDialogKey)
+        const inDialog = !! $dialog
+
+        // 当前双击表格行
+        let currentTableRowDblclick
+
+        // 如果在对话框内部
+        if (inDialog) {
+            // 提交表格已选数据给对话框
+            $dialog.submit(() => $table.tableSelected.value)
+
+            // 对话框中的表格双击表格行
+            currentTableRowDblclick = function (e, row) {
+                // 如果不是多选
+                if ($table.tableSelection !== 'multiple') {
+                    $table.tableSelected.value = [ row ]
+                    $dialog.confirm()
+                }
+            }
+
+        } else {
+            // 表格实例中的双击表格行
+            currentTableRowDblclick = $table.tableRowDblclick
+        }
 
         // 树节点
         const treeRef = ref(null)
@@ -211,30 +235,13 @@ export default {
         // 树选择数据
         const treeSelected = ref('')
 
-        // 当前请求地址
-        // const currentUrl = ref(props.url ? props.url : useRoute().fullPath)
-
-        // // 表格参数
-        // const tableParams = Object.assign({}, props.tableParams, {
-        //     // 请求地址
-        //     url: currentUrl.value,
-        // })
-        //
-        // // 如果不显示搜索
-        // if (props.noSearch) {
-        //     tableParams.search = false
-        // }
-
         // ==========【计算属性】==========================================================================================
 
         /**
          * 插槽标识
          */
         const slotNames = computed(function() {
-            if (utils.isValidObject(slots)) {
-                return Object.keys(slots)
-            }
-            return []
+            return utils.isValidObject(slots) ? Object.keys(slots) : []
         })
 
         // ==========【监听数据】=========================================================================================
@@ -273,8 +280,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 解构权限实例
-            ...$power,
             // 解构表格实例
             ...$table,
 
@@ -287,6 +292,9 @@ export default {
 
             // 插槽 body 单元格标识
             slotNames,
+
+            // 当前双击表格行
+            currentTableRowDblclick,
         }
     },
 }

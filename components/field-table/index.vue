@@ -36,15 +36,15 @@
                 class="n-table"
                 style="min-width:500px;max-width:90vw;height: 300px;"
                 v-model:pagination="tablePagination"
-                v-model:selected="tableSelected"
+                v-model:selected="quickTableSelected"
                 :row-key="tableRowKey"
                 :rows="tableRows"
-                :columns="tableColumns"
-                :selection="tableSelection"
+                :columns="quickTableColumns"
+                :selection="multiple ? 'multiple' : 'none'"
                 :loading="tableLoading"
                 :rows-per-page-options="tableRowsPerPageOptions"
-                @row-click="tableRowClick"
-                @row-dblclick="tableRowDblclick"
+                @row-click="quickTableRowClick"
+                @row-dblclick="quickTableRowDblclick"
                 @request="tableRequest"
                 flat
                 virtual-scroll
@@ -77,20 +77,12 @@
                     </q-td>
                 </template>
 
-                <!-- 合计 -->
-                <!--<template v-slot:bottom-row="props" v-if="tableSummary">-->
-                <!--    <n-table-summary-->
-                <!--        :props="props"-->
-                <!--        :data="tableSummary"-->
-                <!--        :selection="tableSelection"-->
-                <!--    />-->
-                <!--</template>-->
-
                 <!-- 翻页 -->
                 <template v-slot:pagination="props">
                     <n-table-pagination
                         :props="props"
-                        :table-refresh="tableRefresh"
+                        no-power
+                        dense
                     />
                 </template>
             </q-table>
@@ -100,19 +92,23 @@
     <n-dialog
         title="选择商品"
         v-model="showDialog"
+        :on-confirm="onDialogConfirm"
+        no-esc-dismiss
+        no-backdrop-dismiss
+        @before-show="onDialogBeforeShow"
+        @show="onDialogShow"
+        @before-hide="onDialogBeforeHide"
+        @hide="onDialogHide"
+        cancel
     >
         <q-page>
-            <n-table
-                page-status
-                @load="onPopupShow"
-            />
+            <n-table />
         </q-page>
     </n-dialog>
 </template>
 
 <script>
-import { ref, reactive, computed, provide, watch, nextTick, onMounted } from 'vue'
-import { NFieldTableKey } from '../../utils/symbols'
+import { ref, toRaw, computed, provide, watch, nextTick, onMounted } from 'vue'
 
 export default {
 
@@ -132,10 +128,10 @@ export default {
         // 是否只读
         readonly: Boolean,
 
-        // 表格请求地址
-        url: String,
-        // 路由组件路径
-        route: String,
+        // 表格请求路径
+        path: String,
+        // 表格请求参数
+        query: Object,
         // 值属性名称
         valueKey: {
             type: String,
@@ -174,8 +170,48 @@ export default {
      */
     setup(props, { emit, slots }) {
 
-
         // ==========【数据】============================================================================================
+
+        // 创建权限实例
+        const $power = utils.$power.create({
+            // 路由路径
+            path: utils.isValidString(props.path) ? props.path : false,
+            // 路由参数
+            query: props.query,
+            // 关闭权限页面
+            power: false,
+        })
+
+        const {
+            // 当前路由路径
+            routePath,
+        } = $power
+
+        // 创建表格实例
+        const $table = utils.$table.create({
+            // 权限实例
+            $power,
+            // 获取表格列数据
+            columns: getTableColumns(),
+            // 表格行唯一键值
+            rowKey: props.rowKey,
+            // 行数据
+            rows: props.rows,
+            // 选择类型, 可选值 single multiple none
+            selection: props.multiple ? 'multiple' : 'single',
+            // http 设置
+            httpSettings: {
+                // 头部请求
+                headers: {
+                    // 添加头部查看请求
+                    Rview: 1,
+                },
+            },
+            search: false,
+        })
+
+        // 快捷表格选择数据
+        const quickTableSelected = ref([...$table.tableSelected.value])
 
         // 字段组件获取焦点
         const fieldFocused = ref(false)
@@ -189,28 +225,8 @@ export default {
         // 表格是否已加载
         let tableLoaded = false
 
-        // 创建表格
-        const $table = utils.$table.create({
-            url: props.route ? props.route : props.url,
-            // 获取表格列数据
-            columns: getTableColumns(),
-            // 表格行唯一键值
-            rowKey: props.rowKey,
-            // 选择类型, 可选值 single multiple none
-            selection: props.multiple ? 'multiple' : 'none',
-            // // 关闭宫格
-            // showGrid: false,
-            // // 关闭可见列
-            // showVisibleColumns: false,
-        })
-
-        // ==========【注入】============================================================================================
-
-        // 向后代注入数据
-        provide(NFieldTableKey, {
-            // 表格实例
-            $table,
-        })
+        // 快捷表格列数据
+        const quickTableColumns = getQuickTableColumns()
 
         // ==========【计算属性】=========================================================================================
 
@@ -218,10 +234,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            if (utils.isValidObject(slots)) {
-                return Object.keys(slots)
-            }
-            return []
+            return utils.isValidObject(slots) ? Object.keys(slots) : []
         })
 
         /**
@@ -259,54 +272,52 @@ export default {
          */
         function getTableColumns() {
 
-            // 获取原始表格列数据
-            const rawTableColumns = props.route
-                // 如果有路由组件路径
-                ? utils.$table.config(props.route, 'columns')
-                // 否则为自定义表格列数据
-                : props.columns
+            // 如果有声明路由表格列数据
+            if (utils.isValidArray(props.columns)) {
+                return _.cloneDeep(props.columns)
+            }
+
+            // 否则如果有路由表格列数据
+            const rawTableColumns = utils.$table.config(routePath, 'columns')
+            if (utils.isValidArray(rawTableColumns)) {
+                return _.cloneDeep(rawTableColumns)
+            }
+
+            return []
+        }
+
+        /**
+         * 获取快捷表格列数据
+         */
+        function getQuickTableColumns() {
+
+            const columns = []
 
             // 如果有原始表格列数据
-            return utils.isValidArray(rawTableColumns)
-                // 克隆原始表格列数据
-                ? _.cloneDeep(rawTableColumns)
-                // 否则为空
-                : []
+            if (utils.isValidArray($table.tableColumns)) {
 
-            // const columns = []
-            //
-            // // 获取原始表格列数据
-            // let rawTableColumns = props.route
-            //     // 如果有路由组件路径
-            //     ? utils.$table.config(props.route, 'columns')
-            //     // 否则为自定义表格列数据
-            //     : props.columns
-            //
-            // // 如果有原始表格列数据
-            // if (utils.isValidArray(rawTableColumns)) {
-            //
-            //     // 克隆原始表格列数据
-            //     rawTableColumns = _.cloneDeep(rawTableColumns)
-            //
-            //     // 快捷表格显示的属性名称数组
-            //     utils.forEach(props.showKeys, function (key) {
-            //         for (const item of rawTableColumns) {
-            //             if (item.name === key) {
-            //                 // 删除搜索字段
-            //                 if (_.has(item, 'search')) {
-            //                     delete item.search
-            //                 }
-            //                 // 删除可见字段
-            //                 if (_.has(item, 'visible')) {
-            //                     delete item.visible
-            //                 }
-            //                 columns.push(item)
-            //             }
-            //         }
-            //     })
-            // }
-            //
-            // return columns
+                // 克隆原始表格列数据
+                const rawTableColumns = _.cloneDeep($table.tableColumns)
+
+                // 快捷表格显示的属性名称数组
+                utils.forEach(props.showKeys, function (key) {
+                    for (const item of rawTableColumns) {
+                        if (item.name === key) {
+                            // 删除搜索字段
+                            if (_.has(item, 'search')) {
+                                delete item.search
+                            }
+                            // 删除可见字段
+                            if (_.has(item, 'visible')) {
+                                delete item.visible
+                            }
+                            columns.push(item)
+                        }
+                    }
+                })
+            }
+
+            return columns
         }
 
         /**
@@ -369,14 +380,98 @@ export default {
             showDialog.value = true
         }
 
-        // ==========【生命周期】=========================================================================================
+        /**
+         * 弹出层显示前回调
+         */
+        function onDialogBeforeShow() {
 
+            // 快捷表格选择数据
+            $table.tableSelected.value = [...quickTableSelected.value]
+
+            popupRef.value.hide()
+        }
+
+        /**
+         * 弹出层显示回调
+         */
+        function onDialogShow() {
+
+            // 表格重新加载
+            if (! tableLoaded) {
+                $table.tableReload()
+                tableLoaded = true
+            }
+        }
+
+        /**
+         * 弹出层隐藏前回调
+         */
+        function onDialogBeforeHide() {
+
+        }
+
+        /**
+         * 弹出层隐藏后回调
+         */
+        function onDialogHide() {
+
+        }
+
+        /**
+         * 单击快捷表格行
+         */
+        function quickTableRowClick(e, row, index) {
+
+            // 如果为多选
+            if (props.multiple) {
+
+                const opt = {}
+                opt[props.rowKey] = row[props.rowKey]
+
+                // 获取当前数据索引
+                const itemIndex = _.findIndex(quickTableSelected.value, opt)
+
+                // 如果不存在
+                if (itemIndex === -1) {
+                    // 则添加
+                    quickTableSelected.value.push(row)
+
+                // 否则
+                } else {
+                    // 删除
+                    quickTableSelected.value.splice(itemIndex, 1)
+                }
+
+            // 否则为单选
+            } else {
+                quickTableSelected.value = [ row ]
+            }
+        }
+
+        /**
+         * 弹出层隐藏后回调
+         */
+        function quickTableRowDblclick() {
+
+        }
+
+        /**
+         * 弹出层隐藏后回调
+         */
+        function onDialogConfirm(data) {
+            quickTableSelected.value = [...data]
+        }
 
         // ==========【返回】=============================================================================================
 
         return {
             // 解构表格实例
             ...$table,
+
+            // 快捷表格列数据
+            quickTableColumns,
+            // 快捷表格选择数据
+            quickTableSelected,
 
             // 字段组件获取焦点
             fieldFocused,
@@ -390,6 +485,7 @@ export default {
 
             // 取消
             onCancel,
+
             // 弹出层显示前回调
             onPopupBeforeShow,
             // 弹出层显示回调
@@ -398,11 +494,29 @@ export default {
             onPopupBeforeHide,
             // 弹出层隐藏后回调
             onPopupHide,
+
+            // 弹出层显示前回调
+            onDialogBeforeShow,
+            // 弹出层显示回调
+            onDialogShow,
+            // 弹出层隐藏前回调
+            onDialogBeforeHide,
+            // 弹出层隐藏后回调
+            onDialogHide,
+
             // 清空
             onClear,
 
             // 显示对话框
             onDialog,
+
+            onHide(props) {
+                console.log('onHide', props)
+            },
+
+            quickTableRowClick,
+            quickTableRowDblclick,
+            onDialogConfirm,
         }
     },
 }
