@@ -1,13 +1,32 @@
 <template>
+    <!--:class="fieldFocused ? 'q-field&#45;&#45;float q-field&#45;&#45;focused q-field&#45;&#45;highlighted' : ''"-->
     <q-field
-        :class="fieldFocused ? 'q-field--float q-field--focused q-field--highlighted' : ''"
         :model-value="modelValue"
         :readonly="readonly"
-        @clear="onClear"
+        @focus="onFieldFocus"
+        @blur="onFieldBlur"
+        @clear="onFieldClear"
         v-bind="$attrs"
     >
         <template v-slot:control>
 
+            <q-chip
+                v-for="(item, index) in selected"
+                :key="`options-${index}`"
+                :label="item[labelKey || rowKey]"
+                removable
+                dense
+            />
+
+            <input
+                ref="inputRef"
+                class="q-field__input q-placeholder col q-field__input--padding"
+                v-model="inputValue"
+            />
+            <!--@input="onInput"-->
+            <!--<div class="q-field__native row items-center">-->
+
+            <!--</div>-->
             <!--&lt;!&ndash; 显示值 &ndash;&gt;-->
             <!--<div v-if="showValue">{{showValue}}</div>-->
 
@@ -25,14 +44,19 @@
 
         <q-popup-proxy
             ref="popupRef"
+            no-refocus
+            no-focus
             @before-show="onPopupBeforeShow"
             @show="onPopupShow"
             @before-hide="onPopupBeforeHide"
             @hide="onPopupHide"
+
+            @focus="onPopupFocus"
+            @blur="onPopupBlur"
+
             v-if="! readonly"
         >
             <q-table
-                ref="tableRef"
                 class="n-table"
                 style="min-width:500px;max-width:90vw;height: 300px;"
                 v-model:pagination="tablePagination"
@@ -123,6 +147,10 @@ export default {
     props: {
         // 值
         modelValue: [ String, Number, Array ],
+        // 表格请求路径
+        path: String,
+        // 表格请求参数
+        query: Object,
         // 已选数据
         selected: Array,
         // 初始加载选择数据
@@ -130,30 +158,27 @@ export default {
             type: Boolean,
             default: true,
         },
-
-        // 值是否为数组
-        valueArray: Boolean,
-        // 占位符
-        placeholder: String,
-        // 是否只读
-        readonly: Boolean,
-
-        // 表格请求路径
-        path: String,
-        // 表格请求参数
-        query: Object,
-        // 值属性名称
+        // 值字段(必填)
         valueKey: {
             type: String,
             required: true,
         },
-        // 快捷表格显示的属性名称数组
-        showKeys: {
-            type: Array,
+        // 标签字段(必填)
+        labelKey:  {
+            type: String,
             required: true,
         },
-        // 默认搜索属性名称
+        // 快捷表格显示的字段数组(空为:[值字段, 标签字段])
+        showKeys: Array,
+        // 默认搜索字段(空为:标签字段)
         searchKey: String,
+
+        // 占位符
+        placeholder: String,
+        // 是否只读
+        readonly: Boolean,
+        // 值是否为数组
+        valueArray: Boolean,
 
         // 表格列数据
         columns: Array,
@@ -166,6 +191,11 @@ export default {
         multiple: Boolean,
         // 行数据
         rows: Array,
+        // 输入防抖(毫秒)
+        inputDebounce: {
+            type: [ Number, String ],
+            default: 500
+        },
     },
 
     /**
@@ -180,6 +210,33 @@ export default {
      * 组合式
      */
     setup(props, { emit, slots }) {
+
+        // ==========【计算属性】=========================================================================================
+
+        /**
+         * 插槽标识
+         */
+        const slotNames = computed(function() {
+            return utils.isValidObject(slots) ? Object.keys(slots) : []
+        })
+
+        /**
+         * 当前显示字段
+         */
+        const currentShowKeys = computed(function() {
+            if (utils.isValidArray(props.showKeys)) {
+                return props.showKeys
+            }
+
+            return [ props.rowKey, props.labelKey ]
+        })
+
+        /**
+         * 当前搜索字段
+         */
+        const currentSearchKeys = computed(function() {
+            return props.searchKey || props.labelKey
+        })
 
         // ==========【数据】============================================================================================
 
@@ -224,8 +281,14 @@ export default {
             refreshResetSelected: false,
         })
 
-        // 字段组件获取焦点
-        const fieldFocused = ref(false)
+        // 创建防抖睡眠方法
+        const sleep = utils.debounceSleep()
+
+        // 输入框节点
+        const inputRef = ref(null)
+
+        // 输入框值
+        const inputValue = ref('')
 
         // 弹出层节点
         const popupRef = ref(null)
@@ -245,15 +308,6 @@ export default {
             // 检查值更新
             checkModelValueChange()
         }
-
-        // ==========【计算属性】=========================================================================================
-
-        /**
-         * 插槽标识
-         */
-        const slotNames = computed(function() {
-            return utils.isValidObject(slots) ? Object.keys(slots) : []
-        })
 
         // ==========【监听数据】=========================================================================================
 
@@ -308,7 +362,12 @@ export default {
             }
             // 检查值更新
             checkModelValueChange()
+
+            // 设置输入框焦点
+            setInputFocus()
+
         }, {
+            // 深度监听
             deep: true
         })
 
@@ -451,7 +510,7 @@ export default {
                 const rawTableColumns = _.cloneDeep($table.tableColumns)
 
                 // 快捷表格显示的属性名称数组
-                utils.forEach(props.showKeys, function (key) {
+                utils.forEach(currentShowKeys.value, function (key) {
                     for (const item of rawTableColumns) {
                         if (item.name === key) {
                             // 删除搜索字段
@@ -484,15 +543,17 @@ export default {
          */
         function onPopupBeforeShow() {
 
-            // 字段组件获取焦点
-            fieldFocused.value = true
         }
 
         /**
          * 弹出层显示回调
          */
         function onPopupShow() {
-            $table.tableReload(true)
+
+            $table.tableLoad()
+
+            // 设置输入框焦点
+            setInputFocus()
         }
 
         /**
@@ -500,8 +561,6 @@ export default {
          */
         function onPopupBeforeHide() {
 
-            // 字段组件失去焦点
-            fieldFocused.value = false
         }
 
         /**
@@ -512,9 +571,42 @@ export default {
         }
 
         /**
-         * 清空
+         * 对话框获取焦点触发
          */
-        function onClear() {
+        function onPopupFocus(e) {
+
+            // 停止冒泡
+            e.stopPropagation()
+
+            // 设置输入框焦点
+            setInputFocus()
+
+            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
+        }
+        /**
+         * 对话框失去焦点触发
+         */
+        function onPopupBlur() {
+
+        }
+
+        /**
+         * 字段获取焦点触发
+         */
+        function onFieldFocus() {
+            // console.log('onFieldFocus')
+        }
+        /**
+         * 字段失去焦点触发
+         */
+        function onFieldBlur() {
+            // console.log('onFieldBlur')
+        }
+
+        /**
+         * 字段清空触发
+         */
+        function onFieldClear() {
             emit('update:modelValue', null)
             popupRef.value.hide()
         }
@@ -541,7 +633,7 @@ export default {
          * 弹出层显示回调
          */
         function onDialogShow() {
-            $table.tableReload(true)
+            $table.tableLoad()
         }
 
         /**
@@ -556,6 +648,15 @@ export default {
          */
         function onDialogHide() {
 
+            // 清空输入框值
+            if (inputValue.value) {
+                inputValue.value = ''
+            }
+
+            // 表格搜索重置
+            if ($table.hasTableSearchValue()) {
+                $table.tableSearchReset(false)
+            }
         }
 
         /**
@@ -603,6 +704,79 @@ export default {
             selected.value = [...data]
         }
 
+        /**
+         * 设置输入框焦点
+         */
+        function setInputFocus() {
+            if (inputRef.value) {
+                inputRef.value.focus()
+            }
+        }
+
+        watch(inputValue, async function (val) {
+
+            // 取消延迟执行
+            sleep.cancel()
+
+            if (utils.isValidValue(val)) {
+
+                const n_search = {}
+                n_search[currentSearchKeys.value] = [
+                    {
+                        // 比较类型
+                        type: dicts.SEARCH_TYPE__LIKE,
+                        // 值
+                        value: val || '',
+                    }
+                ]
+
+                $table.tableQuery.value = {
+                    n_search,
+                }
+
+            } else {
+                $table.tableQuery.value = {}
+            }
+
+            // 延迟执行
+            await sleep(props.inputDebounce)
+
+            // 表格重新加载
+            await $table.tableReload()
+        })
+
+        async function onInput(e) {
+
+            // 取消延迟执行
+            sleep.cancel()
+
+            if (utils.isValidValue(e.target.value)) {
+
+                const n_search = {}
+                n_search[currentSearchKeys.value] = [
+                    {
+                        // 比较类型
+                        type: dicts.SEARCH_TYPE__LIKE,
+                        // 值
+                        value: e.target.value || '',
+                    }
+                ]
+
+                $table.tableQuery.value = {
+                    n_search,
+                }
+
+            } else {
+                $table.tableQuery.value = {}
+            }
+
+            // 延迟执行
+            await sleep(props.inputDebounce)
+
+            // 表格重新加载
+            await $table.tableReload()
+        }
+
         // ==========【生命周期】=========================================================================================
 
         /**
@@ -625,8 +799,10 @@ export default {
             // 当前已选数据
             selected,
 
-            // 字段组件获取焦点
-            fieldFocused,
+            // 输入框节点
+            inputRef,
+            // 输入框值
+            inputValue,
             // 弹出层节点
             popupRef,
             // 是否显示对话框
@@ -656,8 +832,18 @@ export default {
             // 弹出层隐藏后回调
             onDialogHide,
 
-            // 清空
-            onClear,
+            // 字段获取焦点触发
+            onFieldFocus,
+            // 字段失去焦点触发
+            onFieldBlur,
+            // 字段清空触发
+            onFieldClear,
+
+            // 对话框获取焦点触发
+            onPopupFocus,
+            // 对话框失去焦点触发
+            onPopupBlur,
+
 
             // 显示对话框
             onDialog,
@@ -669,6 +855,8 @@ export default {
             quickTableRowClick,
             quickTableRowDblclick,
             onDialogConfirm,
+
+            onInput,
         }
     },
 }

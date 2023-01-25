@@ -183,9 +183,6 @@ function create(params) {
     // 表格可见列
     const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : _.uniq([...o.visibleColumns]))
 
-    // 表格节点
-    const tableRef = ref(null)
-
     // 表格加载状态
     const tableLoading = ref(o.loading)
 
@@ -229,7 +226,7 @@ function create(params) {
     const tableSearchOptions = ref()
 
     // 是否已加载
-    let isTableLoaded = false
+    let _isTableLoaded = false
 
     // ==========【计算属性】=============================================================================================
 
@@ -351,50 +348,142 @@ function create(params) {
      */
     watch(tableQuery, function (query) {
 
-        // 如果禁止从参数中获取搜索值
-        if (! o.searchFromQuery) {
-            tableRequestQuery = query
-            return
-        }
-
-        const newQuery = {}
-
         if (utils.isValidObject(query)) {
+
+            query = _.cloneDeep(query)
 
             // 搜索参数键值数组
             const searchQueryKey = []
 
-            utils.forEach(rawSearchOptions, function (item, index) {
-                // 如果传参在搜索参数中
-                if (_.has(query, item.name)) {
-                    // 设置单个搜索值
-                    setItemValue(tableSearchValue.value[index], utils.isRequired(query[item.name]) ? query[item.name] : '')
-                    // 设置参数中搜索的 key
-                    searchQueryKey.push(item.name)
-                }
-            })
+            // 搜索键值数组
+            const NSearchKeys = []
+            // 搜索数组
+            const NSearchValues = []
 
-            if (! searchQueryKey.length) {
-                tableRequestQuery = query
-                return
+            // 参数中是否有自定义搜索参数
+            const hasNSearch = _.has(query, 'n_search')
+            if (hasNSearch) {
+                // 删除在搜索中存在的参数键值
+                utils.forIn(query.n_search, function (item, key) {
+                    if (_.has(query, key)) {
+                        delete query[key]
+                    }
+                })
             }
 
-            utils.forIn(query, function(val, key) {
-                if (searchQueryKey.indexOf(key) === -1) {
-                    newQuery[key] = val
+            // 如果允许从参数中获取搜索值
+            if (o.searchFromQuery) {
+
+                utils.forEach(rawSearchOptions, function (item, index) {
+
+                    const valueItem = tableSearchValue.value[index]
+
+                    // 如果传参在搜素 n_search 参数中
+                    if (hasNSearch && _.has(query.n_search, item.name)) {
+                        const newSearchItem = query.n_search[item.name]
+                        if (utils.isValidArray(newSearchItem)) {
+                            valueItem[0].type = newSearchItem[0].type
+                            valueItem[0].value = newSearchItem[0].value
+
+                            if (newSearchItem.length > 1) {
+                                valueItem[1].type = newSearchItem[1].type
+                                valueItem[1].value = newSearchItem[1].value
+                            }
+                        }
+                        // 设置搜索的 key
+                        NSearchKeys.push(item.name)
+
+                    // 如果传参在搜索参数中
+                    } else if (_.has(query, item.name)) {
+                        // 设置单个搜索值
+                        setItemValue(valueItem, utils.isRequired(query[item.name]) ? query[item.name] : '')
+                        // 设置参数中搜索的 key
+                        searchQueryKey.push(item.name)
+                    }
+                })
+
+                utils.forEach(searchQueryKey, function (key) {
+                    delete query[key]
+                })
+
+                if (hasNSearch) {
+                    utils.forIn(query.n_search, function(item, key) {
+                        if (
+                            NSearchKeys.indexOf(key) === -1
+                            && utils.isValidArray(item)
+                        ) {
+                            item[0].field = key
+                            NSearchValues.push(item[0])
+
+                            if (item.length > 1) {
+                                item[1].field = key
+                                NSearchValues.push(item[1])
+                            }
+                        }
+                    })
                 }
-            })
+
+            } else {
+                utils.forIn(query.n_search, function(item, key) {
+                    if (utils.isValidArray(item)) {
+                        item[0].field = key
+                        NSearchValues.push(item[0])
+                        if (item.length > 1) {
+                            item[1].field = key
+                            NSearchValues.push(item[1])
+                        }
+                    }
+                })
+            }
+
+            if (NSearchValues.length) {
+                query.n_search = NSearchValues
+            } else if (hasNSearch) {
+                delete query.n_search
+            }
+
+            tableRequestQuery = query
+            return
         }
 
-        tableRequestQuery = newQuery
+        tableRequestQuery = {}
+
+    }, {
+        // 深度监听
+        deep: true,
     })
 
     // ==========【方法】================================================================================================
 
     /**
-     * 表格刷新
+     * 表格是否已加载
      */
-    function tableRefresh() {
+    function isTableLoaded() {
+        return _isTableLoaded
+    }
+
+    /**
+     * 表格加载(只加载一次)
+     */
+    async function tableLoad() {
+
+        // 如果表格已加载过了
+        if (_isTableLoaded) {
+            // 则无任何操作
+            return
+        }
+
+        // 表格重新加载
+        await tableReload()
+    }
+
+    /**
+     * 表格重新加载
+     */
+    async function tableReload() {
+
+        // 表格已加载
+        _isTableLoaded = true
 
         if (! $route.fullPath) {
             return
@@ -406,7 +495,12 @@ function create(params) {
         }
 
         // 请求表格数据
-        tableRef.value.requestServerInteraction()
+        // $tableRef?.requestServerInteraction({
+        //     pagination: o.pagination,
+        // })
+        await tableRequest({
+            pagination: o.pagination,
+        })
 
         // 清空表格已选数据
         if (o.refreshResetSelected) {
@@ -415,22 +509,9 @@ function create(params) {
     }
 
     /**
-     * 表格重新加载
+     * 表格刷新
      */
-    function tableReload(loadOnce = false) {
-
-        if (
-            // 如果只加载一次
-            loadOnce
-            // 如果已加载
-            && isTableLoaded
-        ) {
-            // 则无任何操作
-            return
-        }
-
-        // 表格已加载
-        isTableLoaded = true
+    async function tableRefresh() {
 
         if (! $route.fullPath) {
             return
@@ -442,8 +523,9 @@ function create(params) {
         }
 
         // 请求表格数据
-        tableRef.value.requestServerInteraction({
-            pagination: o.pagination,
+        // $tableRef.requestServerInteraction()
+        await tableRequest({
+            pagination: tablePagination.value,
         })
 
         // 清空表格已选数据
@@ -455,13 +537,15 @@ function create(params) {
     /**
      * 表格搜索重置
      */
-    function tableSearchReset() {
+    function tableSearchReset(reload = true) {
 
         // 还原表格搜索数据
         tableSearchValue.value = _.cloneDeep(rawTableSearchValue)
 
         // 表格重新加载
-        tableReload()
+        if (reload) {
+            tableReload().finally()
+        }
     }
 
     /**
@@ -512,7 +596,7 @@ function create(params) {
         // 获取搜索值
         const search = utils.$search.formatValue(rawSearchOptions, tableSearchValue.value)
         if (utils.isValidArray(search)) {
-            data.n_search = _.has(data, 'search') ? _.concat(data.search, search) : search
+            data.n_search = _.has(data, 'n_search') ? _.concat(data.n_search, search) : search
         }
 
         // 如果请求表格合计
@@ -528,7 +612,6 @@ function create(params) {
             result = await utils.runAsync(o.request)({
                 data,
                 props,
-                tableRef,
                 rows: tableRows,
                 selected: tableSelected,
             })
@@ -582,7 +665,6 @@ function create(params) {
                 utils.forEach(rows, function(row) {
                     o.formatRow({
                         row,
-                        tableRef,
                         rows: tableRows,
                         selected: tableSelected,
                     })
@@ -665,6 +747,13 @@ function create(params) {
         tableSearchOptions.value = await utils.$search.getOptions(rawSearchOptions, format)
     }
 
+    /**
+     * 是否有表格搜索值
+     */
+    function hasTableSearchValue() {
+        return !! utils.$search.formatValue(rawSearchOptions, tableSearchValue.value).length
+    }
+
     // 如果开启搜索
     if (o.search) {
         // 设置表格搜索参数
@@ -686,8 +775,6 @@ function create(params) {
             return $route
         },
 
-        // 表格节点
-        tableRef,
         // 表格加载状态
         tableLoading,
         // 表格 id key
@@ -724,20 +811,27 @@ function create(params) {
         // 表格搜索参数
         tableSearchOptions,
 
-        // 表格刷新
-        tableRefresh,
+        // 表格是否已加载
+        isTableLoaded,
+        // 表格加载(只加载一次)
+        tableLoad,
         // 表格重新加载
         tableReload,
+        // 表格刷新
+        tableRefresh,
+        // 表格搜索重置
+        tableSearchReset,
         // 表格请求数据
         tableRequest,
         // 表格单击表格行
         tableRowClick,
         // 表格双击表格行
         tableRowDblclick,
-        // 表格搜索重置
-        tableSearchReset,
         // 设置表格搜索参数
         setTableSearchOptions,
+
+        // 是否有表格搜索值
+        hasTableSearchValue,
     }
 
     if (hasPowr) {

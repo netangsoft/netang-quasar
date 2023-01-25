@@ -1,6 +1,5 @@
 <template>
     <q-field
-        :class="fieldFocused ? 'q-field--float q-field--focused q-field--highlighted' : ''"
         :model-value="modelValue"
         @clear="onClear"
         v-bind="$attrs"
@@ -49,8 +48,8 @@
         <!-- 弹出层代理 -->
         <q-popup-proxy
             ref="popupRef"
-            @before-show="onPopupBeforeShow"
-            @before-hide="onPopupBeforeHide"
+            no-refocus
+            no-focus
             v-if="! readonly"
         >
             <q-card>
@@ -146,8 +145,6 @@ export default {
 
         // ==========【数据】============================================================================================
 
-        // 字段组件获取焦点
-        const fieldFocused = ref(false)
         // 弹出层节点
         const popupRef = ref(null)
         // 树节点
@@ -373,24 +370,6 @@ export default {
         }
 
         /**
-         * 弹出层显示前回调
-         */
-        function onPopupBeforeShow() {
-
-            // 字段组件获取焦点
-            fieldFocused.value = true
-        }
-
-        /**
-         * 弹出层隐藏前回调
-         */
-        function onPopupBeforeHide() {
-
-            // 字段组件失去焦点
-            fieldFocused.value = false
-        }
-
-        /**
          * 清空
          */
         function onClear() {
@@ -401,8 +380,6 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 字段组件获取焦点
-            fieldFocused,
             // 弹出层节点
             popupRef,
             // 树节点
@@ -424,11 +401,6 @@ export default {
             onClear,
             // 移除单个
             onRemoveItem,
-
-            // 弹出层显示前回调
-            onPopupBeforeShow,
-            // 弹出层隐藏前回调
-            onPopupBeforeHide,
         }
     },
 }

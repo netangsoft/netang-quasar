@@ -1,6 +1,5 @@
 <template>
     <q-field
-        :class="fieldFocused ? 'q-field--float q-field--focused q-field--highlighted' : ''"
         :model-value="modelValue"
         :readonly="readonly"
         @clear="onClear"
@@ -30,8 +29,9 @@
 
         <q-popup-proxy
             ref="popupRef"
+            no-refocus
+            no-focus
             @before-show="onPopupBeforeShow"
-            @before-hide="onPopupBeforeHide"
             @hide="onPopupHide"
             v-if="! readonly"
         >
@@ -272,9 +272,6 @@ export default {
         })
 
         // ==========【数据】============================================================================================
-
-        // 字段组件获取焦点
-        const fieldFocused = ref(false)
 
         // 弹出层节点
         const popupRef = ref(null)
@@ -705,9 +702,6 @@ export default {
          */
         function onPopupBeforeShow() {
 
-            // 字段组件获取焦点
-            fieldFocused.value = true
-
             // 如果为选择
             if (isSelect.value) {
                 // 下次 DOM 更新
@@ -726,15 +720,6 @@ export default {
 
                 })
             }
-        }
-
-        /**
-         * 弹出层隐藏前回调
-         */
-        function onPopupBeforeHide() {
-
-            // 字段组件失去焦点
-            fieldFocused.value = false
         }
 
         /**
@@ -772,8 +757,6 @@ export default {
             // 选择数据列表
             selectLists,
 
-            // 字段组件获取焦点
-            fieldFocused,
             // 弹出层节点
             popupRef,
             // 滚动层节点
@@ -803,8 +786,6 @@ export default {
 
             // 弹出层显示前回调
             onPopupBeforeShow,
-            // 弹出层隐藏前回调
-            onPopupBeforeHide,
             // 弹出层隐藏后回调
             onPopupHide,
             // 清空

@@ -56,7 +56,6 @@
         <q-page-container>
             <q-page>
                 <q-table
-                    ref="tableRef"
                     class="n-table absolute-full"
                     :class="{
                         'n-table--last-fixed': showTableFixed,
