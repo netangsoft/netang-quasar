@@ -31,6 +31,8 @@ function create(params) {
         path: '',
         // 路由参数
         query: {},
+        // 附加请求数据
+        data: {},
         // 表格行唯一键值
         rowKey: 'id',
         // 选择类型, 可选值 single multiple none
@@ -142,6 +144,9 @@ function create(params) {
         if (! _.has(item, 'align')) {
             item.align = 'left'
         }
+
+        // 是否隐藏
+        item.hide = _.get(item, 'hide') === true
 
         // 如果有显示项
         if (_.get(item, 'visible') !== false) {
@@ -539,8 +544,22 @@ function create(params) {
      */
     function tableSearchReset(reload = true) {
 
+        const newValue = []
+
+        utils.forEach(rawSearchOptions, function (item, index) {
+            // 如果该搜索条件是隐藏的
+            if (item.hide) {
+                newValue.push(tableSearchValue.value[index])
+            // 否则为初始值
+            } else {
+                newValue.push(rawTableSearchValue[index])
+            }
+        })
+
+        console.log('newValue', newValue)
+
         // 还原表格搜索数据
-        tableSearchValue.value = _.cloneDeep(rawTableSearchValue)
+        tableSearchValue.value = _.cloneDeep(newValue)
 
         // 表格重新加载
         if (reload) {
@@ -549,23 +568,24 @@ function create(params) {
     }
 
     /**
-     * 请求数据
+     * 获取表格请求数据
      */
-    async function tableRequest(props) {
+    function getTableRequestData(props, isSummary = undefined) {
 
         // 解构数据
         const {
             // filter,
             pagination: {
+                // 页码
                 page,
+                // 每页的数据条数
                 rowsPerPage,
+                // 排序字段
                 sortBy,
+                // 是否降序排列
                 descending,
             }
         } = props
-
-        // 设置加载中
-        tableLoading.value = true
 
         // 请求数据
         const data = {
@@ -586,7 +606,7 @@ function create(params) {
         }
 
         // 合并参数
-        utils.forIn(Object.assign({}, rawQuery, tableRequestQuery), function(value, key) {
+        utils.forIn(Object.assign({}, rawQuery, tableRequestQuery, o.data), function(value, key) {
             // 如果有值
             if (utils.isRequired(value)) {
                 data[key] = value
@@ -599,12 +619,41 @@ function create(params) {
             data.n_search = _.has(data, 'n_search') ? _.concat(data.n_search, search) : search
         }
 
+        if (_.isNil(isSummary)) {
+            isSummary = isRequestSummary
+        }
+
         // 如果请求表格合计
-        if (isRequestSummary) {
+        if (isSummary) {
             data.summary = 1
         }
 
-        // 请求数据
+        return data
+    }
+
+    /**
+     * 请求数据
+     */
+    async function tableRequest(props) {
+
+        // 解构数据
+        const {
+            // filter,
+            pagination: {
+                // 页码
+                page,
+                // 每页的数据条数
+                rowsPerPage,
+                // 排序字段
+                sortBy,
+                // 是否降序排列
+                descending,
+            }
+        } = props
+
+        // 获取表格请求数据
+        const data = getTableRequestData(props, isRequestSummary)
+
         let result
 
         // 如果有自定义请求方法
@@ -619,8 +668,8 @@ function create(params) {
         // 否则请求服务器
         } else {
             const opts = Object.assign({
-                // 请求 - 登录
-                url: $route.fullPath,
+                // 请求数据
+                url: $route.path,
                 // 请求数据
                 data,
                 // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
@@ -821,6 +870,8 @@ function create(params) {
         tableRefresh,
         // 表格搜索重置
         tableSearchReset,
+        // 获取表格请求数据
+        getTableRequestData,
         // 表格请求数据
         tableRequest,
         // 表格单击表格行

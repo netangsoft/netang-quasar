@@ -1,61 +1,72 @@
 <template>
     <!--:class="fieldFocused ? 'q-field&#45;&#45;float q-field&#45;&#45;focused q-field&#45;&#45;highlighted' : ''"-->
     <q-field
+        class="n-field-table"
         :model-value="modelValue"
         :readonly="readonly"
-        @focus="onFieldFocus"
-        @blur="onFieldBlur"
+        :clearable="clearable && ! multiple"
         @clear="onFieldClear"
         v-bind="$attrs"
     >
         <template v-slot:control>
 
-            <q-chip
-                v-for="(item, index) in selected"
-                :key="`options-${index}`"
-                :label="item[labelKey || rowKey]"
-                removable
-                dense
-            />
+            <template v-if="multiple">
 
+                <!-- 多选插槽 -->
+                <slot
+                    name="selected"
+                    :selected="selected"
+                    :remove="onRemoveSelected"
+                    v-if="$slots.selected"
+                />
+
+                <!-- 多选标签 -->
+                <template v-else>
+                    <q-chip
+                        v-for="(item, index) in selected"
+                        :key="`options-${index}`"
+                        :label="item[labelKey || rowKey]"
+                        removable
+                        @remove="onRemoveSelected(item, index)"
+                        dense
+                    />
+                </template>
+            </template>
+
+            <!-- 显示文字 -->
+            <span v-else>
+                {{showValue}}
+            </span>
+
+            <!-- 筛选输入框 -->
             <input
                 ref="inputRef"
                 class="q-field__input q-placeholder col q-field__input--padding"
                 v-model="inputValue"
+                v-if="filter"
             />
-            <!--@input="onInput"-->
-            <!--<div class="q-field__native row items-center">-->
 
-            <!--</div>-->
-            <!--&lt;!&ndash; 显示值 &ndash;&gt;-->
-            <!--<div v-if="showValue">{{showValue}}</div>-->
-
-            <!--&lt;!&ndash; 显示占位符 &ndash;&gt;-->
-            <!--<div class="n-placeholder" v-else-if="placeholder">{{placeholder}}</div>-->
         </template>
 
-        <template v-slot:append>
+        <!-- 弹出对话框图标 -->
+        <template v-slot:append v-if="! noDialog">
             <q-icon
                 class="cursor-pointer"
                 name="search"
-                @click.prevent.stop="onDialog"
+                @click.prevent.stop="showDialog = true"
             />
         </template>
 
+        <!-- 弹出层代理 -->
         <q-popup-proxy
             ref="popupRef"
             no-refocus
             no-focus
-            @before-show="onPopupBeforeShow"
             @show="onPopupShow"
-            @before-hide="onPopupBeforeHide"
-            @hide="onPopupHide"
-
             @focus="onPopupFocus"
-            @blur="onPopupBlur"
-
             v-if="! readonly"
         >
+            <!-- 快捷表格 -->
             <q-table
                 class="n-table"
                 style="min-width:500px;max-width:90vw;height: 300px;"
@@ -68,11 +79,11 @@
                 :loading="tableLoading"
                 :rows-per-page-options="tableRowsPerPageOptions"
                 @row-click="quickTableRowClick"
-                @row-dblclick="quickTableRowDblclick"
                 @request="tableRequest"
                 flat
                 virtual-scroll
                 dense
+                v-bind="tableProps"
             >
                 <!-- 图片 -->
                 <template
@@ -113,17 +124,16 @@
         </q-popup-proxy>
     </q-field>
 
+    <!-- 弹出对话框 -->
     <n-dialog
-        title="选择商品"
         v-model="showDialog"
+        width="80%"
         :on-confirm="onDialogConfirm"
-        no-esc-dismiss
-        no-backdrop-dismiss
         @before-show="onDialogBeforeShow"
         @show="onDialogShow"
-        @before-hide="onDialogBeforeHide"
         @hide="onDialogHide"
         cancel
+        v-bind="dialogProps"
     >
         <q-page>
             <n-table />
@@ -132,7 +142,7 @@
 </template>
 
 <script>
-import { ref, toRaw, computed, provide, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 export default {
 
@@ -147,10 +157,14 @@ export default {
     props: {
         // 值
         modelValue: [ String, Number, Array ],
+        // 是否可清除
+        clearable: Boolean,
         // 表格请求路径
         path: String,
         // 表格请求参数
         query: Object,
+        // 附加请求数据
+        data: Object,
         // 已选数据
         selected: Array,
         // 初始加载选择数据
@@ -168,10 +182,23 @@ export default {
             type: String,
             required: true,
         },
+        // 表格行唯一键值
+        rowKey: {
+            type: String,
+            default: 'id',
+        },
         // 快捷表格显示的字段数组(空为:[值字段, 标签字段])
         showKeys: Array,
-        // 默认搜索字段(空为:标签字段)
-        searchKey: String,
+        // 隐藏搜索字段数组
+        hideSearchKeys: Array,
+        // 默认筛选字段(空为:标签字段)
+        filterKey: String,
+        // 是否开启筛选
+        filter: Boolean,
+        // 表格声明属性
+        tableProps: Object,
+        // 对话框声明属性
+        dialogProps: Object,
 
         // 占位符
         placeholder: String,
@@ -179,18 +206,15 @@ export default {
         readonly: Boolean,
         // 值是否为数组
         valueArray: Boolean,
+        // 关闭对话框
+        noDialog: Boolean,
 
         // 表格列数据
         columns: Array,
-        // 表格行唯一键值
-        rowKey: {
-            type: String,
-            default: 'id',
-        },
-        // 是否多选
-        multiple: Boolean,
         // 行数据
         rows: Array,
+        // 是否多选
+        multiple: Boolean,
         // 输入防抖(毫秒)
         inputDebounce: {
             type: [ Number, String ],
@@ -224,18 +248,29 @@ export default {
          * 当前显示字段
          */
         const currentShowKeys = computed(function() {
-            if (utils.isValidArray(props.showKeys)) {
-                return props.showKeys
-            }
-
-            return [ props.rowKey, props.labelKey ]
+            return utils.isValidArray(props.showKeys)
+                ? props.showKeys
+                : [ props.rowKey, props.labelKey ]
         })
 
         /**
          * 当前搜索字段
          */
-        const currentSearchKeys = computed(function() {
-            return props.searchKey || props.labelKey
+        const currentFilterKeys = computed(function() {
+            return props.filterKey || props.labelKey
+        })
+
+        /**
+         * 显示值
+         */
+        const showValue = computed(function () {
+
+            // 如果是单选
+            if (! props.multiple && utils.isValidArray(selected.value)) {
+                return selected.value[0][props.labelKey || props.rowKey]
+            }
+
+            return ''
         })
 
         // ==========【数据】============================================================================================
@@ -259,6 +294,8 @@ export default {
         const $table = utils.$table.create({
             // 权限实例
             $power,
+            // 附加请求数据
+            data: props.data,
             // 获取表格列数据
             columns: getTableColumns(),
             // 表格行唯一键值
@@ -304,7 +341,6 @@ export default {
 
         // 如果有已选数据
         if (utils.isValidArray(selected.value)) {
-
             // 检查值更新
             checkModelValueChange()
         }
@@ -383,6 +419,41 @@ export default {
             deep: true,
         })
 
+        /**
+         * 监听输入框值
+         */
+        watch(inputValue, async function (val) {
+
+            // 取消延迟执行
+            sleep.cancel()
+
+            if (utils.isValidValue(val)) {
+
+                const n_search = {}
+                n_search[currentFilterKeys.value] = [
+                    {
+                        // 比较类型
+                        type: dicts.SEARCH_TYPE__LIKE,
+                        // 值
+                        value: val || '',
+                    }
+                ]
+
+                $table.tableQuery.value = {
+                    n_search,
+                }
+
+            } else {
+                $table.tableQuery.value = {}
+            }
+
+            // 延迟执行
+            await sleep(props.inputDebounce)
+
+            // 表格重新加载
+            await $table.tableReload()
+        })
+
         // ==========【方法】=============================================================================================
 
         /**
@@ -406,16 +477,32 @@ export default {
 
             // 请求数据
             const { status, data } = await utils.http({
-                url: $table.routeFullPath,
-                data: {
-                    // 查看字段
-                    n_view: {
+                url: $table.routePath,
+                data: Object.assign(
+                    // 获取表格请求数据
+                    $table.getTableRequestData({
+                        // filter,
+                        pagination: {
+                            // 页码
+                            page: 1,
+                            // 每页的数据条数
+                            rowsPerPage: value.length,
+                            // 排序字段
+                            sortBy: null,
+                            // 是否降序排列
+                            descending: true,
+                        }
+                    }, false),
+                    {
                         // 查看字段
-                        field: props.rowKey,
-                        // 查看值
-                        value,
-                    },
-                },
+                        n_view: {
+                            // 查看字段
+                            field: props.rowKey,
+                            // 查看值
+                            value,
+                        },
+                    }
+                ),
             })
 
             return status && utils.isValidArray(_.get(data, 'rows')) ? data.rows : []
@@ -458,7 +545,13 @@ export default {
 
             let newModelValue = utils.isValidArray(selected.value)
                 // 如果有已选数据
-                ? selected.value.map(e => e[props.rowKey])
+                ? (
+                    props.multiple
+                        // 如果是多选
+                        ? selected.value.map(e => e[props.rowKey])
+                        // 否则是单选
+                        : [ selected.value[0][props.rowKey] ]
+                )
                 // 否则为空
                 : []
 
@@ -480,17 +573,33 @@ export default {
          */
         function getTableColumns() {
 
+            let columns
+
             // 如果有声明路由表格列数据
             if (utils.isValidArray(props.columns)) {
-                return _.cloneDeep(props.columns)
-            }
+                columns = _.cloneDeep(props.columns)
 
-            if (routePath) {
+            // 如果有路由路径
+            } else if (routePath) {
                 // 否则如果有路由表格列数据
                 const rawTableColumns = utils.$table.config(routePath, 'columns')
                 if (utils.isValidArray(rawTableColumns)) {
-                    return _.cloneDeep(rawTableColumns)
+                    columns = _.cloneDeep(rawTableColumns)
                 }
+            }
+
+            if (utils.isValidArray(columns)) {
+                if (utils.isValidArray(props.hideSearchKeys)) {
+                    for (const item of columns) {
+                        if (
+                            props.hideSearchKeys.indexOf(item.name) > -1
+                            && _.has(item, 'search')
+                        ) {
+                            item.search.hide = true
+                        }
+                    }
+                }
+                return columns
             }
 
             return []
@@ -531,18 +640,22 @@ export default {
         }
 
         /**
-         * 取消
+         * 移除已选数据
          */
-        function onCancel() {
-            // 还原原始值
-            // onEmit('update:modelValue', oldModelValue)
+        function onRemoveSelected(item, index) {
+            selected.value.splice(index, 1)
         }
 
         /**
-         * 弹出层显示前回调
+         * 字段清空触发
          */
-        function onPopupBeforeShow() {
+        function onFieldClear() {
 
+            // 清空快捷表格已选数据
+            selected.value = []
+
+            // 关闭弹出层
+            popupRef.value.hide()
         }
 
         /**
@@ -550,6 +663,7 @@ export default {
          */
         function onPopupShow() {
 
+            // 表格加载(只加载一次)
             $table.tableLoad()
 
             // 设置输入框焦点
@@ -557,21 +671,7 @@ export default {
         }
 
         /**
-         * 弹出层隐藏前回调
-         */
-        function onPopupBeforeHide() {
-
-        }
-
-        /**
-         * 弹出层隐藏后回调
-         */
-        function onPopupHide() {
-
-        }
-
-        /**
-         * 对话框获取焦点触发
+         * 弹出层获取焦点触发
          */
         function onPopupFocus(e) {
 
@@ -583,43 +683,9 @@ export default {
 
             window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
         }
-        /**
-         * 对话框失去焦点触发
-         */
-        function onPopupBlur() {
-
-        }
 
         /**
-         * 字段获取焦点触发
-         */
-        function onFieldFocus() {
-            // console.log('onFieldFocus')
-        }
-        /**
-         * 字段失去焦点触发
-         */
-        function onFieldBlur() {
-            // console.log('onFieldBlur')
-        }
-
-        /**
-         * 字段清空触发
-         */
-        function onFieldClear() {
-            emit('update:modelValue', null)
-            popupRef.value.hide()
-        }
-
-        /**
-         * 显示对话框
-         */
-        function onDialog() {
-            showDialog.value = true
-        }
-
-        /**
-         * 弹出层显示前回调
+         * 对话框显示前回调
          */
         function onDialogBeforeShow() {
 
@@ -630,33 +696,40 @@ export default {
         }
 
         /**
-         * 弹出层显示回调
+         * 对话框显示回调
          */
         function onDialogShow() {
             $table.tableLoad()
         }
 
         /**
-         * 弹出层隐藏前回调
-         */
-        function onDialogBeforeHide() {
-
-        }
-
-        /**
-         * 弹出层隐藏后回调
+         * 对话框隐藏后回调
          */
         function onDialogHide() {
 
+            let isReload = true
+
             // 清空输入框值
             if (inputValue.value) {
+                // 此时清空输入框后, 会自动刷新表格
                 inputValue.value = ''
+
+                // 所以只需要重置搜索值即可, 不需要再重置后刷新表格
+                isReload = false
             }
 
-            // 表格搜索重置
+            // 如果有表格搜索值
             if ($table.hasTableSearchValue()) {
-                $table.tableSearchReset(false)
+                // 表格搜索重置
+                $table.tableSearchReset(isReload)
             }
+        }
+
+        /**
+         * 对话框点击确认回调
+         */
+        function onDialogConfirm(data) {
+            selected.value = [...data]
         }
 
         /**
@@ -687,21 +760,8 @@ export default {
             // 否则为单选
             } else {
                 selected.value = [ row ]
+                popupRef.value.hide()
             }
-        }
-
-        /**
-         * 弹出层隐藏后回调
-         */
-        function quickTableRowDblclick() {
-
-        }
-
-        /**
-         * 弹出层隐藏后回调
-         */
-        function onDialogConfirm(data) {
-            selected.value = [...data]
         }
 
         /**
@@ -711,70 +771,6 @@ export default {
             if (inputRef.value) {
                 inputRef.value.focus()
             }
-        }
-
-        watch(inputValue, async function (val) {
-
-            // 取消延迟执行
-            sleep.cancel()
-
-            if (utils.isValidValue(val)) {
-
-                const n_search = {}
-                n_search[currentSearchKeys.value] = [
-                    {
-                        // 比较类型
-                        type: dicts.SEARCH_TYPE__LIKE,
-                        // 值
-                        value: val || '',
-                    }
-                ]
-
-                $table.tableQuery.value = {
-                    n_search,
-                }
-
-            } else {
-                $table.tableQuery.value = {}
-            }
-
-            // 延迟执行
-            await sleep(props.inputDebounce)
-
-            // 表格重新加载
-            await $table.tableReload()
-        })
-
-        async function onInput(e) {
-
-            // 取消延迟执行
-            sleep.cancel()
-
-            if (utils.isValidValue(e.target.value)) {
-
-                const n_search = {}
-                n_search[currentSearchKeys.value] = [
-                    {
-                        // 比较类型
-                        type: dicts.SEARCH_TYPE__LIKE,
-                        // 值
-                        value: e.target.value || '',
-                    }
-                ]
-
-                $table.tableQuery.value = {
-                    n_search,
-                }
-
-            } else {
-                $table.tableQuery.value = {}
-            }
-
-            // 延迟执行
-            await sleep(props.inputDebounce)
-
-            // 表格重新加载
-            await $table.tableReload()
         }
 
         // ==========【生命周期】=========================================================================================
@@ -794,10 +790,10 @@ export default {
             // 解构表格实例
             ...$table,
 
-            // 当前表格列数据
-            columns,
-            // 当前已选数据
-            selected,
+            // 插槽标识
+            slotNames,
+            // 显示值
+            showValue,
 
             // 输入框节点
             inputRef,
@@ -807,86 +803,45 @@ export default {
             popupRef,
             // 是否显示对话框
             showDialog,
+            // 当前已选数据
+            selected,
+            // 当前表格列数据
+            columns,
 
-            // 插槽 body 单元格标识
-            slotNames,
-
-            // 取消
-            onCancel,
-
-            // 弹出层显示前回调
-            onPopupBeforeShow,
-            // 弹出层显示回调
-            onPopupShow,
-            // 弹出层隐藏前回调
-            onPopupBeforeHide,
-            // 弹出层隐藏后回调
-            onPopupHide,
-
-            // 弹出层显示前回调
-            onDialogBeforeShow,
-            // 弹出层显示回调
-            onDialogShow,
-            // 弹出层隐藏前回调
-            onDialogBeforeHide,
-            // 弹出层隐藏后回调
-            onDialogHide,
-
-            // 字段获取焦点触发
-            onFieldFocus,
-            // 字段失去焦点触发
-            onFieldBlur,
+            // 移除已选数据
+            onRemoveSelected,
             // 字段清空触发
             onFieldClear,
 
-            // 对话框获取焦点触发
+            // 弹出层显示回调
+            onPopupShow,
+            // 弹出层获取焦点触发
             onPopupFocus,
-            // 对话框失去焦点触发
-            onPopupBlur,
 
-
-            // 显示对话框
-            onDialog,
-
-            onHide(props) {
-                console.log('onHide', props)
-            },
-
-            quickTableRowClick,
-            quickTableRowDblclick,
+            // 对话框显示前回调
+            onDialogBeforeShow,
+            // 对话框显示回调
+            onDialogShow,
+            // 对话框隐藏后回调
+            onDialogHide,
+            // 对话框点击确认回调
             onDialogConfirm,
 
-            onInput,
+            // 单击快捷表格行
+            quickTableRowClick,
         }
     },
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "@/assets/sass/var.scss";
 
-.date {
-
-    // 选择容器
-    &__select {
-        background-color: #ffffff;
-    }
-
-    // 时间容器
-    &__time {
-        + .date__settings {
-            // 等同 q-pt-sm
-            padding-top: map-get($space-sm, 'y');
-        }
-    }
-}
-
-/**
- * 暗色
- */
-.body--dark {
-    .date__select {
-        background-color: $color-gray-86;
+.n-field-table {
+    .q-field__input--padding {
+        padding-left: 4px;
+        min-width: 50px !important;
+        cursor: text;
     }
 }
 </style>
