@@ -186,13 +186,6 @@ export default {
         // ==========【计算属性】=========================================================================================
 
         /**
-         * 插槽标识
-         */
-        const slotNames = computed(function() {
-            return utils.isValidObject(slots) ? Object.keys(slots) : []
-        })
-
-        /**
          * 显示值
          */
         const showValue = computed(function () {
@@ -292,7 +285,6 @@ export default {
          * 监听输入框值
          */
         watch(inputValue, function (val) {
-
             if (
                 // 如果弹出层是隐藏的
                 ! showPopup.value
