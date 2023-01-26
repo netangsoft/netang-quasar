@@ -194,12 +194,13 @@ async function getOptions(rawSearchOptions, format) {
                     newItem.select.options = await utils.runAsync(newItem.select.options)()
                 }
 
-            // 如果有树选项
+            // 如果有树选项(调用的是 <n-field-tree> 组件)
             } else if (_.has(newItem, 'tree')) {
                 newItem.searchType = 'tree'
                 newItem.tree = Object.assign({
                     nodes: [],
                     accordion: true,
+                    clearable: true,
                 }, newItem.tree)
 
                 // 如果节点数组是方法
@@ -207,6 +208,20 @@ async function getOptions(rawSearchOptions, format) {
                     // 读取下拉选项
                     newItem.tree.nodes = await utils.runAsync(newItem.tree.nodes)()
                 }
+
+            // 如果有表格选项(调用的是 <n-field-table> 组件)
+            } else if (_.has(newItem, 'table')) {
+                newItem.searchType = 'table'
+                newItem.table = Object.assign({
+                    // 值字段(必填)
+                    valueKey: newItem.name,
+                    // 是否可清除
+                    clearable: true,
+                    // 是否开启筛选
+                    filter: true,
+                }, newItem.table)
+
+                console.log('111', newItem.table)
 
             // 否则为输入框
             } else {

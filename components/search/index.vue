@@ -2,7 +2,7 @@
     <div class="flex column absolute-full" v-if="utils.isValidArray(options)">
         <q-scroll-area class="n-flex-1">
 
-            <div class="n-search q-pa-sm q-pt-md q-gutter-md">
+            <div class="n-search q-pa-sm q-pt-sm q-gutter-sm">
 
                 <template
                     v-for="(item, itemIndex) in options"
@@ -110,11 +110,21 @@
                                 v-model="modelValue[itemIndex][index].value"
                                 dense
                                 outlined
-                                clearable
-                                accordion
                                 :multiple="multiple"
                                 v-bind="item.tree"
                                 v-else-if="item.searchType === 'tree'"
+                            />
+
+                            <!-- 下拉表格 -->
+                            <n-field-table
+                                class="n-field-fieldset"
+                                :label="label"
+                                v-model="modelValue[itemIndex][index].value"
+                                dense
+                                outlined
+                                :multiple="multiple"
+                                v-bind="item.table"
+                                v-else-if="item.searchType === 'table'"
                             />
 
                         </n-search-item>

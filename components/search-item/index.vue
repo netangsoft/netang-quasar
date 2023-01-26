@@ -2,10 +2,11 @@
     <div class="n-search__item n-field-group">
 
         <!-- 比较1 -->
-        <div class="n-field-group row">
+        <div class="n-field-group row no-wrap">
 
             <!-- 比较类型1 -->
             <q-select
+                class="n-field-group__select"
                 v-model="modelValue[0].type"
                 :options="compareOptions1"
                 map-options
@@ -41,6 +42,7 @@
         >
             <!-- 比较类型2 -->
             <q-select
+                class="n-field-group__select"
                 v-model="modelValue[1].type"
                 :options="[
                     { label: '<', value: dicts.SEARCH_TYPE__LT },
@@ -205,7 +207,12 @@ export default {
             // 第三个子节点
             &:nth-child(3) {
                 .q-field__control {
+                    height: 100% !important;
                     background-color: rgba(var(--n-reverse-color-rgb), 0.04);
+
+                    .q-field__marginal {
+                        height: 100% !important;
+                    }
                 }
             }
 

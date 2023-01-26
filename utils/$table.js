@@ -22,8 +22,8 @@ function create(params) {
     const $q = useQuasar()
 
     // 每页显示行数选项
-    // const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
-    const rowsPerPageOptions = [3, 40, 50, 100, 200, 500, 1000]
+    const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
+    // const rowsPerPageOptions = [3, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
     const o = _.merge({
@@ -556,8 +556,6 @@ function create(params) {
             }
         })
 
-        console.log('newValue', newValue)
-
         // 还原表格搜索数据
         tableSearchValue.value = _.cloneDeep(newValue)
 
@@ -742,29 +740,27 @@ function create(params) {
             return
         }
 
-        // 如果选择类型为单选
-        if (o.selection === 'single') {
-            tableSelected.value = [ row ]
+        const opt = {}
+        opt[o.rowKey] = row[o.rowKey]
 
-        // 否则为多选
-        } else {
+        // 获取当前数据索引
+        const itemIndex = _.findIndex(tableSelected.value, opt)
 
-            const opt = {}
-            opt[o.rowKey] = row[o.rowKey]
+        // 如果不存在, 则添加
+        if (itemIndex === -1) {
 
-            // 获取当前数据索引
-            const itemIndex = _.findIndex(tableSelected.value, opt)
+            // 如果选择类型为单选
+            if (o.selection === 'single') {
+                tableSelected.value = [ row ]
 
-            // 如果不存在
-            if (itemIndex === -1) {
-                // 则添加
-                tableSelected.value.push(row)
-
-            // 否则
+            // 否则为多选
             } else {
-                // 删除
-                tableSelected.value.splice(itemIndex, 1)
+                tableSelected.value.push(row)
             }
+
+        // 否则删除
+        } else {
+            tableSelected.value.splice(itemIndex, 1)
         }
     }
 
@@ -898,7 +894,7 @@ function create(params) {
 }
 
 /**
- * 获取配置
+ * 获取表格配置
  */
 function config(routePath, path, defaultValue) {
     return _.get(tablesConfig, utils.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue)
@@ -910,6 +906,6 @@ function config(routePath, path, defaultValue) {
 utils.$table = {
     // 创建表格
     create,
-    // 获取配置
+    // 获取表格配置
     config,
 }

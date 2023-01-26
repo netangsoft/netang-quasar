@@ -1,35 +1,65 @@
 <template>
     <q-field
-        :model-value="modelValue"
-        @clear="onClear"
+        class="n-field-tree"
+        :model-value="showValue"
+        :readonly="readonly"
+        :clearable="clearable && (! multiple || collapseTags)"
+        @focus="onFieldFocus"
+        @blur="onFieldBlur"
+        @clear="onFieldClear"
         v-bind="$attrs"
     >
         <template v-slot:control>
 
-            <!-- 如果有值 -->
-            <template v-if="treeTickedNodes.length">
+            <template v-if="multiple">
 
-                <!-- 如果显示单个值 -->
-                <div v-if="! multiple">{{treeTickedNodes[0].label}}</div>
+                <template v-if="treeTickedNodes.length">
 
-                <!-- 显示折叠的值数量 -->
-                <div v-else-if="collapseTags">
-                    <q-chip dense>+{{treeTickedNodes.length}}</q-chip>
-                </div>
+                    <!-- 多选插槽 -->
+                    <slot
+                        name="selected"
+                        :ticked="treeTickedNodes"
+                        :remove="onRemoveItem"
+                        v-if="$slots.ticked"
+                    />
 
-                <!-- 否则显示多个值 -->
-                <q-chip
-                    v-for="(item, itemIndex) in treeTickedNodes"
-                    :key="`item-${item.id}`"
-                    @remove="onRemoveItem(itemIndex)"
-                    removable
-                    dense
-                    v-else
-                >{{item.label}}</q-chip>
+                    <!-- 显示折叠的值数量 -->
+                    <q-chip
+                        dense
+                        :label="`+${treeTickedNodes.length}`"
+                        v-else-if="collapseTags"
+                    />
+
+                    <!-- 多选标签 -->
+                    <template v-else>
+                        <q-chip
+                            v-for="(item, index) in treeTickedNodes"
+                            :key="`item-${index}`"
+                            :label="item.label"
+                            dense
+                            removable
+                            @remove="onRemoveItem(index)"
+                        />
+                    </template>
+                </template>
+
+                <!-- 占位符-->
+                <span class="n-placeholder" v-else-if="placeholder">{{placeholder}}</span>
             </template>
 
-            <!-- 否则显示占位符 -->
-            <div class="n-placeholder" v-else-if="placeholder">{{placeholder}}</div>
+            <!-- 显示文字 -->
+            <span v-else-if="showValue">{{showValue}}</span>
+
+            <!-- 占位符-->
+            <span class="n-placeholder" v-else-if="placeholder">{{placeholder}}</span>
+
+            <!-- 筛选输入框 -->
+            <input
+                ref="inputRef"
+                class="q-field__input q-placeholder col q-field__input--padding"
+                v-model="inputValue"
+                v-if="filter"
+            />
         </template>
 
         <template v-slot:before v-if="$slots.before">
@@ -50,6 +80,10 @@
             ref="popupRef"
             no-refocus
             no-focus
+            fit
+            @focus="onPopupFocus"
+            @show="onPopupShow"
+            @before-hide="onPopupBeforeHide"
             v-if="! readonly"
         >
             <q-card>
@@ -58,6 +92,7 @@
                     class="q-pa-sm q-pr-md"
                     style="min-width:260px;"
                     ref="treeRef"
+                    :filter="inputValue"
                     :nodes="nodes"
                     :node-key="nodeKey"
                     :label-key="labelKey"
@@ -83,7 +118,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUpdated } from 'vue'
 
 export default {
 
@@ -96,14 +131,10 @@ export default {
      * 声明属性
      */
     props: {
-        // 是否只读
-        readonly: Boolean,
         // 值
         modelValue: [Array, String, Number],
         // 树展开节点
         expanded: Array, // v-model:expanded
-        // 占位符
-        placeholder: String,
         // 节点数组
         nodes: Array,
         // 唯一的节点 id
@@ -127,8 +158,17 @@ export default {
             type: Boolean,
             default: true,
         },
+
+        // 是否开启筛选
+        filter: Boolean,
         // 多选模式下是否折叠 Tag
         collapseTags: Boolean,
+        // 占位符
+        placeholder: String,
+        // 是否可清除
+        clearable: Boolean,
+        // 是否只读
+        readonly: Boolean,
     },
 
     /**
@@ -141,18 +181,53 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { emit }) {
+    setup(props, { emit, slots }) {
+
+        // ==========【计算属性】=========================================================================================
+
+        /**
+         * 插槽标识
+         */
+        const slotNames = computed(function() {
+            return utils.isValidObject(slots) ? Object.keys(slots) : []
+        })
+
+        /**
+         * 显示值
+         */
+        const showValue = computed(function () {
+
+            // 如果有已选数据
+            return utils.isValidArray(treeTickedNodes.value)
+                // 取已选数据第一条的标签
+                ? treeTickedNodes.value[0].label
+                : ''
+        })
 
         // ==========【数据】============================================================================================
 
+
+        // 输入框节点
+        const inputRef = ref(null)
+
+        // 输入框值
+        const inputValue = ref('')
+
         // 弹出层节点
         const popupRef = ref(null)
+
+        // 是否显示弹出层
+        const showPopup = ref(false)
+
         // 树节点
         const treeRef = ref(null)
+
         // 树选择数据
         const treeTicked = ref(formatModelValue())
+
         // tree all
         let treeAll = getTreeAll()
+
         // 树展开数据
         const treeExpanded = ref(getExpanded())
 
@@ -202,7 +277,31 @@ export default {
          * 监听声明值
          */
         watch(()=>props.modelValue, function() {
+
+            // 设置选中数据
             treeTicked.value = formatModelValue()
+
+            // 设置输入框焦点
+            setInputFocus()
+
+            // 设置输入框文字选中
+            setInputSelection()
+        })
+
+        /**
+         * 监听输入框值
+         */
+        watch(inputValue, function (val) {
+
+            if (
+                // 如果弹出层是隐藏的
+                ! showPopup.value
+                // 如果输入框有值
+                && utils.isValidValue(val)
+            ) {
+                // 显示弹出层
+                popupRef.value.show()
+            }
         })
 
         // ==========【方法】=============================================================================================
@@ -370,16 +469,137 @@ export default {
         }
 
         /**
-         * 清空
+         * 字段获取焦点触发
          */
-        function onClear() {
+        function onFieldFocus(e) {
+
+            // 停止冒泡
+            e.stopPropagation()
+
+            // 设置输入框焦点
+            setInputFocus()
+
+            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
+        }
+
+        /**
+         * 字段失去焦点触发
+         */
+        function onFieldBlur(e) {
+
+            // 停止冒泡
+            e.stopPropagation()
+
+            if (
+                // 如果开启筛选
+                props.filter
+                // 如果没有显示弹出层
+                && ! showPopup.value
+            ) {
+                // 清空输入框值
+                inputValue.value = ''
+            }
+        }
+
+        /**
+         * 字段清空触发
+         */
+        function onFieldClear() {
+
+            // 更新值
             emit('update:modelValue', props.multiple ? [] : null)
+
+            // 隐藏弹出层
             popupRef.value.hide()
         }
+
+        /**
+         * 弹出层获取焦点触发
+         */
+        function onPopupFocus(e) {
+
+            // 停止冒泡
+            e.stopPropagation()
+
+            // 设置输入框焦点
+            setInputFocus()
+
+            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
+        }
+
+        /**
+         * 弹出层显示回调
+         */
+        function onPopupShow() {
+
+            // 显示弹出层
+            showPopup.value = true
+
+            // 设置输入框焦点
+            setInputFocus()
+        }
+
+        /**
+         * 弹出层隐藏前显示回调
+         */
+        function onPopupBeforeHide() {
+
+            // 隐藏弹出层
+            showPopup.value = false
+        }
+
+        /**
+         * 设置输入框文字选中
+         */
+        function setInputSelection() {
+            if (
+                // 如果开启筛选
+                props.filter
+                // 如果有输入框节点
+                && inputRef.value
+                // 如果输入框有值
+                && inputValue.value.length
+            ) {
+                // 全选文字
+                inputRef.value.select()
+                // inputRef.value.setSelectionRange(0, inputValue.value.length)
+            }
+        }
+
+        /**
+         * 设置输入框焦点
+         */
+        function setInputFocus() {
+            if (
+                // 如果开启筛选
+                props.filter
+                // 如果有输入框节点
+                && inputRef.value
+            ) {
+                inputRef.value.focus()
+            }
+        }
+
+        // ==========【生命周期】=========================================================================================
+
+        /**
+         * 在组件因为响应式状态变更而更新其 DOM 树之后调用
+         */
+        onUpdated(function () {
+            if (_.has(popupRef.value, 'currentComponent.ref.updatePosition')) {
+                popupRef.value.currentComponent.ref.updatePosition()
+            }
+        })
 
         // ==========【返回】=============================================================================================
 
         return {
+            // 显示值
+            showValue,
+            // 输入框节点
+            inputRef,
+            // 输入框值
+            inputValue,
             // 弹出层节点
             popupRef,
             // 树节点
@@ -397,11 +617,35 @@ export default {
             onUpdateTicked,
             // 点击节点
             onNode,
-            // 清空
-            onClear,
             // 移除单个
             onRemoveItem,
+
+            // 字段获取焦点触发
+            onFieldFocus,
+            // 字段失去焦点触发
+            onFieldBlur,
+            // 字段清空触发
+            onFieldClear,
+
+            // 弹出层获取焦点触发
+            onPopupFocus,
+            // 弹出层显示回调
+            onPopupShow,
+            // 弹出层隐藏前显示回调
+            onPopupBeforeHide,
         }
     },
 }
 </script>
+
+<style lang="scss">
+@import "@/assets/sass/var.scss";
+
+.n-field-tree {
+    .q-field__input--padding {
+        padding-left: 4px;
+        min-width: 50px !important;
+        cursor: text;
+    }
+}
+</style>
