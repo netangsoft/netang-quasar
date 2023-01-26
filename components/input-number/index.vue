@@ -2,12 +2,10 @@
     <q-input
         class="n-input-number"
         v-model="currentValue"
-        @update:model-value="onInput"
         @blur="onBlur"
-        v-on="$listeners"
         v-bind="$attrs"
     >
-        <template #prepend>
+        <template #prepend v-if="showPlus">
             <q-btn
                 color="default"
                 icon="remove"
@@ -18,7 +16,7 @@
                 @overlimit="onOverlimit('minus')"
             />
         </template>
-        <template #append>
+        <template #append v-if="showMinus">
             <q-btn
                 color="default"
                 icon="add"
@@ -34,7 +32,6 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
-import { formatNumbers, addNumber } from './number'
 
 export default {
 
@@ -54,31 +51,18 @@ export default {
         // 最小值
         min: {
             type: [Number, String],
-            default: 1,
+            default: 0,
         },
         // 最大值
         max: {
             type: [Number, String],
             default: Infinity,
         },
-        // 初始值，当 v-model 为空时生效
-        defaultValue: {
-            type: [Number, String],
-            default: 1,
-        },
-        // 步长，每次点击时改变的值
-        step: {
-            type: [Number, String],
-            default: 1,
-        },
-        // 固定显示的小数位数
+        // 步长, 每次点击时改变的值(默认为 1, centToYuan开启后默认为 100)
+        step: [Number, String],
+        // 小数位数(默认为 0, centToYuan开启后默认为 2)
         decimalLength: [Number, String],
-        // 是否只允许输入整数
-        integer: {
-            type: Boolean,
-            default: true,
-        },
-        // 是否禁用步进器
+        // 是否禁用数字输入框
         disabled: Boolean,
         // 是否禁用增加按钮
         disablePlus: Boolean,
@@ -86,25 +70,15 @@ export default {
         disableMinus: Boolean,
         // 是否禁用输入框
         disableInput: Boolean,
-        // 是否开启异步变更，开启后需要手动控制输入值
-        asyncChange: Boolean,
         // 是否显示增加按钮
-        showPlus: {
-            type: Boolean,
-            default: true,
-        },
+        showPlus: Boolean,
         // 是否显示减少按钮
-        showMinus: {
-            type: Boolean,
-            default: true,
-        },
-        // 是否允许输入的值为空
-        allowEmpty: Boolean,
-        // 显示文字
-        showText: {
-            type: Boolean,
-            default: true,
-        },
+        showMinus: Boolean,
+        // 不允许输入的值为空
+        noEmpty: Boolean,
+        // 是否为人民币的分转元(值为分, 显示为元)
+        // 如果为 true, 则 min / max / step 的值默认的单位为人民币的分
+        centToYuan: Boolean,
     },
 
     /**
@@ -124,40 +98,86 @@ export default {
      */
     setup(props, { emit }) {
 
-        // ==========【数据】============================================================================================
-
-        // 当前值
-        const defaultValue = props.modelValue ?? props.defaultValue
-        const value = format(defaultValue)
-        if (! _.isEqual(value, props.modelValue)) {
-            emit('update:modelValue', value)
-        }
-        const currentValue = ref(value)
-
         // ==========【计算属性】=========================================================================================
+
+        /**
+         * 当前最小值
+         */
+        const currentMin = computed(function() {
+            // 格式化数字
+            return formatNumber(props.min, props.centToYuan, true, null)
+        })
+
+        /**
+         * 当前最大值
+         */
+        const currentMax = computed(function() {
+
+            // 如果为无限大
+            if (props.max === Infinity) {
+                // 则返回无限大
+                return Infinity
+            }
+
+            // 格式化数字
+            return formatNumber(props.max, props.centToYuan, true, null)
+        })
+
+        /**
+         * 当前步长(默认为 1, centToYuan开启后默认为 100)
+         */
+        const currentStep = computed(function() {
+            // 格式化数字
+            return formatNumber(props.step ?? (props.centToYuan ? 100 : 1), props.centToYuan, true, null)
+        })
+
+        /**
+         * 当前小数位数(默认为 0, centToYuan开启后默认为 2)
+         */
+        const currentDecimalLength = computed(function() {
+            return props.decimalLength ?? (props.centToYuan ? 2 : 0)
+        })
 
         /**
          * 是否禁用减少按钮
          */
         const minusDisabled = computed(function () {
-            return props.disabled || props.disableMinus || currentValue.value <= +props.min
+            return props.disabled
+                || props.disableMinus
+                || currentValue.value <= +currentMin.value
         })
 
         /**
          * 是否禁用增加按钮
          */
         const plusDisabled = computed(function () {
-            return props.disabled || props.disablePlus || currentValue.value >= +props.max
+            return props.disabled
+                || props.disablePlus
+                || currentValue.value >= +currentMax.value
         })
+
+        // ==========【数据】============================================================================================
+
+        // 当前值
+        const currentValue = ref(formatModelValue(props.modelValue))
+
+        // 如果当前值 !== 声明值
+        if (currentValue.value !== props.modelValue) {
+            // 则更新值
+            emit('update:modelValue', currentValue.value)
+        }
 
         // ==========【监听数据】=========================================================================================
 
         /**
-         * 监听值
+         * 监听声明值
          */
         watch(()=>props.modelValue, function (val) {
-            if (! _.isEqual(val, currentValue.value)) {
-                currentValue.value = format(val)
+            if (val !== currentValue.value) {
+                val = formatModelValue(val)
+                if (val !== currentValue.value) {
+                    currentValue.value = val
+                }
             }
         })
 
@@ -165,95 +185,139 @@ export default {
          * 监听当前值
          */
         watch(currentValue, function (val) {
-            emit('update:modelValue', val)
-            emit('change', val)
+            // 更新值
+            emitModelValue(val)
         })
 
         /**
          * 监听其他
          */
-        watch([()=>props.max, ()=>props.min, ()=>props.integer, ()=>props.decimalLength], function () {
-            const val = format(currentValue.value)
-            if (! _.isEqual(val, currentValue.value)) {
-                currentValue.value = val
+        watch([()=>props.max, ()=>props.min, ()=>props.decimalLength], function () {
+            const val = formatModelValue(currentValue.value)
+            if (val !== currentValue.value) {
+                // 更新值
+                emitModelValue(val)
             }
         })
 
         // ==========【方法】=============================================================================================
 
         /**
+         * 更新值
+         */
+        function emitModelValue(val) {
+            // 更新值
+            emit('update:modelValue', val)
+        }
+
+        /**
          * 格式化数字
          */
-        function formatNumber(value) {
-            return formatNumbers(String(value), ! props.integer)
+        function formatNumber(val, isCentToYuan, isToNumber, defaultValue) {
+
+            // 转为 BigNumber 类型
+            val = new BigNumber(val)
+
+            // 如果为有效数字
+            if (val.isFinite()) {
+
+                // 如果为 0
+                if (val.isZero()) {
+                    return 0
+                }
+
+                // 如果为人民币的分转元
+                if (isCentToYuan) {
+                    // 除 100
+                    val = val.dividedBy(100)
+                }
+
+                // 如果设置了小数位数
+                if (currentDecimalLength.value > 0) {
+
+                    // 如果值精度 > 设置的小数位数
+                    if (val.dp() > currentDecimalLength.value) {
+                        // 将值向下舍入 xx 位精度(如 68.345 -> 68.34)
+                        val = val.dp(currentDecimalLength.value, BigNumber.ROUND_DOWN)
+                    }
+
+                // 否则值为整数
+                } else {
+                    // 将值向下取整
+                    val = val.integerValue(BigNumber.ROUND_DOWN)
+                }
+
+                // 转为数字
+                return isToNumber ? val.toNumber() : val
+            }
+
+            return defaultValue
         }
 
         /**
-         * 格式化
+         * 格式化值
          */
-        function format(value) {
-            if (props.allowEmpty && value === '') {
-                return value
+        function formatModelValue(value) {
+
+            // 格式化数字
+            const val = formatNumber(value, false, false, false)
+
+            // 如果为有效数字
+            if (val !== false) {
+
+                // 如果为 0
+                if (val === 0) {
+                    return 0
+                }
+
+                // 如果值 >= 最大值
+                if (currentMax.value !== null && val.gte(currentMax.value)) {
+
+                    // 返回最大值
+                    return currentMax.value
+                }
+
+                // 如果值 <= 最小值
+                if (currentMin.value !== null && val.lte(currentMin.value)) {
+
+                    // 返回最小值
+                    return currentMin.value
+                }
+
+                // 将值转为数字
+                return val.toNumber()
             }
 
-            value = formatNumber(value)
-
-            // format range
-            value = value === '' ? 0 : +value
-            value = isNaN(value) ? props.min : value
-            value = Math.max(Math.min(props.max, value), props.min)
-
-            // 格式化小数位数
-            if (! _.isNil(props.decimalLength)) {
-                value = value.toFixed(props.decimalLength)
+            if (
+                // 如果不允许值为空
+                props.noEmpty
+                // 如果有最小值
+                && currentMin.value !== null
+            ) {
+                // 则返回最小值
+                return currentMin.value
             }
 
-            return value
-        }
-
-        /**
-         * 输入触发
-         */
-        function onInput(value) {
-
-            let formatted = formatNumber(value)
-
-            // limit max decimal length
-            if (! _.isNil(props.decimalLength) && formatted.indexOf('.') !== -1) {
-                const pair = utils.split(formatted, '.')
-                formatted = `${pair[0]}.${pair[1].slice(0, props.decimalLength)}`
-            }
-
-            // prefer number type
-            if (formatted === String(+formatted)) {
-                formatted = +formatted
-            }
-
-            emitChange(formatted)
+            return ''
         }
 
         /**
          * 失去焦点触发
          */
         function onBlur(value) {
-            value = format(value)
-            emitChange(value)
-            emit('blur', value)
-        }
 
-        /**
-         * 提交改变值
-         */
-        function emitChange(value) {
+            // 格式化值
+            value = formatModelValue(currentValue.value)
 
-            // 是否开启异步变更，开启后需要手动控制输入值
-            if (props.asyncChange) {
-                emit('input', value)
-                emit('change', value)
-                return
+            // 如果值有变动
+            if (value !== currentValue.value) {
+
+                // 更新值
+                emitModelValue(value)
+
+                // 失去焦点触发
+                emit('blur', value)
             }
-
-            currentValue.value = value
         }
 
         /**
@@ -261,17 +325,29 @@ export default {
          */
         function onChange(type) {
 
+            // 如果增加/减少按钮被禁用
             if (props[`${type}Disabled`]) {
+                // 点击不可用的按钮时触发
                 emit('overlimit', type)
                 return
             }
 
-            const diff = type === 'minus' ? -props.step : +props.step
+            const value = formatModelValue(
+                new BigNumber(+currentValue.value)
+                    // 增加 / 减少
+                    .plus(type === 'minus' ? -currentStep.value : +currentStep.value)
+                    .toNumber()
+            )
 
-            const value = format(addNumber(+currentValue.value, diff))
+            // 如果值有变动
+            if (value !== currentValue.value) {
 
-            emitChange(value)
-            emit(type)
+                // 更新值
+                emitModelValue(value)
+
+                // 触发增加/减少
+                emit(type)
+            }
         }
 
         /**
@@ -292,8 +368,6 @@ export default {
             // 是否禁用增加按钮
             plusDisabled,
 
-            // 输入触发
-            onInput,
             // 失去焦点触发
             onBlur,
             // 改变值
@@ -308,17 +382,17 @@ export default {
 <style lang="scss">
 @import "@/assets/sass/var.scss";
 
-.n-input-number {
-    &.q-field {
-        &--outlined {
-            .q-field__control {
-                padding: 0 4px !important;
-                .q-field__native {
-                    text-align: center;
-                }
-            }
-        }
-    }
-}
+//.n-input-number {
+//    &.q-field {
+//        &--outlined {
+//            .q-field__control {
+//                padding: 0 4px !important;
+//                .q-field__native {
+//                    text-align: center;
+//                }
+//            }
+//        }
+//    }
+//}
 </style>
 
