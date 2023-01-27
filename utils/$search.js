@@ -221,11 +221,10 @@ async function getOptions(rawSearchOptions, format) {
                     filter: true,
                 }, newItem.table)
 
-                console.log('111', newItem.table)
-
             // 否则为输入框
             } else {
                 newItem.searchType = 'input'
+                newItem.input = Object.assign({}, newItem.input)
             }
 
             lists.push(newItem)

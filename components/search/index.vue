@@ -56,35 +56,47 @@
                                 />
                             </template>
 
-                            <!-- 输入框 价格 -->
-                            <n-input-price
+                            <!-- 数字输入框 价格 -->
+                            <n-input-number
                                 class="n-field-fieldset"
                                 :label="label"
                                 v-model="modelValue[itemIndex][index].value"
                                 dense
                                 outlined
                                 clearable
-                                v-else-if="item.type === 'price'"
-                            >
-                                <!--<template v-slot:append>-->
-                                <!--    <q-btn round dense flat icon="search" />-->
-                                <!--</template>-->
-                            </n-input-price>
 
-                            <!-- 输入框 文字 -->
-                            <q-input
-                                class="n-field-fieldset"
-                                :label="label"
-                                v-model="modelValue[itemIndex][index].value"
-                                dense
-                                outlined
-                                clearable
-                                v-else-if="item.searchType === 'input'"
-                            >
-                                <!--<template v-slot:append>-->
-                                <!--    <q-btn round dense flat icon="search" />-->
-                                <!--</template>-->
-                            </q-input>
+                                :decimal-length="2"
+                                :cent-to-yuan="centToYuan"
+
+                                v-bind="item.input"
+                                v-else-if="item.type === 'price'"
+                            />
+
+                            <!-- 输入框 -->
+                            <template v-else-if="item.searchType === 'input'">
+                                <!-- 输入框 数字 -->
+                                <n-input-number
+                                    class="n-field-fieldset"
+                                    :label="label"
+                                    v-model="modelValue[itemIndex][index].value"
+                                    dense
+                                    outlined
+                                    clearable
+                                    v-bind="item.input"
+                                    v-if="item.type === 'number'"
+                                />
+                                <!-- 输入框 文字 -->
+                                <q-input
+                                    class="n-field-fieldset"
+                                    :label="label"
+                                    v-model="modelValue[itemIndex][index].value"
+                                    dense
+                                    outlined
+                                    clearable
+                                    v-bind="item.input"
+                                    v-else
+                                />
+                            </template>
 
                             <!-- 下拉列表 -->
                             <q-select
@@ -164,13 +176,14 @@
 </template>
 
 <script>
+import { computed } from 'vue'
+
 export default {
 
     /**
      * 标识
      */
     name: 'NSearch',
-
     /**
      * 声明属性
      */
@@ -184,5 +197,15 @@ export default {
         // 重置
         onReset: Function,
     },
+
+    /**
+     * 组合式
+     */
+    setup() {
+        return {
+            // 如果金额为分
+            centToYuan: utils.config('priceCent') === true,
+        }
+    }
 }
 </script>
