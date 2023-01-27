@@ -182,11 +182,8 @@ export default {
         data: Object,
         // 已选数据
         selected: Array,
-        // 初始加载选择数据
-        loadSelected: {
-            type: Boolean,
-            default: true,
-        },
+        // 初始时不加载选择数据
+        noLoadSelected: Boolean,
         // 值字段(必填)
         valueKey: {
             type: String,
@@ -232,6 +229,11 @@ export default {
         inputDebounce: {
             type: [ Number, String ],
             default: 500
+        },
+        // 值分隔符(值为非数组有效)
+        valueSeparator: {
+            type: String,
+            default: ',',
         },
     },
 
@@ -324,7 +326,7 @@ export default {
             // 选择类型, 可选值 single multiple none
             selection: props.multiple ? 'multiple' : 'single',
             // 已选数据
-            selected: props.selected,
+            selected: initSelected(),
             // http 设置
             httpSettings: {
                 // 头部请求
@@ -339,6 +341,12 @@ export default {
 
         // 创建防抖睡眠方法
         const sleep = utils.debounceSleep()
+
+        // 停止观察值
+        let stopValueWatcher = false
+
+        // 停止观察已选数据
+        let stopSelectedWatcher = false
 
         // 输入框节点
         const inputRef = ref(null)
@@ -374,53 +382,75 @@ export default {
          */
         watch(()=>props.modelValue, async function() {
 
+            // 如果停止观察值
+            if (stopValueWatcher === true) {
+                // 取消停止观察值
+                stopValueWatcher = false
+                return
+            }
+
             // 格式化值
             let values = formatModelValue()
 
-            // 如果值不是有效数组
-            if (! utils.isValidArray(values)) {
-                // 则清空已选数据
+            // 如果值是有效数组
+            if (utils.isValidArray(values)) {
+
+                // 去重
+                values = _.uniq(values)
+
+                // 已选数据值数组
+                const selectedValues = utils.isValidArray(selected.value)
+                    // 如果有已选数据
+                    ? _.uniq(selected.value.map(e => e[props.valueKey]))
+                    // 否则为空
+                    : []
+
+                // 需增删除的值
+                const removeValues = selectedValues.filter(e => values.indexOf(e) === -1)
+                if (removeValues.length) {
+                    utils.forEachRight(selected.value, function (item, index) {
+                        if (removeValues.indexOf(item[props.valueKey]) > -1) {
+                            selected.value.splice(index, 1)
+                        }
+                    })
+                }
+
+                // 需增加的值
+                const addValues = values.filter(e => selectedValues.indexOf(e) === -1)
+                if (addValues.length) {
+                    // 请求选择数据
+                    selected.value.push(...await onRequestSelected(addValues))
+                }
+
+            // 否则
+            } else {
+                // 清空已选数据
                 selected.value = []
-                return
-            }
-            values = _.uniq(values)
-
-            // 已选数据值数组
-            const selectedValues = utils.isValidArray(selected.value)
-                // 如果有已选数据
-                ? _.uniq(selected.value.map(e => e[props.valueKey]))
-                // 否则为空
-                : []
-
-            // 需增删除的值
-            const removeValues = selectedValues.filter(e => values.indexOf(e) === -1)
-            if (removeValues.length) {
-                utils.forEachRight(selected.value, function (item, index) {
-                    if (removeValues.indexOf(item[props.valueKey]) > -1) {
-                        selected.value.splice(index, 1)
-                    }
-                })
             }
 
-            // 需增加的值
-            const addValues = values.filter(e => selectedValues.indexOf(e) === -1)
-            if (addValues.length) {
-                // 请求选择数据
-                selected.value.push(...await onRequestSelected(addValues))
-            }
+            // 检查值更新
+            checkModelValueChange()
         })
 
         /**
          * 监听声明选择数据
          */
         watch(()=>props.selected, function(val) {
+
+            // 如果停止观察已选数据
+            if (stopSelectedWatcher === true) {
+                // 取消停止观察已选数据
+                stopSelectedWatcher = false
+                return
+            }
+
             if (val !== selected.value) {
                 // 设置选择数据
                 selected.value = val
-
-                // 检查值更新
-                checkModelValueChange()
             }
+
+            // 检查值更新
+            checkModelValueChange()
 
             // 设置输入框焦点
             setInputFocus()
@@ -437,14 +467,18 @@ export default {
          * 监听当前已选数据
          */
         watch(selected, function(val) {
+
             if (val !== props.selected) {
+
+                // 停止观察已选数据
+                stopSelectedWatcher = true
 
                 // 更新选择数据
                 emit('update:selected', val)
-
-                // 检查值更新
-                checkModelValueChange()
             }
+
+            // 检查值更新
+            checkModelValueChange()
 
             // 设置输入框焦点
             setInputFocus()
@@ -505,6 +539,36 @@ export default {
         // ==========【方法】=============================================================================================
 
         /**
+         * 初始化已选数据
+         */
+        function initSelected() {
+
+            // 如果有已选数据
+            if (utils.isValidArray(props.selected)) {
+
+                // 则返回已选数据
+                return props.selected
+            }
+
+            // 如果初始时不加载选择数据
+            if (props.noLoadSelected) {
+
+                // 将值格式化为已选数据数组
+                const vals = formatModelValue()
+                if (utils.isValidArray(vals)) {
+                    return vals.map(function (val) {
+                        const obj = {}
+                        obj[props.valueKey] = val
+                        obj[currentlabelKey.value] = val
+                        return obj
+                    })
+                }
+            }
+
+            return []
+        }
+
+        /**
          * 当前格式化显示标签
          */
         function currentFormatLabel(item) {
@@ -527,7 +591,8 @@ export default {
             }
 
             // 否则值是字符串/数字
-            return utils.split(props.modelValue, ',')
+            return _.uniq(utils.split(props.modelValue, props.valueSeparator))
+                .filter(e => utils.isValidValue(e))
         }
 
         /**
@@ -575,7 +640,7 @@ export default {
 
             if (
                 // 如果初始不加载选择数据
-                ! props.loadSelected
+                props.noLoadSelected
                 // 如果没有请求路由路径
                 || ! routePath
                 // 如果有选择数据
@@ -617,11 +682,14 @@ export default {
 
             // 如果值为字符串或数字
             if (! props.valueArray) {
-                newModelValue = utils.numberDeep(utils.join(newModelValue, ','))
+                newModelValue = utils.numberDeep(utils.join(newModelValue, props.valueSeparator))
             }
 
             // 如果值发生改变
-            if (! _.isEqual(newModelValue, props.modelValue)) {
+            if (newModelValue !== props.modelValue) {
+
+                // 停止观察值
+                stopValueWatcher = true
 
                 // 提交更新值
                 emit('update:modelValue', newModelValue)

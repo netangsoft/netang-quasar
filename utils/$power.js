@@ -221,6 +221,8 @@ function create(params) {
                 await request({
                     // 按钮数据
                     data,
+                    // 参数
+                    query: $route.query,
                     // 表格选中数据
                     tableSelected,
                     // 表格实例
