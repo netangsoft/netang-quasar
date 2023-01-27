@@ -121,6 +121,12 @@ export default {
         // 是否为人民币的分转元(值为分, 显示为元)
         // 如果为 true, 则 min / max / step 的值默认的单位为人民币的分
         centToYuan: Boolean,
+        // 精度舍入模式(默认: 向下取整)
+        // 参考文档: https://mikemcl.github.io/bignumber.js/#constructor-properties
+        roundMode: {
+            type: Number,
+            default: BigNumber.ROUND_DOWN,
+        },
     },
 
     /**
@@ -347,18 +353,14 @@ export default {
                     }
 
                     // 如果设置了小数位数
-                    if (currentDecimalLength.value > 0) {
-
-                        // 如果值精度 > 设置的小数位数
-                        if (val.dp() > currentDecimalLength.value) {
-                            // 将值向下舍入 xx 位精度(如 68.345 -> 68.34)
-                            val = val.dp(currentDecimalLength.value, BigNumber.ROUND_DOWN)
-                        }
+                    if (currentDecimalLength.value) {
+                        // 将值舍入 xx 位精度(如 68.345 -> 68.34)
+                        val = val.dp(currentDecimalLength.value, props.roundMode)
 
                     // 否则值为整数
                     } else {
-                        // 将值向下取整
-                        val = val.integerValue(BigNumber.ROUND_DOWN)
+                        // 将值取整
+                        val = val.integerValue(props.roundMode)
                     }
                 }
 
@@ -388,12 +390,8 @@ export default {
             if (props.centToYuan) {
                 // 乘以 100
                 val = val.times(100)
-
-                // 如果值有精度
-                if (val.dp()) {
-                    // 将值向下取整
-                    val = val.integerValue(BigNumber.ROUND_DOWN)
-                }
+                    // 再取整(分必须是整数)
+                    .integerValue(props.roundMode)
             }
 
             // 将值转为数字
