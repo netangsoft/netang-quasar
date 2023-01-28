@@ -10,25 +10,49 @@
 
         <template v-if="dataType">
 
-            <!-- 设置跳转页面 -->
-            <div class="col-xs-12 col-sm-6 col-md-3" v-if="dataType === dicts.POWER_DATA_TYPE__OPEN && routeType === 0">
+            <!-- 新窗口有效 -->
+            <template v-if="dataType === dicts.POWER_DATA_TYPE__OPEN">
 
-                <!-- 树 -->
-                <n-field-tree
-                    class="n-field-fieldset"
-                    label="跳转页面"
-                    outlined
-                    clearable
-                    stack-label
-                    dense
+                <!-- 设置跳转页面(没有路由类型) -->
+                <div class="col-xs-12 col-sm-6 col-md-3" v-if="routeType === 0">
 
-                    v-model="formData.toPage"
-                    :nodes="treeNodes"
-                    :expanded="treeExpanded"
-                    strict
-                    accordion
-                />
-            </div>
+                    <!-- 树 -->
+                    <n-field-tree
+                        class="n-field-fieldset"
+                        label="跳转页面"
+                        outlined
+                        clearable
+                        stack-label
+                        dense
+
+                        v-model="formData.toPage"
+                        :nodes="treeNodes"
+                        :expanded="treeExpanded"
+                        strict
+                        accordion
+                    />
+                </div>
+
+                <!-- 是否记录来源页面 -->
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <q-select
+                        class="n-field-fieldset"
+                        label="是否增加来源页面参数"
+                        v-model="formData.addFromPageQuery"
+                        :options="[
+                            { label: '否', value: false },
+                            { label: '是', value: true },
+                        ]"
+                        map-options
+                        emit-value
+                        outlined
+                        stack-label
+                        dense
+                        options-dense
+                    />
+                </div>
+
+            </template>
 
             <!-- 非表单显示 -->
             <template v-if="dataType !== dicts.POWER_DATA_TYPE__FORM">
@@ -138,16 +162,16 @@
                         [
                             { label: '无', value: '' },
                             { label: '关闭窗口', value: 'close' },
-                            { label: '关闭窗口并跳转页面', value: 'closePush' },
-                            { label: '关闭窗口、跳转并刷新页面', value: 'closePushRefresh' },
+                            { label: '关闭窗口并跳转来源页面', value: 'closePush' },
+                            { label: '关闭窗口、跳转并刷新来源页面', value: 'closePushRefresh' },
                             { label: '重置表单', value: 'resetForm' },
                         ] :
                         [
                             { label: '无', value: '' },
                             { label: '关闭窗口', value: 'close' },
-                            { label: '关闭窗口并跳转页面', value: 'closePush' },
-                            { label: '关闭窗口、跳转并刷新页面', value: 'closePushRefresh' },
-                            { label: '刷新表格', value: 'refreshTable' },
+                            { label: '关闭窗口并跳转来源页面', value: 'closePush' },
+                            { label: '关闭窗口、跳转并刷新来源页面', value: 'closePushRefresh' },
+                            { label: '刷新列表', value: 'refreshTable' },
                         ]
                     "
                         map-options
@@ -160,31 +184,31 @@
                 </div>
 
                 <!-- 请求成功参数 -->
-                <div class="col-xs-12 col-sm-6 col-md-3" v-if="utils.indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">
+                <!--<div class="col-xs-12 col-sm-6 col-md-3" v-if="utils.indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">-->
 
-                    <!-- 树 -->
-                    <n-field-tree
-                        class="n-field-fieldset"
-                        label="跳转页面"
-                        outlined
-                        clearable
-                        stack-label
-                        dense
+                <!--    &lt;!&ndash; 树 &ndash;&gt;-->
+                <!--    <n-field-tree-->
+                <!--        class="n-field-fieldset"-->
+                <!--        label="跳转页面"-->
+                <!--        outlined-->
+                <!--        clearable-->
+                <!--        stack-label-->
+                <!--        dense-->
 
-                        v-model="formData.requestSuccess.params"
-                        :nodes="treeNodes"
-                        :expanded="treeExpanded"
-                        strict
-                        accordion
-                    />
-                </div>
+                <!--        v-model="formData.requestSuccess.params"-->
+                <!--        :nodes="treeNodes"-->
+                <!--        :expanded="treeExpanded"-->
+                <!--        strict-->
+                <!--        accordion-->
+                <!--    />-->
+                <!--</div>-->
 
             </template>
 
             <template v-if="dataType !== dicts.POWER_DATA_TYPE__FORM">
 
                 <!-- 栏目标题 -->
-                <n-column-title label="请求表格参数" tooltip='示例：id / sku_id AS sku' />
+                <n-column-title label="请求列表参数" tooltip='示例：id / sku_id AS sku' />
 
                 <!-- 表格请求参数 -->
                 <div class="col-xs-12">
@@ -274,9 +298,6 @@
 <script>
 import { ref, watch } from 'vue'
 
-import _isString from 'lodash/isString'
-import _isPlainObject from 'lodash/isPlainObject'
-
 export default {
 
     /**
@@ -353,24 +374,12 @@ export default {
                 }
             }
 
-            // 格式化参数
-            if (
-                _.has(obj, 'requestSuccess')
-                && ! utils.isValidObject(obj.requestSuccess)
-            ) {
-                delete(obj.requestSuccess)
-            }
-
-            if (
-                _.has(obj, 'requestQuery')
-                && ! utils.isValidObject(obj.requestQuery)
-            ) {
-                delete(obj.requestQuery)
-            }
-
-            obj = _.merge({
+            // 原始数据默认值
+            const rawObj = {
                 // 显示类型, 可选 single / multi / 空(默认显示)
                 show: '',
+                // 是否增加来源页面参数
+                addFromPageQuery: false,
                 // 跳转页面 id
                 toPage: '',
                 // 是否固定列
@@ -386,7 +395,7 @@ export default {
                     // 表格: 字符串组成的数组, 如: [ "id", "sku_id AS sku" ]
                     table: [],
                     // 参数: 字符串 / 对象(自定义参数) 组成的数组, 如: [ "id", "sku_id AS sku", { "type": 1, "name": "age" } ]
-                    // query: [],
+                    query: null,
                 },
                 // 请求成功执行
                 requestSuccess: {
@@ -396,8 +405,38 @@ export default {
                     params: '',
                 },
                 // 自定义参数, 任意类型
-                // params: '',
-            }, obj)
+                params: '',
+            }
+
+            // 【格式化数据】删除无效键值
+            // --------------------------------------------------
+
+            // 原始键值
+            const rawKeys = Object.keys(rawObj)
+
+            // 删除数据中的无效键值
+            utils.forIn(obj, function (item, key) {
+                // 如果键值不在原始键值中
+                if (rawKeys.indexOf(key) === -1) {
+                    // 则删除
+                    delete obj[key]
+                }
+            })
+
+            // 判断 requestSuccess 值是否合法
+            if (_.has(obj, 'requestSuccess') && ! utils.isValidObject(obj.requestSuccess)) {
+                delete(obj.requestSuccess)
+            }
+
+            // 判断 requestQuery 值是否合法
+            if (_.has(obj, 'requestQuery') && ! utils.isValidObject(obj.requestQuery)) {
+                delete(obj.requestQuery)
+            }
+
+            // --------------------------------------------------
+
+            // 合并原始数据
+            obj = Object.assign(rawObj, obj)
 
             // 【格式化是否确认参数】
             // ------------------------------------------------------------
@@ -430,15 +469,16 @@ export default {
             // 【格式化请求参数中的 query】
             // ------------------------------------------------------------
             if (_.has(obj.requestQuery, 'query')) {
+
                 // 如果是有效值
                 if (utils.isValidValue(obj.requestQuery.query)) {
                     obj.requestQuery.query = [obj.requestQuery.query]
 
-                // 如果是对象
+                // 如果是有效对象
                 } else if (utils.isValidObject(obj.requestQuery.query)) {
                     obj.requestQuery.query = [utils.json.stringify(obj.requestQuery.query)]
 
-                // 如果是数组
+                // 如果是有效数组
                 } else if (utils.isValidArray(obj.requestQuery.query)) {
                     const query = []
                     utils.forEach(obj.requestQuery.query, function(item, key) {
@@ -513,7 +553,7 @@ export default {
                             // 如果为表格
                             if (field === 'table') {
 
-                                if (Array.isArray(value) || _isPlainObject(value)) {
+                                if (Array.isArray(value) || _.isPlainObject(value)) {
 
                                     // 轻提示
                                     utils.toast({
@@ -555,7 +595,7 @@ export default {
                     ) {
                         value = utils.json.parse(value)
 
-                        if (! Array.isArray(value) && ! _isPlainObject(value)) {
+                        if (! Array.isArray(value) && ! _.isPlainObject(value)) {
                             return ''
                         }
                     }
@@ -611,6 +651,11 @@ export default {
                         obj.toPage = data.toPage
                     }
 
+                    // 如果增加来源页面参数
+                    if (data.addFromPageQuery) {
+                        obj.addFromPageQuery = true
+                    }
+
                 // 否则为其他
                 } else {
 
@@ -632,13 +677,13 @@ export default {
                         obj.requestSuccess = {
                             type: data.requestSuccess.type
                         }
-                        if (utils.indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
-                            if (data.requestSuccess.params) {
-                                obj.requestSuccess.params = data.requestSuccess.params
-                            } else {
-                                obj.requestSuccess.type = 'close'
-                            }
-                        }
+                        // if (utils.indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
+                        //     if (data.requestSuccess.params) {
+                        //         obj.requestSuccess.params = data.requestSuccess.params
+                        //     } else {
+                        //         obj.requestSuccess.type = 'close'
+                        //     }
+                        // }
                     }
                 }
 

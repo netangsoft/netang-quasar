@@ -102,7 +102,7 @@ function create(params) {
         : (hasPowr ? $power.getRoute() : utils.router.getRoute())
 
     // 是否有权限按钮
-    const hasPowerBtns = hasPowr ? ! $power.powerBtns.value.length : false
+    const hasPowerBtns = hasPowr ? $power.powerBtns.value.length : false
 
     // 表格已选数据
     const tableSelected = hasPowr ? $power.tableSelected : ref([])
@@ -897,7 +897,7 @@ function create(params) {
  * 获取表格配置
  */
 function config(routePath, path, defaultValue) {
-    return _.get(tablesConfig, utils.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue)
+    return _.cloneDeep(_.get(tablesConfig, utils.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue))
 }
 
 /**

@@ -221,8 +221,8 @@ function create(params) {
                 await request({
                     // 按钮数据
                     data,
-                    // 参数
-                    query: $route.query,
+                    // 当前路由参数
+                    $route,
                     // 表格选中数据
                     tableSelected,
                     // 表格实例
@@ -401,21 +401,22 @@ function setData(data) {
         if (_.has(item.data, 'toPage')) {
             // 设置跳转页面地址
             item.data.toPage = _.has(all, item.data.toPage) ? all[item.data.toPage].data.url : null
+        }
 
         // 如果有请求成功执行类型
-        } else if (_.has(item.data, 'requestSuccess.type')) {
-            // 如果请求成功执行类型是关闭窗口、跳转并刷新页面
-            if (item.data.requestSuccess.type === 'closePushRefresh') {
-                // 设置刷新页面地址
-                item.data.requestSuccess.params =
-                    (
-                        // 如果有刷新页面的参数 id
-                        _.has(item.data.requestSuccess, 'params')
-                        // 如果有页面数据
-                        && _.has(all, item.data.requestSuccess.params)
-                    ) ? all[item.data.requestSuccess.params].data.url : null
-            }
-        }
+        // else if (_.has(item.data, 'requestSuccess.type')) {
+        //     // 如果请求成功执行类型是关闭窗口、跳转并刷新页面
+        //     if (item.data.requestSuccess.type === 'closePushRefresh') {
+        //         // 设置刷新页面地址
+        //         item.data.requestSuccess.params =
+        //             (
+        //                 // 如果有刷新页面的参数 id
+        //                 _.has(item.data.requestSuccess, 'params')
+        //                 // 如果有页面数据
+        //                 && _.has(all, item.data.requestSuccess.params)
+        //             ) ? all[item.data.requestSuccess.params].data.url : null
+        //     }
+        // }
 
         if (
             // 数据/按钮
@@ -724,8 +725,6 @@ async function request(params) {
     const o = Object.assign({
         // 按钮数据
         data: {},
-        // 参数
-        query: {},
         // 表格选中数据
         tableSelected: [],
         // 检查是否正在上传文件
@@ -739,6 +738,12 @@ async function request(params) {
         // 请求后执行
         requestAfter: null,
     }, params)
+
+    const {
+        $route,
+    } = params
+
+    o.query = $route.query
 
     // 判断类型
     if (! _.get(o.data, 'type')) {
@@ -780,7 +785,7 @@ async function request(params) {
     }
 
     // 获取请求参数
-    const query = getRequestQuery(o)
+    let query = getRequestQuery(o)
 
     // 如果是打开新窗口
     // --------------------------------------------------
@@ -791,9 +796,16 @@ async function request(params) {
             return
         }
 
+        query = formatQuery(query, true)
+
+        // 如果有增加来源页面参数
+        if (_.get(o.data, 'addFromPageQuery') === true) {
+            query.n_frompage = encodeURIComponent($route.fullPath)
+        }
+
         utils.router.push({
             path: o.data.url,
-            query: formatQuery(query, true),
+            query,
         })
         return
     }
@@ -931,14 +943,24 @@ async function request(params) {
                                 type: 'closeCurrentTab',
                             }
 
-                            // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                            if (o.data.requestSuccess.type !== 'close') {
+                            if (
+                                // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
+                                o.data.requestSuccess.type !== 'close'
+                                // 如果有来源页面
+                                && _.has($route.query, 'n_frompage')
+                                && utils.isValidString($route.query.n_frompage)
+                            ) {
                                 Object.assign(opts, {
                                     // 跳转页面地址
-                                    pushPage: o.data.requestSuccess.params,
+                                    pushPage: decodeURIComponent($route.query.n_frompage),
                                     // 是否跳转并刷新页面
                                     isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
                                 })
+
+                                // 否则如果定义了跳转页面
+                                // else if (_.has(o.data, 'requestSuccess.params') && utils.isValidString(o.data.requestSuccess.params)) {
+                                //     pushPage = o.data.requestSuccess.params
+                                // }
                             }
 
                             // 关闭当前标签页
