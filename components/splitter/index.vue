@@ -1,24 +1,31 @@
 <template>
-    <!-- 默认插槽 -->
-    <slot
-        :name="currentSlot.defaultName"
-        v-if="!! currentSlot.defaultName"
-    />
-
     <!-- 拆分器 -->
     <q-splitter
         v-model="currentValue"
         v-bind="$attrs"
-        v-else
+        v-if="$slots.before && $slots.after"
     >
         <!-- 插槽 -->
         <template
-            v-for="slotName in currentSlot.keys"
+            v-for="slotName in slotNames"
             v-slot:[slotName]
         >
             <slot :name="slotName" />
         </template>
     </q-splitter>
+
+    <!-- before 插槽 -->
+    <slot
+        name="before"
+        v-else-if="$slots.before"
+    />
+
+    <!-- after 插槽 -->
+    <slot
+        name="after"
+        v-else-if="$slots.after"
+    />
+
 </template>
 
 <script>
@@ -57,33 +64,10 @@ export default {
         // ==========【计算属性】=========================================================================================
 
         /**
-         * 当前插槽
+         * 插槽标识
          */
-        const currentSlot = computed(function() {
-
-            let keys = []
-            let defaultName = ''
-
-            if (utils.isValidObject(slots)) {
-
-                keys = Object.keys(slots)
-
-                const hasBefore = _.has(slots, 'before')
-                const hasAfter = _.has(slots, 'after')
-
-                if (hasBefore) {
-                    if (! hasAfter) {
-                        defaultName = 'before'
-                    }
-                } else if (hasAfter && ! hasBefore) {
-                    defaultName = 'after'
-                }
-            }
-
-            return {
-                keys,
-                defaultName,
-            }
+        const slotNames = computed(function() {
+            return utils.isValidObject(slots) ? Object.keys(slots) : []
         })
 
         // ==========【数据】============================================================================================
@@ -118,8 +102,8 @@ export default {
         // ==========【返回】=============================================================================================
 
         return {
-            // 当前插槽
-            currentSlot,
+            // 插槽标识
+            slotNames,
             // 当前值
             currentValue,
         }

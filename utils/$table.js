@@ -9,7 +9,7 @@ import {
     setItemValue,
 } from './$search'
 
-import { NPowerKey, NTableKey, NDialogKey } from './symbols'
+import { NPowerKey, NTableKey } from './symbols'
 
 /**
  * 创建表格
@@ -67,8 +67,6 @@ function create(params) {
         request: null,
         // 格式化单条数据
         formatRow: null,
-        // 格式化参数
-        // formatQuery: null,
         // http 设置
         httpSettings: {},
         // 是否开启初始搜素
@@ -85,6 +83,11 @@ function create(params) {
         cache: true,
         // 刷新后清空已选数据
         refreshResetSelected: true,
+
+        // 单击表格行事件
+        rowClick: null,
+        // 双击表格行事件
+        rowDblClick: null,
     }, params)
 
     // 获取权限注入
@@ -732,7 +735,7 @@ function create(params) {
     /**
      * 单击表格行
      */
-    function tableRowClick(e, row) {
+    function _tableRowClick(e, row) {
 
         // 如果选择类型为无
         if (o.selection === 'none') {
@@ -763,11 +766,21 @@ function create(params) {
             tableSelected.value.splice(itemIndex, 1)
         }
     }
+    function tableRowClick(...e) {
+
+        // 单击表格行
+        _tableRowClick(...e)
+
+        // 如果有自定义单击事件
+        if (_.isFunction(o.rowClick)) {
+            o.rowClick(...e)
+        }
+    }
 
     /**
      * 双击表格行
      */
-    function tableRowDblclick(e, row) {
+    function _tableRowDblclick(e, row) {
 
         // 如果选择类型为无
         if (o.selection === 'none') {
@@ -782,6 +795,16 @@ function create(params) {
             && tableDbClickPowerBtn.value
         ) {
              $power.powerBtnClick(tableDbClickPowerBtn.value, [ row ])
+        }
+    }
+    function tableRowDblclick(...e) {
+
+        // 双击表格行
+        _tableRowDblclick(...e)
+
+        // 如果有自定义双击表格行事件
+        if (_.isFunction(o.tableRowDblclick)) {
+            o.tableRowDblclick(...e)
         }
     }
 

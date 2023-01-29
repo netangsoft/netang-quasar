@@ -1,3 +1,4 @@
+export const NRenderKey = '_n_render_'
 export const NPowerKey = '_n_power_'
 export const NLayoutKey = '_n_layout_'
 export const NTableKey = '_n_table_'
