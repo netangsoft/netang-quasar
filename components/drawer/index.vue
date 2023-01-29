@@ -109,7 +109,7 @@ export default {
         const $q = useQuasar()
 
         // 获取当前路由
-        const $route = useRoute()
+        let fullPath = ''
 
         // 获取权限注入数据
         const $power = inject(NPowerKey)
@@ -124,8 +124,13 @@ export default {
             } else {
                 currentModelValue.value = props.modelValue
             }
+            // 权限路由路径
+            fullPath = $power.routeFullPath
+
         } else {
             currentModelValue = ref(props.modelValue)
+            // 当前路由路径
+            fullPath = useRoute().fullPath
         }
 
         // 缓存名
@@ -159,7 +164,7 @@ export default {
         } else if (props.drag && props.cache) {
 
             // 设置缓存名
-            cacheName = `drawer_${props.side}_${props.cache === true ? $route.fullPath : props.cache}`
+            cacheName = `drawer_${props.side}_${props.cache === true ? fullPath : props.cache}`
 
             // 从缓存获取宽度
             const cache = utils.storage.get(cacheName)

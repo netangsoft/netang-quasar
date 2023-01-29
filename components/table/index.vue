@@ -11,7 +11,15 @@
         <n-toolbar
             :dense="dense"
             header
-        />
+        >
+            <!-- 插槽 -->
+            <template
+                v-for="slotName in slotNames.toolbar"
+                v-slot:[slotName]
+            >
+                <slot :name="`toolbar-${slotName}`"/>
+            </template>
+        </n-toolbar>
 
         <!-- 左侧分类 -->
         <n-drawer
@@ -96,7 +104,7 @@
 
                     <!-- 插槽 -->
                     <template
-                        v-for="slotName in slotNames"
+                        v-for="slotName in slotNames.table"
                         v-slot:[slotName]="props"
                     >
                         <q-td :props="props">
@@ -259,8 +267,28 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return utils.isValidObject(slots) ? Object.keys(slots) : []
+
+            const toolbar = []
+            const table = []
+
+            // 如果有插槽
+            if (utils.isValidObject(slots)) {
+                for (const key in slots) {
+                    if (key.startsWith('toolbar-')) {
+                        toolbar.push(key.replace('toolbar-', ''))
+                    } else {
+                        table.push(key)
+                    }
+                }
+            }
+
+            return {
+                toolbar,
+                table,
+            }
         })
+
+        console.log('slotNames', slotNames.value)
 
         // ==========【监听数据】=========================================================================================
 
