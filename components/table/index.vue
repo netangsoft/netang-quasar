@@ -8,12 +8,15 @@
         container
     >
         <!-- 头部 -->
-        <n-toolbar header />
+        <n-toolbar
+            :dense="dense"
+            header
+        />
 
         <!-- 左侧分类 -->
         <n-drawer
             :model-value="true"
-            side="left"
+            :side="treeSide"
             :width="200"
             :min-width="150"
             bordered
@@ -75,6 +78,7 @@
                     @request="tableRequest"
                     flat
                     virtual-scroll
+                    :dense="dense"
                 >
                     <!-- 图片 -->
                     <template
@@ -130,7 +134,7 @@
         <!-- 右侧搜索 -->
         <n-drawer
             :model-value="true"
-            side="right"
+            :side="searchSide"
             :min-width="320"
             bordered
             drag
@@ -187,6 +191,21 @@ export default {
         treeFilter: Boolean,
         // 不显示搜索
         noSearch: Boolean,
+        // 树位置
+        treeSide: {
+            type: String,
+            default: 'left',
+        },
+        // 搜索位置
+        searchSide: {
+            type: String,
+            default: 'right',
+        },
+        // 紧凑模式
+        dense: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     /**

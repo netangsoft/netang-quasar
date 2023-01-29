@@ -93,6 +93,8 @@ export default {
     props: {
         // 是否头部
         header: Boolean,
+        // 紧凑模式
+        dense: Boolean,
     },
 
     /**

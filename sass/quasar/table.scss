@@ -11,6 +11,16 @@ $dark-td-bg-color: $dark;
 
 .n-table {
 
+    &.q-table {
+        &--dense {
+            thead tr,
+            tbody tr,
+            tbody td {
+                height: 40px;
+            }
+        }
+    }
+
     // 宫格模式
     &--grid {
         background-color: rgba(var(--n-reverse-color-rgb), 0.1);

@@ -6,9 +6,10 @@
                 :key="`btn-item-${item.id}`"
                 class="n-button-icon"
                 :icon="item.icon"
-                @click.prevent.stop="onClick(item)"
+                dense
                 unelevated
                 round
+                @click.prevent.stop="onClick(item)"
             >
                 <!-- 标题提示 -->
                 <q-tooltip>{{item.title}}</q-tooltip>
