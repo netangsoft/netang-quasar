@@ -22,15 +22,17 @@
         </n-toolbar>
 
         <!-- 左侧分类 -->
+        <slot name="left-drawer" v-if="slotNames.leftDrawer" />
         <n-drawer
-            :model-value="true"
+            :model-value="! hideLeftDrawer"
             :side="treeSide"
             :width="200"
             :min-width="150"
             bordered
             drag
             cache
-            v-if="treeNodes.length"
+            v-bind="leftDrawerProps"
+            v-else-if="treeNodes.length"
         >
             <q-scroll-area class="absolute-full">
 
@@ -58,6 +60,7 @@
                     v-model:selected="treeSelected"
                     no-selection-unset
                     default-expand-all
+                    v-bind="treeProps"
                 />
 
             </q-scroll-area>
@@ -87,6 +90,7 @@
                     flat
                     virtual-scroll
                     :dense="dense"
+                    v-bind="tableProps"
                 >
                     <!-- 图片 -->
                     <template
@@ -140,14 +144,16 @@
         </q-page-container>
 
         <!-- 右侧搜索 -->
+        <slot name="right-drawer" v-if="slotNames.rightDrawer" />
         <n-drawer
-            :model-value="true"
+            :model-value="! hideRightDrawer"
             :side="searchSide"
             :min-width="320"
             bordered
             drag
             cache
-            v-if="! noSearch && tableSearchValue.length"
+            v-bind="rightDrawerProps"
+            v-else-if="! noSearch && tableSearchValue.length"
         >
             <!-- 搜索 -->
             <n-search
@@ -155,8 +161,17 @@
                 :options="tableSearchOptions"
                 :on-search="tableReload"
                 :on-reset="tableSearchReset"
-            />
+            >
+                <!-- 插槽 -->
+                <template
+                    v-for="slotName in slotNames.search"
+                    v-slot:[slotName]
+                >
+                    <slot :name="`search-${slotName}`"/>
+                </template>
+            </n-search>
         </n-drawer>
+
     </q-layout>
 </template>
 
@@ -178,6 +193,10 @@ export default {
     props: {
         // 表格请求地址
         url: String,
+        // 表格声明属性
+        tableProps: Object,
+        // 树声明属性
+        treeProps: Object,
         // 树节点唯一键值
         treeNodeKey: {
             type: String,
@@ -197,13 +216,13 @@ export default {
         treeNodeClick: Function,
         // 显示树筛选
         treeFilter: Boolean,
-        // 不显示搜索
-        noSearch: Boolean,
         // 树位置
         treeSide: {
             type: String,
             default: 'left',
         },
+        // 不显示搜索
+        noSearch: Boolean,
         // 搜索位置
         searchSide: {
             type: String,
@@ -214,6 +233,14 @@ export default {
             type: Boolean,
             default: true,
         },
+        // 隐藏左边侧滑菜单
+        hideLeftDrawer: Boolean,
+        // 左边侧滑菜单声明属性
+        leftDrawerProps: Object,
+        // 隐藏右边侧滑菜单
+        hideRightDrawer: Boolean,
+        // 右边侧滑菜单声明属性
+        rightDrawerProps: Object,
     },
 
     /**
@@ -269,13 +296,22 @@ export default {
         const slotNames = computed(function() {
 
             const toolbar = []
+            const search = []
             const table = []
+            let leftDrawer = false
+            let rightDrawer = false
 
             // 如果有插槽
             if (utils.isValidObject(slots)) {
                 for (const key in slots) {
                     if (key.startsWith('toolbar-')) {
                         toolbar.push(key.replace('toolbar-', ''))
+                    } else if (key.startsWith('search-')) {
+                        search.push(key.replace('search-', ''))
+                    } else if (key === 'left-drawer') {
+                        leftDrawer = true
+                    } else if (key === 'right-drawer') {
+                        rightDrawer = true
                     } else {
                         table.push(key)
                     }
@@ -284,11 +320,12 @@ export default {
 
             return {
                 toolbar,
+                search,
                 table,
+                leftDrawer,
+                rightDrawer,
             }
         })
-
-        console.log('slotNames', slotNames.value)
 
         // ==========【监听数据】=========================================================================================
 

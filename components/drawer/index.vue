@@ -133,6 +133,9 @@ export default {
             fullPath = useRoute().fullPath
         }
 
+        // 创建防抖睡眠方法
+        const sleep = utils.debounceSleep()
+
         // 缓存名
         let cacheName = ''
 
@@ -242,14 +245,19 @@ export default {
             //     }
             // }
 
-            // 如果开启缓存
-            if (props.cache) {
-                // 设置缓存(永久缓存)
-                utils.storage.set(cacheName, newWidth, 0)
-            }
-
             // 设置当前宽度
             currentWidth.value = newWidth
+
+            // 如果开启缓存
+            if (props.cache) {
+
+                // 延迟执行
+                sleep(500)
+                    .then(function () {
+                        // 设置缓存(永久缓存)
+                        utils.storage.set(cacheName, newWidth, 0)
+                    })
+            }
         }
 
         // ==========【返回】=============================================================================================
