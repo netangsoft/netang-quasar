@@ -25,7 +25,14 @@ export function setItemValue(value, val) {
         // 比较类型为 in
         value[0].type = dicts.SEARCH_TYPE__IN
         // 设置值为将数组转为逗号分隔的字符串
-        value[0].value = val.join(',')
+        value[0].value = utils.join(val, ',')
+
+    // 如果值是逗号隔开
+    } else if (utils.split(val, ',').length > 1) {
+        // 比较类型为 in
+        value[0].type = dicts.SEARCH_TYPE__IN
+        // 设置值为将数组转为逗号分隔的字符串
+        value[0].value = val
 
     // 否则为单个值
     } else {

@@ -9,7 +9,7 @@ import {
     setItemValue,
 } from './$search'
 
-import { NPowerKey, NTableKey } from './symbols'
+import { NRenderKey, NPowerKey, NTableKey } from './symbols'
 
 /**
  * 创建表格
@@ -89,6 +89,18 @@ function create(params) {
         // 双击表格行事件
         rowDblClick: null,
     }, params)
+
+    // 获取渲染注入
+    const $render = inject(NRenderKey)
+
+    // 如果有渲染注入
+    if (!! $render) {
+        // 如果有表格传参, 则合并参数
+        const tableProps = _.get($render, 'props.tableProps')
+        if (utils.isValidObject(tableProps)) {
+            _.merge(o, tableProps)
+        }
+    }
 
     // 获取权限注入
     const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)

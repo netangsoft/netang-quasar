@@ -4,7 +4,7 @@
     >
         <!-- 空数据 -->
         <n-empty
-            :empty-description="emptyDescription"
+            :description="emptyDescription"
             v-if="pageStatus === false"
         />
 

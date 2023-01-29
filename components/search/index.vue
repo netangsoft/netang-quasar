@@ -74,18 +74,6 @@
 
                             <!-- 输入框 -->
                             <template v-else-if="item.searchType === 'input'">
-                                <!-- 输入框 数字 -->
-                                <n-input-number
-                                    class="n-field-fieldset"
-                                    :label="label"
-                                    v-model="modelValue[itemIndex][index].value"
-                                    dense
-                                    outlined
-                                    clearable
-                                    v-bind="item.input"
-                                    v-if="item.type === 'number'"
-                                />
-                                <!-- 输入框 文字 -->
                                 <q-input
                                     class="n-field-fieldset"
                                     :label="label"
@@ -94,7 +82,6 @@
                                     outlined
                                     clearable
                                     v-bind="item.input"
-                                    v-else
                                 />
                             </template>
 
@@ -176,8 +163,6 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-
 export default {
 
     /**

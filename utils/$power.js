@@ -2,7 +2,7 @@ import { provide, inject, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 
 import { statePower } from '../store'
-import { NPowerKey, NFormKey, NTableKey } from './symbols'
+import { NRenderKey, NPowerKey, NFormKey, NTableKey } from './symbols'
 
 /**
  * 创建权限实例
@@ -23,6 +23,10 @@ function create(params) {
         emptyDescription: '',
         // 是否开启权限
         power: true,
+        // 是否显示权限按钮
+        showPowerBtns: true,
+        // 是否显示工具栏权限按钮
+        showToolbarPowerBtns: true,
         // 左边侧滑菜单图标
         leftDrawerIcon: 'format_list_bulleted',
         // 右边侧滑菜单图标
@@ -38,25 +42,51 @@ function create(params) {
         requestAfter: null,
     }, params)
 
-    // 获取权限路由
-    const $route = o.path === false
-        // 如果没有路由
-        ? {
+    // 获取渲染注入
+    const $render = inject(NRenderKey)
+
+    // 如果有渲染注入
+    const hasRender = !! $render
+    if (hasRender) {
+        // 如果有权限传参, 则合并参数
+        const powerProps = _.get($render, 'props.powerProps')
+        if (utils.isValidObject(powerProps)) {
+            _.merge(o, powerProps)
+        }
+    }
+
+    // 权限路由
+    let $route
+
+    // 如果没有路由
+    if (o.path === false) {
+
+        // 设为空路由
+        $route = {
             fullPath: '',
             path: '',
             query: utils.isValidObject(o.query) ? o.query : {},
         }
-        // 否则获取路由
-        : (
-            utils.isValidString(o.path) ?
-                // 如果为自定义路由
-                utils.router.resolve({
-                    path: o.path,
-                    query: utils.isValidObject(o.query) ? o.query : {},
-                })
-                // 否则获取当前路由
-                : utils.router.getRoute()
-        )
+
+    // 如果有自定义路径
+    } else if (utils.isValidString(o.path)) {
+
+        // 获取自定义路由
+        $route = utils.router.resolve({
+            path: o.path,
+            query: utils.isValidObject(o.query) ? o.query : {},
+        })
+
+    // 如果在渲染组件内 && 该渲染组件有自定义路由
+    } else if (hasRender && _.has($render, '$route')) {
+
+        // 设为渲染组件的路由
+        $route = $render.$route
+
+    // 否则获取当前路由
+    } else {
+        $route = utils.router.getRoute()
+    }
 
     // quasar 对象
     const $q = useQuasar()
@@ -165,12 +195,16 @@ function create(params) {
             // 当前页面权限
             data.powerPage = res.page
             // 当前页面权限按钮
-            data.powerBtns = ref(res.btns)
+            data.powerBtns = ref(o.showPowerBtns ? res.btns : [])
             // 当前页面工具栏权限按钮
             data.toolbarPowerBtns = computed(function() {
 
-                // 有权限按钮数据
-                if (utils.isValidArray(data.powerBtns.value)) {
+                if (
+                    // 如果显示工具栏权限按钮
+                    o.showToolbarPowerBtns
+                    // 有权限按钮数据
+                    && utils.isValidArray(data.powerBtns.value)
+                ) {
 
                     const lists = _.filter(formatBtns(data.powerBtns.value), e => e.type > 2)
 
@@ -673,7 +707,7 @@ function getRequestQuery(o) {
         }
     }
 
-    return _.merge({}, query)
+    return _.cloneDeep(utils.numberDeep(query))
 }
 
 /**
@@ -696,15 +730,25 @@ function formatQuery(query, isJoinArr) {
 
         // 如果是数组
         } else if (utils.isValidArray(value)) {
+
             const arr = []
             for (const val of value) {
-                // 如果是数字
-                if (utils.isNumeric(val)) {
-                    arr.push(_.isNumber(val) ? val : Number(val))
 
-                // 如果是字符串
-                } else if (utils.isValidString(val)) {
-                    arr.push(utils.trimString(val))
+                // 如果为有效值
+                if (utils.isRequired(val)) {
+
+                    // 如果是数字
+                    if (utils.isNumeric(val)) {
+                        arr.push(_.isNumber(val) ? val : Number(val))
+
+                    // 如果是字符串
+                    } else if (utils.isValidString(val)) {
+                        arr.push(utils.trimString(val))
+
+                    // 否则为数组或对象
+                    } else {
+                        arr.push(val)
+                    }
                 }
             }
             if (arr.length) {

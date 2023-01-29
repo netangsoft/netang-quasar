@@ -161,28 +161,20 @@ export default {
         /**
          * 监听声明值
          */
-        if (utils.indexOf(['select', 'tree'], props.data.searchType) > -1) {
+        watch(()=>props.modelValue[0].type, function(val) {
+            // 如果类型不为 in / not in, 为单选
+            if (utils.indexOf([dicts.SEARCH_TYPE__IN, dicts.SEARCH_TYPE__NOT_IN], val) === -1) {
+                const arr = utils.split(props.modelValue[0].value, ',')
+                if (arr.length !== 1) {
+                    // 克隆值
+                    const _modelValue = _.cloneDeep(props.modelValue)
 
-            watch(()=>props.modelValue[0].type, function(val) {
-
-                const modelValue = _.cloneDeep(props.modelValue)
-
-                // 如果类型为 in / not in, 则为多选
-                if (utils.indexOf([dicts.SEARCH_TYPE__IN, dicts.SEARCH_TYPE__NOT_IN], val) > -1) {
-
-                    // 如果值不为数组
-                    if (! Array.isArray(modelValue[0].value)) {
-                        modelValue[0].value = utils.isValidValue(modelValue[0].value) ? [modelValue[0].value] : []
-                        emit('update:modelValue', modelValue)
-                    }
-
-                // 否则为单选, 并且如果值为数组
-                } else if (Array.isArray(modelValue[0].value)) {
-                    modelValue[0].value = utils.isValidValue(modelValue[0].value[0]) ? modelValue[0].value[0] : ''
-                    emit('update:modelValue', modelValue)
+                    // 更新值
+                    _modelValue[0].value = arr.length > 1 ? arr[0] : ''
+                    emit('update:modelValue', _modelValue)
                 }
-            })
-        }
+            }
+        })
 
         // ==========【返回】=============================================================================================
 

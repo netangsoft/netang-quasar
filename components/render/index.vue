@@ -1,22 +1,30 @@
 <template>
-    <slot
-        :query="query"
-        v-bind="props"
-        v-if="$slots.default"
-    />
-    <component
-        :is="comp"
-        :query="query"
-        v-bind="props"
-        v-else
-    />
+    <q-layout
+        class="absolute-full"
+        view="hHh lpr fFf"
+        container
+    >
+        <q-page-container>
+            <slot
+                :query="query"
+                v-bind="props"
+                v-if="$slots.default"
+            />
+            <component
+                :is="comp"
+                :query="query"
+                v-bind="props"
+                v-else
+            />
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script>
 import { computed, defineAsyncComponent, provide } from 'vue'
 
 import routers from '@/router/routers'
-import components from './components'
+import components from '../private/components'
 
 import { NRenderKey } from '../../utils/symbols'
 
@@ -83,17 +91,39 @@ export default {
 
         // ==========【注入】============================================================================================
 
-        // 向后代注入数据
-        provide(NRenderKey, {
+        // 注入数据
+        const data = {
             // 组件标识
             name: props.name,
-            // 路由路径
-            path: utils.isValidString(props.path) ? utils.slash(props.path, 'start', true) : '',
             // 参数
             query: utils.isValidObject(props.query) ? props.query : {},
             // 组件传参
             props: props.props,
-        })
+        }
+
+        // 如果有路由路径
+        if (utils.isValidString(props.path)) {
+
+            // 获取页面路由
+            const $route = utils.router.resolve({
+                path: props.path,
+                query: data.query,
+            })
+
+            Object.assign(data, {
+                // 当前路由全路径
+                routeFullPath: $route.fullPath,
+                // 当前路由路径
+                routePath: $route.path,
+                // 当前路由参数
+                routeQuery: $route.query,
+                // 当前路由,
+                $route,
+            })
+        }
+
+        // 向后代注入数据
+        provide(NRenderKey, data)
 
         // ==========【返回】=============================================================================================
 

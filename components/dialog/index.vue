@@ -54,7 +54,7 @@ import { useDialogPluginComponent, useQuasar } from 'quasar'
 
 import routers from '@/router/routers'
 
-import components from './components'
+import components from '../private/components'
 import { NDialogKey } from '../../utils/symbols'
 
 export default {

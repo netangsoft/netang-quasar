@@ -1,6 +1,6 @@
 <template>
     <div class="q-pa-lg flex flex-center absolute-full">
-        {{emptyDescription || '发生未知错误'}}
+        {{description || '发生未知错误'}}
     </div>
 </template>
 
@@ -17,7 +17,7 @@ export default {
      */
     props: {
         // 空状态描述
-        emptyDescription: String,
+        description: String,
     },
 }
 </script>
