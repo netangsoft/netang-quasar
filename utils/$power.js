@@ -810,6 +810,9 @@ async function request(params) {
         return
     }
 
+    // 克隆 data
+    o.data = _.cloneDeep(o.data)
+
     // 判断 url
     o.data.url = _.toLower(utils.trimString(o.data.url))
     if (! o.data.url) {
@@ -866,38 +869,32 @@ async function request(params) {
     // 请求数据
     let requestData = {}
 
-    // 表单实例
-    let $form
-
-    // 表格实例
-    let $table
-
     // 如果是提交表单
     // --------------------------------------------------
     if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
-        $form = _.has(params, '$form') ? params.$form : inject(NFormKey)
+        o.$form = _.has(params, '$form') ? params.$form : inject(NFormKey)
 
-        if (! $form) {
+        if (! o.$form) {
             throw new Error('没有创建表单实例')
         }
 
         // 如果验证表单
         if (_.get(o.data, 'validate') !== false) {
 
-            if (! $form.formRef) {
+            if (! o.$form.formRef) {
                 throw new Error('没有绑定 fromRef')
             }
 
             // 验证表单
-            if (! await $form.formRef.value.validate()) {
+            if (! await o.$form.formRef.value.validate()) {
                 return
             }
         }
 
         // 验证表单数据
-        if (! utils.isValidObject($form.formData.value)) {
+        if (! utils.isValidObject(o.$form.formData.value)) {
             throw new Error('没有获取到表单数据')
         }
 
@@ -911,13 +908,13 @@ async function request(params) {
         }
 
         // 获取请求数据
-        requestData = _.merge({}, formatQuery(query, false), $form.formData.value)
+        requestData = _.merge({}, formatQuery(query, false), o.$form.formData.value)
 
     // 如果是请求数据
     // --------------------------------------------------
     } else {
         // 获取表格注入
-        $table = _.has(params, '$table') ? params.$table : inject(NTableKey)
+        o.$table = _.has(params, '$table') ? params.$table : inject(NTableKey)
 
         // 获取请求数据
         requestData = formatQuery(query, false)
@@ -968,21 +965,23 @@ async function request(params) {
         })
 
         // 返回结果数据
-        const resultData = Object.assign({}, res, {
-            params: o,
+        const resultData = Object.assign({
+            // 参数
+            options: o,
+            // 请求数据
             requestData,
-        })
+        }, res)
+
+        // 请求后执行
+        if (await utils.runAsync(o.requestAfter)(resultData) === false) {
+            return
+        }
 
         // 如果请求成功
         if (res.status) {
 
             // 下一步
-            function next(isNotify = true, power = null) {
-
-                // 获取按钮权限
-                if (_.isNil(power)) {
-                    power = o.data
-                }
+            function next(isNotify = true) {
 
                 // 轻提示
                 if (isNotify) {
@@ -993,8 +992,8 @@ async function request(params) {
                 }
 
                 // 判断是否有请求成功后的操作动作
-                if (_.has(power, 'requestSuccess.type')) {
-                    switch (power.requestSuccess.type) {
+                if (_.has(o.data, 'requestSuccess.type')) {
+                    switch (o.data.requestSuccess.type) {
 
                         // 关闭当前页面
                         case 'close':
@@ -1009,7 +1008,7 @@ async function request(params) {
 
                             if (
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                                power.requestSuccess.type !== 'close'
+                                o.data.requestSuccess.type !== 'close'
                                 // 如果有来源页面
                                 && _.has($route.query, 'n_frompage')
                                 && utils.isValidString($route.query.n_frompage)
@@ -1033,28 +1032,19 @@ async function request(params) {
 
                         // 重置表单
                         case 'resetForm':
-                            utils.run($form?.resetForm)()
+                            utils.run(o.$form?.resetForm)()
                             break
 
                         // 刷新表格
                         case 'refreshTable':
-                            utils.run($table?.tableRefresh)()
+                            utils.run(o.$table?.tableRefresh)()
                             break
                     }
                 }
             }
 
             // 请求成功执行
-            const resSuccess = await utils.runAsync(o.requestSuccess)({
-                // 下一步
-                next,
-                // 返回数据
-                data: res.data,
-                // 按钮数据
-                power: _.cloneDeep(o.data),
-            }, resultData)
-
-            if (resSuccess === false) {
+            if (await utils.runAsync(o.requestSuccess)(Object.assign({ next }, resultData)) === false) {
                 return
             }
 
@@ -1065,9 +1055,6 @@ async function request(params) {
             // 请求失败执行
             utils.run(o.requestFail)(resultData)
         }
-
-        // 请求后执行
-        utils.run(o.requestAfter)(resultData)
     }
 }
 

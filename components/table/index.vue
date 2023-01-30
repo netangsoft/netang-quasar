@@ -81,6 +81,7 @@
                     :columns="tableColumns"
                     :visible-columns="tableVisibleColumns"
                     :selection="tableSelection"
+                    :separator="tableSeparator"
                     :loading="tableLoading"
                     :rows-per-page-options="tableRowsPerPageOptions"
                     :grid="tableGrid"

@@ -37,6 +37,8 @@ function create(params) {
         rowKey: 'id',
         // 选择类型, 可选值 single multiple none
         selection: 'multiple',
+        // 分隔栏, 可选值 horizontal vertical cell none
+        separator: 'cell',
         // 已选数据
         selected: [],
         // 表格加载状态
@@ -229,6 +231,9 @@ function create(params) {
 
     // 表格选择类型
     const tableSelection = ref(o.selection)
+
+    // 表格分隔栏
+    const tableSeparator = ref(o.separator)
 
     const {
         // 原始参数
@@ -864,6 +869,8 @@ function create(params) {
         tableRowKey: o.rowKey,
         // 表格选择类型
         tableSelection,
+        // 表格分隔栏
+        tableSeparator,
         // 表格每页显示行数选项
         tableRowsPerPageOptions: rowsPerPageOptions,
         // 表格列数据(对象数组)

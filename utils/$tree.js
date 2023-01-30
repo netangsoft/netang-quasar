@@ -1,4 +1,5 @@
 import { isRef, watch } from 'vue'
+
 import { NPowerKey } from './symbols'
 
 /**
@@ -280,8 +281,8 @@ function create(params) {
                 utils.$dialog.create({
                     // 标题
                     title: `移动至节点的${o.type === 'moveUp' ? '上方' : (o.type === 'moveDown' ? '下方' : '内部')}`,
+                    // 宽度
                     width: 500,
-                    minWidth: 500,
                     // 组件标识
                     name: 'moveToTree',
                     // 组件参数

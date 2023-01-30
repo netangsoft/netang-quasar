@@ -85,8 +85,7 @@
         >
             <!-- 快捷表格 -->
             <q-table
-                class="n-table"
-                style="min-width:500px;max-width:90vw;height: 300px;"
+                class="n-table n-field-table__popup-table"
                 v-model:pagination="tablePagination"
                 v-model:selected="selected"
                 :row-key="tableRowKey"
@@ -160,7 +159,6 @@
 
 <script>
 import { ref, computed, watch, onMounted, onUpdated } from 'vue'
-import { NRenderKey } from '../../utils/symbols'
 
 export default {
 
@@ -1071,6 +1069,17 @@ export default {
         padding-left: 4px;
         min-width: 50px !important;
         cursor: text;
+    }
+}
+
+/**
+ * 桌面
+ */
+body.desktop {
+    .n-field-table {
+        &__popup-table {
+            height: 300px;
+        }
     }
 }
 </style>
