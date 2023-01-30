@@ -506,7 +506,7 @@ export default {
                 n_search[currentFilterKey.value] = [
                     {
                         // 比较类型
-                        type: dicts.SEARCH_TYPE__LIKE,
+                        compare: dicts.SEARCH_COMPARE_TYPE__LIKE,
                         // 值
                         value: val || '',
                     }

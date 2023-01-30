@@ -22,7 +22,6 @@
 <script>
 import { ref, inject, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
-import { useRoute } from 'vue-router'
 
 import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols.js'
 
@@ -108,9 +107,6 @@ export default {
         // quasar 对象
         const $q = useQuasar()
 
-        // 获取当前路由
-        let fullPath = ''
-
         // 获取权限注入数据
         const $power = inject(NPowerKey)
 
@@ -124,13 +120,9 @@ export default {
             } else {
                 currentModelValue.value = props.modelValue
             }
-            // 权限路由路径
-            fullPath = $power.routeFullPath
 
         } else {
             currentModelValue = ref(props.modelValue)
-            // 当前路由路径
-            fullPath = useRoute().fullPath
         }
 
         // 创建防抖睡眠方法
@@ -167,7 +159,7 @@ export default {
         } else if (props.drag && props.cache) {
 
             // 设置缓存名
-            cacheName = `drawer_${props.side}_${props.cache === true ? fullPath : props.cache}`
+            cacheName = `drawer:${props.side}:${props.cache === true ? ($power && $power.routePath ? $power.routePath : utils.router.getRoute('path')) : props.cache}`
 
             // 从缓存获取宽度
             const cache = utils.storage.get(cacheName)
@@ -249,7 +241,7 @@ export default {
             currentWidth.value = newWidth
 
             // 如果开启缓存
-            if (props.cache) {
+            if (props.drag && props.cache && cacheName) {
 
                 // 延迟执行
                 sleep(500)

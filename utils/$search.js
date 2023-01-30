@@ -1,18 +1,96 @@
 import { date as quasarDate } from 'quasar'
-import { getQuickRange } from '../components/field-date/methods'
+import { getQuickRange, quickRange } from '../components/field-date/methods'
 
 /**
  * 比较类型默认值
  */
 const COMPARE_TYPE_MAPS = {
     // 数字
-    number: [dicts.SEARCH_TYPE__EQUAL, dicts.SEARCH_TYPE__LT],
+    number: dicts.SEARCH_COMPARE_TYPE__EQUAL,
     // 文字
-    text: [dicts.SEARCH_TYPE__LIKE, dicts.SEARCH_TYPE__LT],
+    text: dicts.SEARCH_COMPARE_TYPE__LIKE,
     // 价格
-    price: [dicts.SEARCH_TYPE__EQUAL, dicts.SEARCH_TYPE__LT],
+    price: dicts.SEARCH_COMPARE_TYPE__EQUAL,
     // 日期
-    date: [dicts.SEARCH_TYPE__GTE, dicts.SEARCH_TYPE__LTE],
+    date: dicts.SEARCH_COMPARE_TYPE__EQUAL,
+}
+
+/**
+ * 设置单个比较条件
+ */
+function setItemCompare(item) {
+
+    // 初始比较条件数组
+    let opts1 = item.type === 'text'
+        // 如果类型为 文字
+        ? [
+            { label: '相同', value: dicts.SEARCH_COMPARE_TYPE__EQUAL },
+            { label: '不同', value: dicts.SEARCH_COMPARE_TYPE__NOT_EQUAL },
+            { label: '包含', value: dicts.SEARCH_COMPARE_TYPE__LIKE },
+            { label: '不含', value: dicts.SEARCH_COMPARE_TYPE__NOT_LIKE },
+        ]
+        // 否则为数字
+        : [
+            { label: '=', value: dicts.SEARCH_COMPARE_TYPE__EQUAL },
+            { label: '!=', value: dicts.SEARCH_COMPARE_TYPE__NOT_EQUAL },
+            { label: '>', value: dicts.SEARCH_COMPARE_TYPE__GT },
+            { label: '≥', value: dicts.SEARCH_COMPARE_TYPE__GTE },
+        ]
+
+    // 如果类型为日期
+    if (item.type === 'date') {
+        // 添加日期快捷选项
+        utils.forEach(quickRange, function(label, key) {
+            opts1.push({ label, value: key + 20 })
+        })
+
+    // 否则为其他
+    } else {
+        opts1.push(
+            { label: 'IN', value: dicts.SEARCH_COMPARE_TYPE__IN },
+            { label: 'NOT IN', value: dicts.SEARCH_COMPARE_TYPE__NOT_IN },
+        )
+    }
+
+    // 如果有比较类型
+    if (
+        _.has(item, 'compare')
+        && utils.isValidArray(item.compare)
+    ) {
+        const {
+            compare,
+            compareIgnore
+        } = item
+
+        // 如果有筛选比较条件
+        // 筛选比较条件
+        opts1 = opts1.filter(
+            compareIgnore === true
+                // 如果为忽略比较条件
+                ? e => compare.indexOf(e.value) === -1
+                // 否则为限制比较条件
+                : e => compare.indexOf(e.value) > -1
+        )
+    }
+
+    // 如果没有比较选项, 则设置相同为默认
+    if (! opts1.length) {
+        opts1.push({ label: type === 'text' ? '相同' : '=', value: dicts.SEARCH_COMPARE_TYPE__EQUAL })
+    }
+
+    // 值1 比较类型条件
+    item.compareOptions1 = opts1
+    // 值2 比较类型条件
+    item.compareOptions2 = []
+
+    // 如果比较类型有 >
+    if (_.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GT }) > -1) {
+        item.compareOptions2.push({ label: '<', value: dicts.SEARCH_COMPARE_TYPE__LT })
+
+    // 如果比较类型有 >=
+    } else if (_.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GTE }) > -1) {
+        item.compareOptions2.push({ label: '≤', value: dicts.SEARCH_COMPARE_TYPE__LTE })
+    }
 }
 
 /**
@@ -23,23 +101,58 @@ export function setItemValue(value, val) {
     // 如果值为数组
     if (Array.isArray(val)) {
         // 比较类型为 in
-        value[0].type = dicts.SEARCH_TYPE__IN
+        value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
         // 设置值为将数组转为逗号分隔的字符串
         value[0].value = utils.join(val, ',')
 
     // 如果值是逗号隔开
     } else if (utils.split(val, ',').length > 1) {
         // 比较类型为 in
-        value[0].type = dicts.SEARCH_TYPE__IN
+        value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
         // 设置值为将数组转为逗号分隔的字符串
         value[0].value = val
 
     // 否则为单个值
     } else {
         // 比较类型为 ==
-        value[0].type = dicts.SEARCH_TYPE__EQUAL
+        value[0].compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
         // 设置值为当前值
         value[0].value = val
+    }
+}
+
+/**
+ * 格式化单个比较条件
+ */
+function formatItemValueCompare(value, { compareOptions1 }) {
+
+    // 获取第一个值
+    const value1 = value[0]
+
+    // 如果值1 的比较条件不在值1 的限制范围内
+    if (_.findIndex(compareOptions1, { value: value1.compare }) === -1) {
+        // 则取比较条件中的第一个
+        value1.compare = compareOptions1[0].value
+    }
+
+    // 如果比较类型不为 in / not in
+    if (utils.indexOf([ dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN ], value1.compare) === -1) {
+        // 如果值中含有逗号
+        const arr = utils.split(value1.value, ',')
+        if (arr.length > 1) {
+            value1.value = arr[0]
+        }
+    }
+
+    // 如果值1 比较类型为 >
+    if (value1.compare === dicts.SEARCH_COMPARE_TYPE__GT) {
+        // 则修改值2 类型为 <
+        value[1].compare = dicts.SEARCH_COMPARE_TYPE__LT
+
+    // 如果值1 比较类型为 >=
+    } else if (value1.compare === dicts.SEARCH_COMPARE_TYPE__GTE) {
+        // 则修改值2 类型为 <=
+        value[1].compare = dicts.SEARCH_COMPARE_TYPE__LTE
     }
 }
 
@@ -80,6 +193,9 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
                 newItem.dict = item.dict
             }
 
+            // 设置单个比较条件
+            setItemCompare(newItem)
+
             // 原始表格搜索参数
             rawSearchOptions.push(newItem)
 
@@ -90,21 +206,21 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
                 // 值1
                 {
                     // 比较类型
-                    type: COMPARE_TYPE_MAPS[item.search.type][0],
+                    compare: COMPARE_TYPE_MAPS[newItem.type],
                     // 值
                     value: '',
                 },
                 // 值2
                 {
                     // 比较类型
-                    type: COMPARE_TYPE_MAPS[item.search.type][1],
+                    compare: dicts.SEARCH_COMPARE_TYPE__LT,
                     // 值
                     value: '',
                 },
             ]
 
             // 如果是日期
-            if (item.search.type === 'date') {
+            if (newItem.type === 'date') {
                 // 设置日期类型
                 value[0].dateType = 'day'
             }
@@ -128,9 +244,15 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
                 searchQueryKey.push(newItem.name)
 
             // 否则, 如果表格参数中有设置初始值
-            } else if (_.has(item, 'search.value') && utils.isValidArray(item.search.value)) {
-                value = _.merge([], value, item.search.value)
+            } else if (
+                _.has(newItem, 'value')
+                && utils.isValidArray(newItem.value)
+            ) {
+                value = _.merge([], value, newItem.value)
             }
+
+            // 格式化单个值的比较条件
+            formatItemValueCompare(value, newItem)
 
             // 首次初始表格搜索值
             firstTableSearchValue.push(value)
@@ -257,7 +379,7 @@ function formatValue(rawSearchOptions, searchValue) {
             if (utils.isValidValue(value1.value)) {
 
                 // 如果值1 类型为 in / not in
-                if (utils.indexOf([dicts.SEARCH_TYPE__IN, dicts.SEARCH_TYPE__NOT_IN], value1.type) > -1) {
+                if (utils.indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], value1.compare) > -1) {
                     const vals = []
                     utils.forEach(utils.split(utils.trimString(value1.value).replaceAll('，', ','), ','), function (item) {
                         item = utils.numberDeep(item)
@@ -268,7 +390,7 @@ function formatValue(rawSearchOptions, searchValue) {
                     if (vals.length) {
                         lists.push({
                             field: name,
-                            type: value1.type,
+                            compare: value1.compare,
                             value: vals,
                         })
                     }
@@ -278,7 +400,7 @@ function formatValue(rawSearchOptions, searchValue) {
                 // 否则添加值1
                 lists.push({
                     field: name,
-                    type: value1.type,
+                    compare: value1.compare,
                     value: utils.numberDeep(value1.value),
                 })
             }
@@ -299,9 +421,9 @@ function formatValue(rawSearchOptions, searchValue) {
                 // 如果是日期
                 type === 'date'
                 // 如果类型为快捷日期
-                && value1.type >= 20
+                && value1.compare >= 20
             ) {
-                const res = getQuickRange(value1.type - 20, true)
+                const res = getQuickRange(value1.compare - 20, true)
                 if (res) {
 
                     lists.push(
@@ -309,14 +431,14 @@ function formatValue(rawSearchOptions, searchValue) {
                         {
                             field: name,
                             // ≥
-                            type: dicts.SEARCH_TYPE__GTE,
+                            compare: dicts.SEARCH_COMPARE_TYPE__GTE,
                             value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.from} ${res.time.from}`), 'X')),
                         },
                         // 日期止
                         {
                             field: name,
                             // ≤
-                            type: dicts.SEARCH_TYPE__LTE,
+                            compare: dicts.SEARCH_COMPARE_TYPE__LTE,
                             value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.to} ${res.time.to}`), 'X')),
                         }
                     )
@@ -328,12 +450,12 @@ function formatValue(rawSearchOptions, searchValue) {
             addValue1(value1)
 
             // 只有值1 类型为 > / ≥ 值2才有效
-            if (utils.indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], value1.type) > -1) {
+            if (utils.indexOf([dicts.SEARCH_COMPARE_TYPE__GT, dicts.SEARCH_COMPARE_TYPE__GTE], value1.compare) > -1) {
                 const value2 = searchValue[itemIndex][1]
                 if (utils.isValidValue(value2.value)) {
                     lists.push({
                         field: name,
-                        type: value2.type,
+                        compare: value2.compare,
                         value: utils.numberDeep(value2.value),
                     })
                 }

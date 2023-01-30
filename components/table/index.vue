@@ -268,7 +268,7 @@ export default {
             // 对话框中的表格双击表格行
             currentTableRowDblclick = function (e, row) {
                 // 如果不是多选
-                if ($table.tableSelection !== 'multiple') {
+                if ($table.tableSelection.value !== 'multiple') {
                     $table.tableSelected.value = [ row ]
                     $dialog.confirm()
                 }

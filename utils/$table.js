@@ -198,7 +198,7 @@ function create(params) {
     })
 
     // 获取可见列缓存
-    const visibleColumnsCache = o.showVisibleColumns && isCache ? utils.storage.get('table_visible_columns_' + cacheName) : []
+    const visibleColumnsCache = o.showVisibleColumns && isCache ? utils.storage.get('table:visible_columns:' + cacheName) : []
 
     // 表格可见列
     const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : _.uniq([...o.visibleColumns]))
@@ -213,7 +213,7 @@ function create(params) {
     const tablePagination = ref($route.fullPath ? o.pagination : {})
 
     // 表格宫格
-    const tableGrid = ref(o.showGrid && isCache ? utils.storage.get('table_grid_' + cacheName) === true : false)
+    const tableGrid = ref(o.showGrid && isCache ? utils.storage.get('table:grid:' + cacheName) === true : false)
 
     // 表格传参
     const tableQuery = ref({})
@@ -226,6 +226,9 @@ function create(params) {
 
     // 表格合计
     const tableSummary = ref(null)
+
+    // 表格选择类型
+    const tableSelection = ref(o.selection)
 
     const {
         // 原始参数
@@ -304,7 +307,7 @@ function create(params) {
 
             // 设置宫格模式缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set('table_grid_' + cacheName, val, 0)
+            utils.storage.set('table:grid:' + cacheName, val, 0)
             // #endif
         })
     }
@@ -317,7 +320,7 @@ function create(params) {
 
             // 设置可见列缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set('table_visible_columns_' + cacheName, val, 0)
+            utils.storage.set('table:visible_columns:' + cacheName, val, 0)
             // #endif
         })
     }
@@ -402,11 +405,11 @@ function create(params) {
                     if (hasNSearch && _.has(query.n_search, item.name)) {
                         const newSearchItem = query.n_search[item.name]
                         if (utils.isValidArray(newSearchItem)) {
-                            valueItem[0].type = newSearchItem[0].type
+                            valueItem[0].compare = newSearchItem[0].compare
                             valueItem[0].value = newSearchItem[0].value
 
                             if (newSearchItem.length > 1) {
-                                valueItem[1].type = newSearchItem[1].type
+                                valueItem[1].compare = newSearchItem[1].compare
                                 valueItem[1].value = newSearchItem[1].value
                             }
                         }
@@ -750,7 +753,7 @@ function create(params) {
     function _tableRowClick(e, row) {
 
         // 如果选择类型为无
-        if (o.selection === 'none') {
+        if (tableSelection.value === 'none') {
             // 则无任何操作
             return
         }
@@ -765,7 +768,7 @@ function create(params) {
         if (itemIndex === -1) {
 
             // 如果选择类型为单选
-            if (o.selection === 'single') {
+            if (tableSelection.value === 'single') {
                 tableSelected.value = [ row ]
 
             // 否则为多选
@@ -795,7 +798,7 @@ function create(params) {
     function _tableRowDblclick(e, row) {
 
         // 如果选择类型为无
-        if (o.selection === 'none') {
+        if (tableSelection.value === 'none') {
             // 则无任何操作
             return
         }
@@ -860,7 +863,7 @@ function create(params) {
         // 表格 id key
         tableRowKey: o.rowKey,
         // 表格选择类型
-        tableSelection: o.selection,
+        tableSelection,
         // 表格每页显示行数选项
         tableRowsPerPageOptions: rowsPerPageOptions,
         // 表格列数据(对象数组)

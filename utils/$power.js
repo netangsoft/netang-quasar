@@ -55,6 +55,9 @@ function create(params) {
         }
     }
 
+    // 获取当前路由
+    const $currentRoute = utils.router.getRoute()
+
     // 权限路由
     let $route
 
@@ -85,7 +88,7 @@ function create(params) {
 
     // 否则获取当前路由
     } else {
-        $route = utils.router.getRoute()
+        $route = $currentRoute
     }
 
     // quasar 对象
@@ -255,8 +258,10 @@ function create(params) {
                 await request({
                     // 按钮数据
                     data,
-                    // 当前路由参数
+                    // 权限路由参数
                     $route,
+                    // 当前路由参数
+                    $currentRoute,
                     // 表格选中数据
                     tableSelected,
                     // 表格实例
@@ -784,7 +789,10 @@ async function request(params) {
     }, params)
 
     const {
+        // 权限路由参数
         $route,
+        // 当前路由参数
+        $currentRoute,
     } = params
 
     o.query = $route.query
@@ -844,7 +852,8 @@ async function request(params) {
 
         // 如果有增加来源页面参数
         if (_.get(o.data, 'addFromPageQuery') === true) {
-            query.n_frompage = encodeURIComponent($route.fullPath)
+            // 来源页面是当前路由的完整路径
+            query.n_frompage = encodeURIComponent($currentRoute.fullPath)
         }
 
         utils.router.push({
@@ -857,32 +866,38 @@ async function request(params) {
     // 请求数据
     let requestData = {}
 
+    // 表单实例
+    let $form
+
+    // 表格实例
+    let $table
+
     // 如果是提交表单
     // --------------------------------------------------
     if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
-        o.$form = _.has(params, '$form') ? params.$form : inject(NFormKey)
+        $form = _.has(params, '$form') ? params.$form : inject(NFormKey)
 
-        if (! o.$form) {
+        if (! $form) {
             throw new Error('没有创建表单实例')
         }
 
         // 如果验证表单
         if (_.get(o.data, 'validate') !== false) {
 
-            if (! o.$form.formRef) {
+            if (! $form.formRef) {
                 throw new Error('没有绑定 fromRef')
             }
 
             // 验证表单
-            if (! await o.$form.formRef.value.validate()) {
+            if (! await $form.formRef.value.validate()) {
                 return
             }
         }
 
         // 验证表单数据
-        if (! utils.isValidObject(o.$form.formData.value)) {
+        if (! utils.isValidObject($form.formData.value)) {
             throw new Error('没有获取到表单数据')
         }
 
@@ -896,13 +911,13 @@ async function request(params) {
         }
 
         // 获取请求数据
-        requestData = _.merge({}, formatQuery(query, false), o.$form.formData.value)
+        requestData = _.merge({}, formatQuery(query, false), $form.formData.value)
 
     // 如果是请求数据
     // --------------------------------------------------
     } else {
         // 获取表格注入
-        o.$table = _.has(params, '$table') ? params.$table : inject(NTableKey)
+        $table = _.has(params, '$table') ? params.$table : inject(NTableKey)
 
         // 获取请求数据
         requestData = formatQuery(query, false)
@@ -962,7 +977,12 @@ async function request(params) {
         if (res.status) {
 
             // 下一步
-            function next(isNotify = true) {
+            function next(isNotify = true, power = null) {
+
+                // 获取按钮权限
+                if (_.isNil(power)) {
+                    power = o.data
+                }
 
                 // 轻提示
                 if (isNotify) {
@@ -973,8 +993,8 @@ async function request(params) {
                 }
 
                 // 判断是否有请求成功后的操作动作
-                if (_.has(o.data, 'requestSuccess.type')) {
-                    switch (o.data.requestSuccess.type) {
+                if (_.has(power, 'requestSuccess.type')) {
+                    switch (power.requestSuccess.type) {
 
                         // 关闭当前页面
                         case 'close':
@@ -989,7 +1009,7 @@ async function request(params) {
 
                             if (
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                                o.data.requestSuccess.type !== 'close'
+                                power.requestSuccess.type !== 'close'
                                 // 如果有来源页面
                                 && _.has($route.query, 'n_frompage')
                                 && utils.isValidString($route.query.n_frompage)
@@ -1013,20 +1033,28 @@ async function request(params) {
 
                         // 重置表单
                         case 'resetForm':
-                            utils.run(o.$form?.resetForm)()
+                            utils.run($form?.resetForm)()
                             break
 
                         // 刷新表格
                         case 'refreshTable':
-                            utils.run(o.$table?.tableRefresh)()
+                            utils.run($table?.tableRefresh)()
                             break
                     }
                 }
             }
 
             // 请求成功执行
-            const res = await utils.runAsync(o.requestSuccess)(Object.assign({ next }, resultData))
-            if (res === false) {
+            const resSuccess = await utils.runAsync(o.requestSuccess)({
+                // 下一步
+                next,
+                // 返回数据
+                data: res.data,
+                // 按钮数据
+                power: _.cloneDeep(o.data),
+            }, resultData)
+
+            if (resSuccess === false) {
                 return
             }
 

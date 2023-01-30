@@ -120,9 +120,6 @@ export default {
         // 获取权限注入
         const $power = inject(NPowerKey)
 
-        // 当前路由完整路径
-        const fullPath = $power ? $power.routeFullPath : utils.router.getRoute('fullPath')
-
         // 缓存名
         let cacheName = ''
 
@@ -131,8 +128,9 @@ export default {
 
         // 如果开启缓存
         if (props.cache) {
+
             // 设置缓存名
-            cacheName = `splitter_value_${props.cache === true ? fullPath : props.cache}`
+            cacheName = `splitter:value:${props.cache === true ? ($power && $power.routePath ? $power.routePath : utils.router.getRoute('path')) : props.cache}`
 
             // 从缓存获取初始值
             const cache = utils.storage.get(cacheName)
