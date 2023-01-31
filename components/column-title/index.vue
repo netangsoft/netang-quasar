@@ -8,6 +8,9 @@
             <!-- 提示信息 -->
             <q-tooltip anchor="center right" self="center left" v-if="tooltip">{{tooltip}}</q-tooltip>
         </q-badge>
+
+        <!-- 插槽 -->
+        <slot />
     </div>
 </template>
 

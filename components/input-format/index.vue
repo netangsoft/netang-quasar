@@ -73,7 +73,12 @@ export default {
          * 监听声明值
          */
         watch(()=>props.modelValue, function (val) {
+
+            // 格式化声明值
             currentValue.value = formatModelValue(val)
+        }, {
+            // 深度监听
+            deep: true,
         })
 
         // ==========【方法】=============================================================================================
