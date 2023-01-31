@@ -3,6 +3,7 @@
     <q-field
         class="n-field-table"
         :model-value="showValue"
+        :disable="disable"
         :readonly="readonly"
         :clearable="clearable && (! multiple || collapseTags)"
         @focus="onFieldFocus"
@@ -37,7 +38,7 @@
                             :key="`options-${index}`"
                             :label="currentFormatLabel(item)"
                             dense
-                            removable
+                            :removable="! readonly && ! disable"
                             @remove="onRemoveSelected(index)"
                         />
                     </template>
@@ -58,13 +59,13 @@
                 ref="inputRef"
                 class="q-field__input q-placeholder col q-field__input--padding"
                 v-model="inputValue"
-                v-if="filter"
+                v-if="filter && ! readonly && ! disable"
             />
 
         </template>
 
         <!-- 弹出对话框图标 -->
-        <template v-slot:append v-if="! noDialog">
+        <template v-slot:append v-if="! noDialog && ! readonly && ! disable">
             <q-icon
                 class="cursor-pointer"
                 name="search"
@@ -222,6 +223,8 @@ export default {
         placeholder: String,
         // 是否可清除
         clearable: Boolean,
+        // 是否禁用
+        disable: Boolean,
         // 是否只读
         readonly: Boolean,
         // 输入防抖(毫秒)

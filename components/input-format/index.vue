@@ -32,8 +32,12 @@ export default {
         modelValue: {
             required: false,
         },
-        // 格式化值
-        format: [Function, String],
+        // 值是否为数组
+        valueArray: Boolean,
+        // 修改前值
+        formatBefore: [Function, Object, Boolean],
+        // 修改后值
+        formatAfter: [Function, Object, Boolean],
     },
 
     /**
@@ -61,7 +65,7 @@ export default {
         // ==========【数据】============================================================================================
 
         // 当前值
-        const currentValue = ref(props.modelValue)
+        const currentValue = ref(formatModelValue(props.modelValue))
 
         // ==========【监听数据】=========================================================================================
 
@@ -69,10 +73,142 @@ export default {
          * 监听声明值
          */
         watch(()=>props.modelValue, function (val) {
-            currentValue.value = val
+            currentValue.value = formatModelValue(val)
         })
 
         // ==========【方法】=============================================================================================
+
+        /**
+         * 格式化声明值
+         */
+        function formatModelValue(val) {
+
+            if (props.formatBefore) {
+
+                // 如果是方法
+                if (_.isFunction(props.formatBefore)) {
+                    return props.formatBefore(val)
+                }
+
+                // 如果是参数
+                if (props.formatBefore === true || utils.isValidObject(props.formatBefore)) {
+
+                    // 如果值是数组
+                    if (Array.isArray(val)) {
+
+                        // 格式化数组值
+                        return formatArrayValue(val, props.formatBefore === true ? {} : props.formatBefore)
+                    }
+
+                    // 如果是有效值
+                    if (utils.isValidValue(val)) {
+
+                        // 格式化字符串值
+                        return formatStringValue(val, props.formatBefore === true ? {} : props.formatBefore, false)
+                    }
+
+                    return ''
+                }
+            }
+
+            return val
+        }
+
+        /**
+         * 格式化数组值
+         */
+        function formatArrayValue(val, params) {
+
+            // 如果数组有值
+            if (val.length) {
+
+                const o = Object.assign({
+                    // 是否去重
+                    unique: true,
+                    // 分隔符
+                    separator: ',',
+                    // 是否给每个值去除首位空格
+                    trim: true,
+                    // 验证每个值是否为有效字符串/数字
+                    isValidValue: true,
+                }, params)
+
+                // 是否给每个值去除首位空格
+                if (o.trim) {
+                    val = val.map(e => utils.trimString(e))
+                }
+
+                // 是否验证每个值是否为有效字符串/数字
+                if (o.isValidValue) {
+                    val = val.filter(val => utils.isValidValue(val))
+                }
+
+                // 去重
+                if (o.unique) {
+                    val = _.uniq(val)
+                }
+
+                // 合并为字符串
+                return val.join(o.separator)
+            }
+
+            return ''
+        }
+
+        /**
+         * 格式化字符串值
+         */
+        function formatStringValue(val, params, valueArray) {
+
+            console.log(val, params, valueArray)
+
+            const o = Object.assign({
+                // 替换内容
+                replace: /\n|\，|\s+/g,
+                // 是否去重
+                unique: true,
+                // 分隔符
+                separator: ',',
+                // 验证每个值是否为有效字符串/数字
+                isValidValue: true,
+            }, params)
+
+            // 去除首位空格
+            val = utils.trimString(val)
+
+            // 如果有分割符
+            if (utils.isValidValue(o.separator, true)) {
+
+                o.separator = String(o.separator)
+
+                // 是否替换
+                if (o.replace) {
+                    val = val.replace(o.replace, o.separator)
+                }
+
+                // 分隔成数组
+                val = utils.split(val, o.separator)
+
+                // 去重
+                if (o.unique) {
+                    val = _.uniq(val)
+                }
+
+                // 如果验证每个值是否为有效字符串/数字
+                if (o.isValidValue) {
+                    val = val.filter(val => utils.isValidValue(val))
+                }
+
+                // 如果值不是数组
+                if (! valueArray) {
+                    val = val.join(o.separator)
+                }
+
+                return val
+            }
+
+            return valueArray ? [ val ] : ''
+        }
 
         /**
          * 失去焦点触发
@@ -81,11 +217,19 @@ export default {
 
             let val = currentValue.value
 
-            if (
-                props.format
-                && _.isFunction(props.format)
-            ) {
-                val = props.format(val)
+            // 如果修改值
+            if (props.formatAfter) {
+
+                // 如果是方法
+                if (_.isFunction(props.formatAfter)) {
+                    val = props.formatAfter(val)
+
+                // 如果是参数
+                } else if (props.formatAfter === true || utils.isValidObject(props.formatAfter)) {
+
+                    // 格式化字符串值
+                    val = formatStringValue(val, props.formatAfter === true ? {} : props.formatAfter, props.valueArray)
+                }
             }
 
             // 更新值
