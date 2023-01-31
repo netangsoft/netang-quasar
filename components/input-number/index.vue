@@ -283,7 +283,8 @@ export default {
         // 如果当前值 !== 声明值
         const rawModelValue = formatToModelValue(currentValue.value)
         if (rawModelValue !== props.modelValue) {
-            // 则更新值
+
+            // 触发更新值
             emitModelValue(rawModelValue)
         }
 
@@ -292,7 +293,7 @@ export default {
         /**
          * 监听声明值
          */
-        watch(()=>props.modelValue, function (val) {
+        watch(() => props.modelValue, function (val) {
 
             // 格式化为当前值
             val = formatToCurrentValue(val, true)
@@ -325,10 +326,11 @@ export default {
         // ==========【方法】=============================================================================================
 
         /**
-         * 更新值
+         * 触发更新值
          */
         function emitModelValue(val) {
-            // 更新值
+
+            // 触发更新值
             emit('update:modelValue', val)
         }
 
@@ -457,7 +459,7 @@ export default {
                 // 将当前值转为声明值
                 val = formatToModelValue(val)
 
-                // 更新值
+                // 触发更新值
                 emitModelValue(val)
 
                 // 失去焦点触发
@@ -485,7 +487,7 @@ export default {
                 // 更新当前值
                 currentValue.value = val
 
-                // 更新值
+                // 触发更新值
                 emitModelValue(formatToModelValue(val))
             }
         }

@@ -81,9 +81,9 @@
             no-refocus
             no-focus
             fit
-            @focus="onPopupFocus"
+            @focus="onFieldFocus"
             @show="onPopupShow"
-            @before-hide="onPopupBeforeHide"
+            @before-hide="showPopup = false"
             v-if="! readonly"
         >
             <q-card>
@@ -96,10 +96,10 @@
                     :nodes="nodes"
                     :node-key="nodeKey"
                     :label-key="labelKey"
+                    :ticked="treeTicked"
+                    @update:ticked="emitModelValue"
                     v-model:expanded="treeExpanded"
                     :tick-strategy="currentTickStrategy"
-                    :ticked="treeTicked"
-                    @update:ticked="onUpdateTicked"
                     :accordion="accordion"
                 >
                     <template v-slot:default-header="{ node }">
@@ -214,14 +214,14 @@ export default {
         // 树节点
         const treeRef = ref(null)
 
-        // 树选择数据
-        const treeTicked = ref(formatModelValue())
-
         // tree all
         let treeAll = getTreeAll()
 
         // 树展开数据
         const treeExpanded = ref(getExpanded())
+
+        // 树选择数据
+        const treeTicked = ref(formatModelValue(props.modelValue))
 
         // ==========【计算属性】=========================================================================================
 
@@ -260,7 +260,7 @@ export default {
         /**
          * 监听节点数组
          */
-        watch(()=>props.nodes, function () {
+        watch(() => props.nodes, function () {
             // 更新 tree all
             treeAll = getTreeAll()
         })
@@ -268,10 +268,10 @@ export default {
         /**
          * 监听声明值
          */
-        watch(()=>props.modelValue, function() {
+        watch(() => props.modelValue, function(val) {
 
             // 设置选中数据
-            treeTicked.value = formatModelValue()
+            treeTicked.value = formatModelValue(val)
 
             // 设置输入框焦点
             setInputFocus()
@@ -377,25 +377,27 @@ export default {
         /**
          * 格式化传值
          */
-        function formatModelValue() {
+        function formatModelValue(val) {
+
+            // 如果是多选
             if (props.multiple) {
-                if (utils.isValidArray(props.modelValue)) {
-                    return props.modelValue
-                }
-                return []
+                return utils.isValidArray(val) ? val : []
             }
 
-            if (utils.isRequired(props.modelValue)) {
-                return [props.modelValue]
+            // 如果为有效值
+            if (utils.isRequired(val)) {
+                return [ val ]
             }
 
             return []
         }
 
         /**
-         * 更新选择树数据回调
+         * 触发更新值
          */
-        function onUpdateTicked(val) {
+        function emitModelValue(val) {
+
+            // 触发更新值
             emit('update:modelValue', val)
         }
 
@@ -409,23 +411,32 @@ export default {
 
                 // 如果是父节点
                 if (utils.isValidArray(children)) {
+
                     // 则无任何操作
                     return
                 }
 
-                const newTicked = [...treeTicked.value]
+                // 克隆已选树数据
+                const _ticked = [...treeTicked.value]
+
+                // 获取值在树数据中的索引
+                const index = utils.indexOf(_ticked, id)
 
                 // 如果在数据中
-                const index = utils.indexOf(newTicked, id)
                 if (index > -1) {
-                    newTicked.splice(index, 1)
+                    // 则删除
+                    _ticked.splice(index, 1)
+                // 否则
                 } else {
-                    newTicked.push(id)
+                    // 添加
+                    _ticked.push(id)
                 }
 
+                // 触发更新值
                 // 设置树选择数据
-                emit('update:modelValue', newTicked)
+                emitModelValue(_ticked)
 
+            // 否则是单选
             } else {
 
                 if (
@@ -438,8 +449,9 @@ export default {
                     return
                 }
 
+                // 触发更新值
                 // 设置树选择数据
-                emit('update:modelValue', id)
+                emitModelValue(id)
 
                 // 则停止冒泡
                 e.preventDefault()
@@ -451,12 +463,19 @@ export default {
         }
 
         /**
-         * 移除单个
+         * 移除单个节点
          */
         function onRemoveItem(index) {
-            const newValue = [...treeTicked.value]
-            newValue.splice(index, 1)
-            emit('update:modelValue', newValue)
+
+            // 克隆已选树数据
+            const _ticked = [...treeTicked.value]
+
+            // 删除该节点
+            _ticked.splice(index, 1)
+
+            // 触发更新值
+            // 设置树选择数据
+            emitModelValue(_ticked)
         }
 
         /**
@@ -497,25 +516,12 @@ export default {
          */
         function onFieldClear() {
 
-            // 更新值
-            emit('update:modelValue', props.multiple ? [] : null)
+            // 触发更新值
+            // 清空树数据
+            emitModelValue(props.multiple ? [] : null)
 
             // 隐藏弹出层
             popupRef.value.hide()
-        }
-
-        /**
-         * 弹出层获取焦点触发
-         */
-        function onPopupFocus(e) {
-
-            // 停止冒泡
-            e.stopPropagation()
-
-            // 设置输入框焦点
-            setInputFocus()
-
-            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
         }
 
         /**
@@ -528,15 +534,6 @@ export default {
 
             // 设置输入框焦点
             setInputFocus()
-        }
-
-        /**
-         * 弹出层隐藏前显示回调
-         */
-        function onPopupBeforeHide() {
-
-            // 隐藏弹出层
-            showPopup.value = false
         }
 
         /**
@@ -604,8 +601,8 @@ export default {
             // 当前节点选择策略
             currentTickStrategy,
 
-            // 更新选择树数据回调
-            onUpdateTicked,
+            // 触发更新值
+            emitModelValue,
             // 点击节点
             onNode,
             // 移除单个
@@ -618,12 +615,8 @@ export default {
             // 字段清空触发
             onFieldClear,
 
-            // 弹出层获取焦点触发
-            onPopupFocus,
             // 弹出层显示回调
             onPopupShow,
-            // 弹出层隐藏前显示回调
-            onPopupBeforeHide,
         }
     },
 }

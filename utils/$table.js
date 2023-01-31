@@ -217,9 +217,6 @@ function create(params) {
     // 表格宫格
     const tableGrid = ref(o.showGrid && isCache ? utils.storage.get('table:grid:' + cacheName) === true : false)
 
-    // 表格传参
-    const tableQuery = ref({})
-
     // 表格请求参数(将表格传参中的搜索参数剥离掉, 剩下的直接当做参数传递给服务器)
     let tableRequestQuery = {}
 
@@ -371,10 +368,12 @@ function create(params) {
         })
     }
 
+    // ==========【方法】================================================================================================
+
     /**
-     * 监听表格传参
+     * 设置表格传参
      */
-    watch(tableQuery, function (query) {
+    function setQuery(query) {
 
         if (utils.isValidObject(query)) {
 
@@ -475,13 +474,8 @@ function create(params) {
         }
 
         tableRequestQuery = {}
+    }
 
-    }, {
-        // 深度监听
-        deep: true,
-    })
-
-    // ==========【方法】================================================================================================
 
     /**
      * 表格是否已加载
@@ -892,8 +886,6 @@ function create(params) {
 
         // 表格宫格
         tableGrid,
-        // 表格传参
-        tableQuery,
         // 表格合计
         tableSummary,
         // 表格搜索数据
@@ -901,6 +893,8 @@ function create(params) {
         // 表格搜索参数
         tableSearchOptions,
 
+        // 设置表格传参
+        setQuery,
         // 表格是否已加载
         isTableLoaded,
         // 表格加载(只加载一次)

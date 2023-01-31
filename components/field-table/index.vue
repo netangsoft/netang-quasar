@@ -79,9 +79,9 @@
             no-refocus
             no-focus
             fit
-            @focus="onPopupFocus"
+            @focus="onFieldBlur"
             @show="onPopupShow"
-            @before-hide="onPopupBeforeHide"
+            @before-hide="showPopup = false"
             v-if="! readonly"
         >
             <!-- 快捷表格 -->
@@ -89,7 +89,7 @@
                 class="n-table n-field-table__popup-table"
                 v-model:pagination="tablePagination"
                 :selected="selected"
-                @update:selected="emitSelected"
+                @update:selected="emitModelValue"
                 :row-key="tableRowKey"
                 :rows="tableRows"
                 :columns="columns"
@@ -148,7 +148,7 @@
         width="80%"
         :on-confirm="onDialogConfirm"
         @before-show="onDialogBeforeShow"
-        @show="onDialogShow"
+        @show="tableLoad"
         @hide="onDialogHide"
         cancel
         v-bind="dialogProps"
@@ -160,7 +160,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted, onUpdated } from 'vue'
+import { ref, computed, watch, onUpdated } from 'vue'
 
 export default {
 
@@ -205,7 +205,7 @@ export default {
         query: Object,
         // 附加请求数据
         data: Object,
-        // 初始时不加载选择数据
+        // 不加载已选数据
         noLoadSelected: Boolean,
         // 格式化显示标签
         formatLabel: Function,
@@ -253,6 +253,7 @@ export default {
      */
     emits: [
         'update:modelValue',
+        'update:selected',
     ],
 
     /**
@@ -306,11 +307,6 @@ export default {
 
         // ==========【数据】============================================================================================
 
-        // 临时已选数据
-        let tempSelected = []
-
-        // 初始化已选数据
-        const selected = ref(valueToSelected(props.modelValue))
 
         // 创建权限实例
         const $power = utils.$power.create({
@@ -342,7 +338,7 @@ export default {
             // 选择类型, 可选值 single multiple none
             selection: props.multiple ? 'multiple' : 'single',
             // 已选数据
-            selected: [...selected.value],
+            selected: [],
             // http 设置
             httpSettings: {
                 // 头部请求
@@ -357,9 +353,6 @@ export default {
 
         // 创建防抖睡眠方法
         const sleep = utils.debounceSleep()
-
-        // 停止观察值
-        // let stopValueWatcher = false
 
         // 输入框节点
         const inputRef = ref(null)
@@ -379,25 +372,18 @@ export default {
         // 当前表格列数据
         const columns = getQuickTableColumns()
 
-        // 验证声明值是否有变动
-        const _value = selectedToValue(selected.value)
-        if (_value !== props.modelValue) {
-            // 设置临时已选数据
-            tempSelected = selected.value
-            // 触发更新已选数据
-            emit('update:modelValue', _value)
-        }
+        // 停止观察值
+        let stopValueWatcher = false
 
-        if (
-            // 如果初始加载已选数据
-            ! props.noLoadSelected
-            // 如果有请求路由路径
-            && routePath
-            // 如果有选择数据
-            && utils.isValidArray(selected.value)
-        ) {
+        // 临时已选数据
+        let tempSelected = []
 
-        }
+        // 初始化已选数据
+        const selected = ref(valueToSelected(props.modelValue, true, true))
+
+        // 加载已选数据
+        loadSelected()
+            .finally()
 
         // ==========【监听数据】=========================================================================================
 
@@ -406,27 +392,27 @@ export default {
          */
         watch(() => props.modelValue, async function(val) {
 
-            // // 如果停止观察值
-            // if (stopValueWatcher === true) {
-            //     // 取消停止观察值
-            //     stopValueWatcher = false
-            //     return
-            // }
+            // 如果停止观察值
+            if (stopValueWatcher === true) {
+                // 取消停止观察值
+                stopValueWatcher = false
+                return
+            }
 
             // 值转已选数据
-            let newSelected = valueToSelected(val, false)
+            let newSelected = valueToSelected(val, false, false)
 
             // 如果值类型是数组对象
             if (props.valueType === 'arrayObject') {
 
                 // 设置已选数据
-                selected.value = newSelected
+                setSelected(newSelected)
 
             // 否则值类型是字符串或数组
             } else {
 
                 // 初始已选数据
-                let _select = []
+                let _selected = []
 
                 // 如果值转已选数据是有效数组
                 if (newSelected.length) {
@@ -438,25 +424,53 @@ export default {
                     if (currentSelected.length) {
 
                         // 新已选数据
-                        _select = currentSelected.filter(e => newSelected.indexOf(e[props.valueKey]) > -1)
+                        _selected = currentSelected.filter(e => newSelected.indexOf(e[props.valueKey]) > -1)
 
                         // 需增加的值
-                        newSelected = newSelected.filter(e => _select.map(e => e[props.valueKey]).indexOf(e) === -1)
+                        newSelected = newSelected.filter(e => _selected.map(e => e[props.valueKey]).indexOf(e) === -1)
                     }
 
                     // 需增加的值
                     if (newSelected.length) {
 
-                        // 请求选择数据
-                        _select.push(...await onRequestSelected(newSelected))
+                        // 如果不加载已选数据
+                        if (props.noLoadSelected) {
+                            // 请求选择数据
+                            _selected.push(...newSelected.map(e => setSelectedItem(e)))
+                        } else {
+                            // 请求选择数据
+                            _selected.push(...await onRequestSelected(newSelected))
+                        }
                     }
                 }
 
-                selected.value = _select
+                // 设置已选数据
+                setSelected(_selected)
 
                 // 清空临时已选数据
                 tempSelected = []
             }
+
+            // 将已选数据转为值
+            const _value = selectedToValue(selected.value)
+
+            // 如果声明值发生变化
+            if (_value !== props.modelValue) {
+                // 停止观察值
+                stopValueWatcher = true
+                // 触发更新已选数据
+                emit('update:modelValue', _value)
+            }
+
+            // 设置输入框焦点
+            setInputFocus()
+
+            // 设置输入框文字选中
+            setInputSelection()
+
+        }, {
+            // 深度监听
+            deep: true,
         })
 
         /**
@@ -464,32 +478,26 @@ export default {
          */
         watch(inputValue, async function (val) {
 
-            // 取消延迟执行
-            sleep.cancel()
-
-            const hasValue = utils.isValidValue(val)
-            if (hasValue) {
-
-                const n_search = {}
-                n_search[currentFilterKey.value] = [
-                    {
-                        // 比较类型
-                        compare: dicts.SEARCH_COMPARE_TYPE__LIKE,
-                        // 值
-                        value: val || '',
-                    }
-                ]
-
-                $table.tableQuery.value = {
-                    n_search,
-                }
-
-            } else {
-                $table.tableQuery.value = {}
-            }
-
             // 延迟执行
             await sleep(props.inputDebounce)
+
+            // 是否有值
+            const hasValue = utils.isValidValue(val)
+
+            const n_search = {}
+            n_search[currentFilterKey.value] = [
+                {
+                    // 比较类型
+                    compare: dicts.SEARCH_COMPARE_TYPE__LIKE,
+                    // 值
+                    value: hasValue ? val : '',
+                }
+            ]
+
+            // 设置表格传参
+            $table.setQuery({
+                n_search,
+            })
 
             if (
                 // 如果弹出层是隐藏的
@@ -508,6 +516,58 @@ export default {
         // ==========【方法】=============================================================================================
 
         /**
+         * 加载已选数据
+         */
+        async function loadSelected() {
+
+            if (
+                // 如果值类型不是数组对象
+                props.valueType !== 'arrayObject'
+                // 如果不加载已选数据
+                && ! props.noLoadSelected
+                // 如果有请求路由路径
+                && routePath
+            ) {
+                // 获取值数组
+                const values = valueToSelected(props.modelValue, false, false)
+                if (values.length) {
+
+                    // 初始的已选数据
+                    const _selected = await onRequestSelected(values)
+                    const _value = selectedToValue(_selected)
+
+                    // 如果声明值未发生变化
+                    if (_value === props.modelValue) {
+                        // 设置已选数据
+                        setSelected(_selected)
+
+                    } else {
+                        // 设置临时已选数据
+                        tempSelected = _selected
+                        // 触发更新值
+                        emit('update:modelValue', _value)
+                    }
+                    return
+                }
+            }
+
+            // 触发更新已选数据
+            emit('update:selected', selected.value)
+        }
+
+        /**
+         * 触发更新值
+         */
+        function emitModelValue(val) {
+
+            // 设置临时已选数据
+            tempSelected = val
+
+            // 触发更新值
+            emit('update:modelValue', selectedToValue(val))
+        }
+
+        /**
          * 设置已选数据
          */
         function setSelected(val) {
@@ -515,26 +575,8 @@ export default {
             // 设置已选数据
             selected.value = val
 
-            // 检查值更新
-            checkModelValueChange()
-
-            // 设置输入框焦点
-            setInputFocus()
-
-            // 设置输入框文字选中
-            setInputSelection()
-        }
-
-        /**
-         * 触发更新已选数据
-         */
-        function emitSelected(val) {
-
-            // 设置临时已选数据
-            tempSelected = val
-
             // 触发更新已选数据
-            emit('update:modelValue', selectedToValue(val))
+            emit('update:selected', val)
         }
 
         /**
@@ -562,7 +604,7 @@ export default {
         /**
          * 值转已选数据
          */
-        function valueToSelected(val, toSelectedItem = true) {
+        function valueToSelected(val, isFirst, toSelected) {
 
             // 如果值类型是数组对象
             if (props.valueType === 'arrayObject') {
@@ -585,13 +627,22 @@ export default {
                 return val
             }
 
-            // 将值转为数组
-            val = props.valueType === 'string' ? utils.split(val, props.valueSeparator) : val
+            if (
+                // 非初始化
+                ! isFirst
+                // 或非加载已选数据
+                || props.noLoadSelected
+                // 或没有路由路径
+                || ! routePath
+            ) {
+                // 将值转为数组
+                val = props.valueType === 'string' ? utils.split(val, props.valueSeparator) : val
 
-            // 如果是有效数组
-            if (utils.isValidArray(val)) {
-                val = val.filter(e => utils.isValidValue(e))
-                return toSelectedItem ? val.map(e => setSelectedItem(e)) : val
+                // 如果是有效数组
+                if (utils.isValidArray(val)) {
+                    val = val.filter(e => utils.isValidValue(e))
+                    return toSelected ? val.map(e => setSelectedItem(e)) : val
+                }
             }
 
             return []
@@ -624,10 +675,12 @@ export default {
 
             // 如果值类型是数组
             if (props.valueType === 'array') {
+
+                // 直接返回数组
                 return values
             }
 
-            // 转为分隔符隔开的字符串
+            // 返回转为分隔符隔开的字符串
             return utils.join(values, props.valueSeparator)
         }
 
@@ -667,39 +720,6 @@ export default {
             })
 
             return status && utils.isValidArray(_.get(data, 'rows')) ? data.rows : []
-        }
-
-        /**
-         * 检查值更新
-         */
-        function checkModelValueChange() {
-
-            let newModelValue = utils.isValidArray(selected.value)
-                // 如果有已选数据
-                ? (
-                    props.multiple
-                        // 如果是多选
-                        ? selected.value.map(e => e[props.valueKey])
-                        // 否则是单选
-                        : [ selected.value[0][props.valueKey] ]
-                )
-                // 否则为空
-                : []
-
-            // 如果值为字符串或数字
-            if (! props.valueArray) {
-                newModelValue = utils.numberDeep(utils.join(newModelValue, props.valueSeparator))
-            }
-
-            // 如果值发生改变
-            if (newModelValue !== props.modelValue) {
-
-                // 停止观察值
-                // stopValueWatcher = true
-
-                // 提交更新值
-                emit('update:modelValue', newModelValue)
-            }
         }
 
         /**
@@ -818,26 +838,12 @@ export default {
          */
         function onFieldClear() {
 
-            // 触发更新已选数据
+            // 触发更新值
             // 清空快捷表格已选数据
-            emitSelected([])
+            emitModelValue([])
 
             // 隐藏弹出层
             popupRef.value.hide()
-        }
-
-        /**
-         * 弹出层获取焦点触发
-         */
-        function onPopupFocus(e) {
-
-            // 停止冒泡
-            e.stopPropagation()
-
-            // 设置输入框焦点
-            setInputFocus()
-
-            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
         }
 
         /**
@@ -857,15 +863,6 @@ export default {
         }
 
         /**
-         * 弹出层隐藏前显示回调
-         */
-        function onPopupBeforeHide() {
-
-            // 隐藏弹出层
-            showPopup.value = false
-        }
-
-        /**
          * 对话框显示前回调
          */
         function onDialogBeforeShow() {
@@ -875,16 +872,6 @@ export default {
 
             // 隐藏弹出层
             popupRef.value.hide()
-        }
-
-        /**
-         * 对话框显示回调
-         */
-        function onDialogShow() {
-
-            // 表格加载(只加载一次)
-            $table.tableLoad()
-                .finally()
         }
 
         /**
@@ -920,8 +907,8 @@ export default {
          */
         function onDialogConfirm(data) {
 
-            // 触发更新已选数据
-            emitSelected([...data])
+            // 触发更新值
+            emitModelValue([...data])
         }
 
         /**
@@ -952,14 +939,14 @@ export default {
                     _selected.splice(itemIndex, 1)
                 }
 
-                // 触发更新已选数据
-                emitSelected(_selected)
+                // 触发更新值
+                emitModelValue(_selected)
 
             // 否则为单选
             } else {
 
-                // 触发更新已选数据
-                emitSelected([ row ])
+                // 触发更新值
+                emitModelValue([ row ])
 
                 // 隐藏弹出层
                 popupRef.value.hide()
@@ -999,37 +986,6 @@ export default {
         }
 
         // ==========【生命周期】=========================================================================================
-
-        /**
-         * 实例被挂载后调用
-         */
-        onMounted(async function() {
-
-            // if (
-            //     // 如果初始不加载已选数据
-            //     props.noLoadSelected
-            //     // 如果没有请求路由路径
-            //     || ! routePath
-            //     // 如果有选择数据
-            //     || utils.isValidArray(selected.value)
-            // ) {
-            //     // 则无任何操作
-            //     return
-            // }
-            //
-            // // 格式化声明值
-            // const value = formatModelValue()
-            //
-            // // 如果值不是有效数组
-            // if (! utils.isValidArray(value)) {
-            //     // 则无任何操作
-            //     return
-            // }
-            //
-            // // 触发更新已选数据
-            //  // 请求已选数据
-            // emitSelected(await onRequestSelected(value))
-        })
 
         /**
          * 在组件因为响应式状态变更而更新其 DOM 树之后调用
@@ -1078,17 +1034,11 @@ export default {
             // 字段清空触发
             onFieldClear,
 
-            // 弹出层获取焦点触发
-            onPopupFocus,
             // 弹出层显示回调
             onPopupShow,
-            // 弹出层隐藏前显示回调
-            onPopupBeforeHide,
 
             // 对话框显示前回调
             onDialogBeforeShow,
-            // 对话框显示回调
-            onDialogShow,
             // 对话框隐藏后回调
             onDialogHide,
             // 对话框点击确认回调
@@ -1097,8 +1047,8 @@ export default {
             // 单击快捷表格行
             quickTableRowClick,
 
-            // 触发更新已选数据
-            emitSelected,
+            // 触发更新值
+            emitModelValue,
         }
     },
 }

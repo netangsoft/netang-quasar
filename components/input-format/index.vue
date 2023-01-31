@@ -35,9 +35,9 @@ export default {
         // 值是否为数组
         valueArray: Boolean,
         // 修改前值
-        formatBefore: [Function, Object, Boolean],
+        formatBefore: [ Function, Object, Boolean ],
         // 修改后值
-        formatAfter: [Function, Object, Boolean],
+        formatAfter: [ Function, Object, Boolean ],
     },
 
     /**
@@ -72,10 +72,11 @@ export default {
         /**
          * 监听声明值
          */
-        watch(()=>props.modelValue, function (val) {
+        watch(() => props.modelValue, function (val) {
 
             // 格式化声明值
             currentValue.value = formatModelValue(val)
+
         }, {
             // 深度监听
             deep: true,
@@ -164,8 +165,6 @@ export default {
          * 格式化字符串值
          */
         function formatStringValue(val, params, valueArray) {
-
-            console.log(val, params, valueArray)
 
             const o = Object.assign({
                 // 替换内容

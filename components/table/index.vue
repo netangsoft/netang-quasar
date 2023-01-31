@@ -352,7 +352,7 @@ export default {
                     if (utils.isValidObject(res)) {
 
                         // 设置表格传参
-                        $table.tableQuery.value = res
+                        $table.setQuery(res)
 
                         // 表格重新加载
                         $table.tableReload()
