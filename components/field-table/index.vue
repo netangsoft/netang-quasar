@@ -1,4 +1,16 @@
 <template>
+
+    <!-- 如果有默认插槽 -->
+    <template v-if="$slots.default">
+        <slot
+            :showValue="showValue"
+            :selected="selected"
+            :onRemove="onRemoveSelected"
+            :onShow="onShowDialog"
+            :onClear="onFieldClear"
+        />
+    </template>
+
     <!--:class="fieldFocused ? 'q-field&#45;&#45;float q-field&#45;&#45;focused q-field&#45;&#45;highlighted' : ''"-->
     <q-field
         class="n-field-table"
@@ -10,6 +22,7 @@
         @blur="onFieldBlur"
         @clear="onFieldClear"
         v-bind="$attrs"
+        v-else
     >
         <template v-slot:control>
 
@@ -69,7 +82,7 @@
             <q-icon
                 class="cursor-pointer"
                 name="search"
-                @click.prevent.stop="showDialog = true"
+                @click.prevent.stop="onShowDialog"
             />
         </template>
 
@@ -163,6 +176,11 @@
 import { ref, computed, watch, onUpdated } from 'vue'
 
 export default {
+
+    /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
 
     /**
      * 标识
@@ -505,8 +523,8 @@ export default {
                 // 如果输入框有值
                 && hasValue
             ) {
-                // 显示弹出层
-                popupRef.value.show()
+                // 显示弹出层节点
+                showPopupRef()
             }
 
             // 表格重新加载
@@ -842,8 +860,32 @@ export default {
             // 清空快捷表格已选数据
             emitModelValue([])
 
-            // 隐藏弹出层
-            popupRef.value.hide()
+            // 隐藏弹出层节点
+            hidePopupRef()
+        }
+
+        /**
+         * 显示弹出层节点
+         */
+        function showPopupRef() {
+
+            // 如果有弹出层节点
+            if (popupRef.value) {
+                // 显示弹出层
+                popupRef.value.show()
+            }
+        }
+
+        /**
+         * 隐藏弹出层节点
+         */
+        function hidePopupRef() {
+
+            // 如果有弹出层节点
+            if (popupRef.value) {
+                // 隐藏弹出层
+                popupRef.value.hide()
+            }
         }
 
         /**
@@ -863,6 +905,14 @@ export default {
         }
 
         /**
+         * 显示对话框
+         */
+        function onShowDialog() {
+            // 显示对话框
+            showDialog.value = true
+        }
+
+        /**
          * 对话框显示前回调
          */
         function onDialogBeforeShow() {
@@ -870,8 +920,8 @@ export default {
             // 设置当前已选数据
             $table.tableSelected.value = [...selected.value]
 
-            // 隐藏弹出层
-            popupRef.value.hide()
+            // 隐藏弹出层节点
+            hidePopupRef()
         }
 
         /**
@@ -948,8 +998,8 @@ export default {
                 // 触发更新值
                 emitModelValue([ row ])
 
-                // 隐藏弹出层
-                popupRef.value.hide()
+                // 隐藏弹出层节点
+                hidePopupRef()
             }
         }
 
@@ -991,7 +1041,10 @@ export default {
          * 在组件因为响应式状态变更而更新其 DOM 树之后调用
          */
         onUpdated(function () {
-            if (_.has(popupRef.value, 'currentComponent.ref.updatePosition')) {
+            if (
+                popupRef.value
+                && _.has(popupRef.value, 'currentComponent.ref.updatePosition')
+            ) {
                 popupRef.value.currentComponent.ref.updatePosition()
             }
         })
@@ -1037,6 +1090,8 @@ export default {
             // 弹出层显示回调
             onPopupShow,
 
+            // 显示对话框
+            onShowDialog,
             // 对话框显示前回调
             onDialogBeforeShow,
             // 对话框隐藏后回调

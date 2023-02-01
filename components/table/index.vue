@@ -215,6 +215,11 @@ export default {
         },
         // 树节点点击
         treeNodeClick: Function,
+        // 选中第一个树节点
+        treeSelectFirstNode: {
+            type: Boolean,
+            default: true,
+        },
         // 显示树筛选
         treeFilter: Boolean,
         // 树位置
@@ -287,7 +292,7 @@ export default {
         const treeFilterValue = ref('')
 
         // 树选择数据
-        const treeSelected = ref('')
+        const treeSelected = ref(null)
 
         // ==========【计算属性】==========================================================================================
 
@@ -330,34 +335,67 @@ export default {
 
         // ==========【监听数据】=========================================================================================
 
-        /**
-         * 监听树选择数据
-         */
+        // 如果有树节点点击方法
         if (_.isFunction(props.treeNodeClick)) {
+
+            /**
+             * 树节点 all
+             */
+            const treeNodesAll = computed(function () {
+                return utils.collection(props.treeNodes)
+                    .keyBy(props.treeNodeKey)
+                    .toObject()
+            })
+
+            // 是否已选择过第一个节点
+            let isSelectedFirstNode = false
+
+            /**
+             * 监听树选择数据
+             */
             watch(treeSelected, function(nodeKey) {
 
-                // 树节点点击
-                const res = props.treeNodeClick({
-                    nodeKey,
-                    node: treeRef.value.getNodeByKey(nodeKey),
-                    $table
-                })
+                // 如果节点值不是有效值
+                if (! utils.isValidValue(nodeKey)) {
 
-                if (! _.isNil(res)) {
-
-                    if (res === false) {
-                        return
-                    }
-
-                    if (utils.isValidObject(res)) {
-
-                        // 设置表格传参
-                        $table.setQuery(res)
-
-                        // 表格重新加载
-                        $table.tableReload()
-                    }
+                    // 则无任何操作
+                    return
                 }
+
+                // 树节点点击
+                const res = props.treeNodeClick(nodeKey, treeNodesAll.value[nodeKey])
+
+                if (utils.isValidObject(res)) {
+
+                    // 设置表格传参
+                    $table.setQuery(res)
+
+                    // 表格重新加载
+                    $table.tableReload()
+                }
+            })
+
+            /**
+             * 监听树节点数据
+             */
+            watch(() => props.treeNodes, function (val) {
+
+                // 如果已选择过第一个节点
+                if (isSelectedFirstNode) {
+
+                    // 则无任何操作
+                    return
+                }
+
+                // 选中第一个节点的值
+                treeSelected.value = val[0][props.treeNodeKey]
+
+                // 已选择过第一个节点
+                isSelectedFirstNode = true
+
+            }, {
+                // 立即执行
+                immediate: true,
             })
         }
 

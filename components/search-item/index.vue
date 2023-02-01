@@ -39,7 +39,7 @@
         <!-- 比较2(类型为 > / >=) -->
         <div
             class="n-field-group row"
-            v-if="data.compareOptions2.length"
+            v-if="data.compareOptions2.length && utils.indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
         >
             <!-- 比较类型2 -->
             <q-select

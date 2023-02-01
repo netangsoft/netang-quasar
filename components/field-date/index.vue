@@ -164,6 +164,8 @@ export default {
         },
         // 是否截止时间
         endDate: Boolean,
+        // 是否显示秒
+        showSecond: Boolean,
         // 显示在输入框中的格式
         format: String,
         // 绑定值的格式(默认:秒时间戳)

@@ -29,6 +29,18 @@ $dark-td-bg-color: $dark;
                 height: 40px;
             }
         }
+
+        &--horizontal-separator,
+        &--cell-separator {
+            tbody {
+                // 表格内容最后一排数据底部加上横线
+                &.q-virtual-scroll__content {
+                    tr:last-child > td {
+                        border-bottom-width: 1px;
+                    }
+                }
+            }
+        }
     }
 
     // 宫格模式
