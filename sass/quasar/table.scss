@@ -13,6 +13,16 @@ $dark-td-bg-color: $dark;
 
     &.q-table {
         &--dense {
+            // 复选框
+            .q-table {
+                th,
+                td {
+                    &.q-table--col-auto-width:first-child {
+                        padding: 0 12px;
+                    }
+                }
+            }
+
             thead tr,
             tbody tr,
             tbody td {

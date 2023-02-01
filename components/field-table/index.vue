@@ -681,7 +681,7 @@ export default {
             }
 
             // 返回转为分隔符隔开的字符串
-            return utils.join(values, props.valueSeparator)
+            return utils.numberDeep(utils.join(values, props.valueSeparator))
         }
 
         /**
