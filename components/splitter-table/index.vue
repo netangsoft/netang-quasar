@@ -51,7 +51,7 @@
 
             <!-- 渲染 -->
             <n-render
-                :path="path"
+                :path="renderPath"
                 :query="currentQuery"
                 v-if="currentQuery"
             />
@@ -97,7 +97,7 @@ export default {
             default: '没有找到任何数据',
         },
         // 渲染组件路径
-        path: {
+        renderPath: {
             type: String,
             required: true,
         },
