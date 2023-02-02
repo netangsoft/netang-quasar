@@ -102,7 +102,7 @@ export default {
             required: true,
         },
         // 格式化已选表格的数据并返回渲染组件参数
-        format: Function,
+        renderQuery: Function,
         // 工具提示
         tooltip: {
             type: String,
@@ -139,9 +139,9 @@ export default {
             // 如果有已选数据
             if (
                 currentSelectedItem.value
-                && _.isFunction(props.format)
+                && _.isFunction(props.renderQuery)
             ) {
-                const res = props.format(currentSelectedItem.value)
+                const res = props.renderQuery(currentSelectedItem.value)
                 if (utils.isValidObject(res)) {
 
                     // 格式化已选数据, 并返回参数
