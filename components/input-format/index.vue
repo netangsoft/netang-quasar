@@ -28,9 +28,9 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
+        // 值 v-model
         modelValue: {
-            required: false,
+            required: true,
         },
         // 值是否为数组
         valueArray: Boolean,

@@ -846,17 +846,21 @@ async function request(params) {
     // --------------------------------------------------
     if (o.data.type === dicts.POWER_DATA_TYPE__OPEN) {
 
-        // 请求前执行
-        if (await utils.runAsync(o.requestBefore)({ params: o, requestData: query }) === false) {
-            return
-        }
-
         query = formatQuery(query, true)
 
         // 如果有增加来源页面参数
         if (_.get(o.data, 'addFromPageQuery') === true) {
             // 来源页面是当前路由的完整路径
             query.n_frompage = encodeURIComponent($currentRoute.fullPath)
+        }
+
+        // 请求前执行
+        const resBefore = await utils.runAsync(o.requestBefore)({ params: o, requestData: query })
+        if (resBefore !== void 0) {
+            if (resBefore === false) {
+                return
+            }
+            query = resBefore
         }
 
         utils.router.push({
@@ -952,8 +956,12 @@ async function request(params) {
     async function onRequest() {
 
         // 请求前执行
-        if (await utils.runAsync(o.requestBefore)({ params: o, requestData }) === false) {
-            return
+        const resBefore = await utils.runAsync(o.requestBefore)({ params: o, requestData })
+        if (resBefore !== void 0) {
+            if (resBefore === false) {
+                return
+            }
+            requestData = resBefore
         }
 
         // 请求

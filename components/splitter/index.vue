@@ -11,13 +11,21 @@
             v-for="slotName in slotNames"
             v-slot:[slotName]
         >
-            <slot :name="slotName" />
+            <slot
+                :name="slotName"
+                :before="currentBefore"
+                :after="currentAfter"
+                :toggleBefore="toggleBefore"
+                :toggleAfter="toggleAfter"
+            />
         </template>
     </q-splitter>
 </template>
 
 <script>
 import { computed, ref, watch, inject } from 'vue'
+import { useQuasar } from 'quasar'
+
 import { NPowerKey } from '../../utils/symbols'
 
 export default {
@@ -31,24 +39,30 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
+        // 值 v-model
         modelValue: {
             type: Number,
             required: true,
         },
-        // 显示前置插槽
-        showBefore: {
+        // 显示前置插槽 v-model:before
+        // 注意: 如果非双向绑定, 如 :before 并不会影响内部值变化, 仅做初始值使用
+        before: {
             type: Boolean,
             default: true,
         },
-        // 显示后置插槽
-        showAfter: {
+        // 显示后置插槽 v-model:after
+        // 注意: 如果非双向绑定, 如 :after 并不会影响内部值变化, 仅做初始值使用
+        after: {
             type: Boolean,
             default: true,
         },
+        // 手机模式隐藏前置插槽
+        hideBeforeInMobile: Boolean,
+        // 手机模式隐藏后插槽
+        hideAfterInMobile: Boolean,
         // 是否开启缓存
         cache: {
-            type: [Boolean, String],
+            type: [ Boolean, String ],
             default: true,
         },
     },
@@ -58,12 +72,111 @@ export default {
      */
     emits: [
         'update:modelValue',
+        'update:before',
+        'update:after',
     ],
 
     /**
      * 组合式
      */
     setup(props, { emit, slots }) {
+
+        // ==========【数据】============================================================================================
+
+        // quasar 对象
+        const $q = useQuasar()
+
+        // 获取权限注入
+        const $power = inject(NPowerKey)
+
+        // 缓存名
+        let cacheName = ''
+
+        // 初始值
+        let rawValue = props.modelValue
+
+        // 初始显示前置插槽
+        let rawBefore = props.before
+        let initEmitBefore = true
+
+        // 初始显示后置插槽
+        let rawAfter = props.after
+        let initEmitAfter = true
+
+        // 如果开启缓存
+        if (props.cache) {
+
+            // 设置缓存名
+            cacheName = `splitter:${props.cache === true ? ($power && $power.routePath ? $power.routePath : utils.router.getRoute('path')) : props.cache}:`
+
+            // 从缓存获取初始值
+            let cache = utils.storage.get(cacheName + 'modelValue')
+            if (cache !== null) {
+                rawValue = cache
+            }
+
+            // 如果手机模式隐藏前置插槽
+            if (props.hideBeforeInMobile && $q.platform.is.mobile) {
+                rawBefore = false
+                initEmitBefore = false
+
+            } else {
+                // 从缓存获取初始值
+                cache = utils.storage.get(cacheName + 'before')
+                if (cache !== null) {
+                    rawBefore = cache
+                }
+            }
+
+            // 如果手机模式隐藏后置插槽
+            if (props.hideAfterInMobile && $q.platform.is.mobile) {
+                rawAfter = false
+                initEmitAfter = false
+
+            } else {
+                // 从缓存获取初始值
+                cache = utils.storage.get(cacheName + 'after')
+                if (cache !== null) {
+                    rawAfter = cache
+                }
+            }
+
+        // 如果在手机模式
+        } else if ($q.platform.is.mobile) {
+
+            // 手机模式隐藏前置插槽
+            if (props.hideBeforeInMobile) {
+                rawBefore = false
+                initEmitBefore = false
+            }
+
+            // 手机模式隐藏后置插槽
+            if (props.hideAfterInMobile) {
+                rawAfter = false
+                initEmitAfter = false
+            }
+        }
+
+        // 创建防抖睡眠方法
+        const sleep = utils.debounceSleep()
+
+        // 当前值
+        const currentValue = ref(rawValue)
+        if (rawValue !== props.modelValue) {
+            emit('update:modelValue', rawValue)
+        }
+
+        // 当前是否显示前置插槽
+        const currentBefore = ref(rawBefore)
+        if (initEmitBefore) {
+            emit('update:before', rawBefore)
+        }
+
+        // 当前是否显示后置插槽
+        const currentAfter = ref(rawAfter)
+        if (initEmitAfter) {
+            emit('update:after', rawAfter)
+        }
 
         // ==========【计算属性】=========================================================================================
 
@@ -75,14 +188,15 @@ export default {
             const keys = []
 
             if (utils.isValidObject(slots)) {
+
                 for (const key in slots) {
                     if (key === 'before') {
-                        if (props.showBefore) {
+                        if (currentBefore.value) {
                             keys.push(key)
                         }
 
                     } else if (key === 'after') {
-                        if (props.showAfter) {
+                        if (currentAfter.value) {
                             keys.push(key)
                         }
 
@@ -100,13 +214,13 @@ export default {
          */
         const currentClass = computed(function () {
 
-            if (props.showBefore) {
-                if (! props.showAfter) {
+            if (currentBefore.value) {
+                if (! currentAfter.value) {
                     return 'n-splitter--hide-before'
                 }
 
-            } else if (props.showAfter) {
-                if (! props.showBefore) {
+            } else if (currentAfter.value) {
+                if (! currentBefore.value) {
                     return 'n-splitter--hide-after'
                 }
 
@@ -115,67 +229,106 @@ export default {
             }
         })
 
-        // ==========【数据】============================================================================================
+        // ==========【方法】============================================================================================
 
-        // 获取权限注入
-        const $power = inject(NPowerKey)
+        /**
+         * 触发更新值
+         */
+        async function emitValue(key, val) {
 
-        // 缓存名
-        let cacheName = ''
+            // 更新值
+            emit(`update:${key}`, val)
 
-        // 初始值
-        let rawValue = props.modelValue
+            // 如果开启缓存
+            if (props.cache) {
 
-        // 如果开启缓存
-        if (props.cache) {
+                // 延迟执行
+                await sleep(500, key)
 
-            // 设置缓存名
-            cacheName = `splitter:value:${props.cache === true ? ($power && $power.routePath ? $power.routePath : utils.router.getRoute('path')) : props.cache}`
-
-            // 从缓存获取初始值
-            const cache = utils.storage.get(cacheName)
-            if (cache) {
-                rawValue = cache
+                // 设置缓存(永久缓存)
+                utils.storage.set(cacheName + key, val, 0)
             }
         }
 
-        // 当前值
-        const currentValue = ref(rawValue)
+        /**
+         * 切换显示前置插槽
+         */
+        function toggleBefore() {
+            currentBefore.value = ! currentBefore.value
+        }
 
-        // 创建防抖睡眠方法
-        const sleep = utils.debounceSleep()
+        /**
+         * 切换显示后置插槽
+         */
+        function toggleAfter() {
+            currentAfter.value = ! currentAfter.value
+        }
 
         // ==========【监听数据】=========================================================================================
 
         /**
          * 监听声明值
          */
-        watch(()=>props.modelValue, function (val) {
+        watch(() => props.modelValue, function (val) {
+
             // 如果值有变化
             if (val !== currentValue.value) {
+
                 // 更新当前值
                 currentValue.value = val
             }
         })
 
         /**
+         * 监听声明是否显示前置插槽
+         */
+        watch(() => props.before, function (val) {
+
+            // 如果值有变化
+            if (val !== currentBefore.value) {
+
+                // 设置是否显示前置插槽
+                currentBefore.value = val
+            }
+        })
+
+        /**
+         * 监听声明是否显示后置插槽
+         */
+        watch(() => props.after, function (val) {
+
+            // 如果值有变化
+            if (val !== currentAfter.value) {
+
+                // 设置是否显示后置插槽
+                currentAfter.value = val
+            }
+        })
+
+        /**
          * 监听值
          */
-        watch(currentValue, function (val) {
+        watch(currentValue, async function (val) {
+            // 触发更新值
+            await emitValue('modelValue', val)
+        })
 
-            // 更新值
-            emit('update:modelValue', val)
+        /**
+         * 监听是否显示前置插槽
+         */
+        watch(currentBefore, async function (val) {
 
-            // 如果开启缓存
-            if (props.cache) {
+            // 触发更新值
+            await emitValue('before', val)
+        })
 
-                // 延迟执行
-                sleep(500)
-                    .then(function () {
-                        // 设置缓存(永久缓存)
-                        utils.storage.set(cacheName, val, 0)
-                    })
-            }
+        /**
+         * 监听是否显示后置插槽
+         */
+        watch(currentAfter, async function (val) {
+
+            // 触发更新值
+            await emitValue('after', val)
         })
 
         // ==========【返回】=============================================================================================
@@ -185,8 +338,17 @@ export default {
             slotNames,
             // 当前值
             currentValue,
+            // 当前是否显示前置插槽
+            currentBefore,
+            // 当前是否显示后置插槽
+            currentAfter,
             // 当前样式
             currentClass,
+
+            // 切换显示前置插槽
+            toggleBefore,
+            // 切换显示后置插槽
+            toggleAfter,
         }
     }
 }

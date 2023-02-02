@@ -84,9 +84,9 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
+        // 值 v-model
         modelValue: {
-            required: false
+            required: true,
         },
         // 最小值
         min: {

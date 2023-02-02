@@ -151,8 +151,10 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
-        modelValue: [String, Number],
+        // 值 v-model
+        modelValue: {
+            required: true,
+        },
         // 结束值
         end: [String, Number],
         // 占位符

@@ -6,7 +6,7 @@
             :showValue="showValue"
             :selected="selected"
             :onRemove="onRemoveSelected"
-            :onShow="onShowDialog"
+            :onShowDialog="onShowDialog"
             :onClear="onFieldClear"
         />
     </template>
@@ -193,7 +193,6 @@ export default {
     props: {
         // 值 v-model
         modelValue: {
-            type: [ String, Number, Array ],
             required: true,
         },
         // 值字段(必填)
@@ -223,8 +222,10 @@ export default {
         query: Object,
         // 附加请求数据
         data: Object,
-        // 不加载已选数据
-        noLoadSelected: Boolean,
+        // 初始不加载已选数据
+        noFirstLoadSelected: Boolean,
+        // 更新值时不加载已选数据
+        noUpdateLoadSelected: Boolean,
         // 格式化显示标签
         formatLabel: Function,
         // 快捷表格显示的字段数组(空为:[值字段, 标签字段])
@@ -451,8 +452,8 @@ export default {
                     // 需增加的值
                     if (newSelected.length) {
 
-                        // 如果不加载已选数据
-                        if (props.noLoadSelected) {
+                        // 如果更新值时不加载已选数据
+                        if (props.noUpdateLoadSelected) {
                             // 请求选择数据
                             _selected.push(...newSelected.map(e => setSelectedItem(e)))
                         } else {
@@ -541,8 +542,8 @@ export default {
             if (
                 // 如果值类型不是数组对象
                 props.valueType !== 'arrayObject'
-                // 如果不加载已选数据
-                && ! props.noLoadSelected
+                // 如果初始加载已选数据
+                && ! props.noFirstLoadSelected
                 // 如果有请求路由路径
                 && routePath
             ) {
@@ -648,8 +649,8 @@ export default {
             if (
                 // 非初始化
                 ! isFirst
-                // 或非加载已选数据
-                || props.noLoadSelected
+                // 或初始不加载已选数据
+                || props.noFirstLoadSelected
                 // 或没有路由路径
                 || ! routePath
             ) {

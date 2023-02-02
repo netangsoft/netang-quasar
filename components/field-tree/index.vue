@@ -131,8 +131,10 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
-        modelValue: [Array, String, Number],
+        // 值 v-model
+        modelValue: {
+            required: true,
+        },
         // 树展开节点
         expanded: Array, // v-model:expanded
         // 节点数组
