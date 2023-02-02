@@ -45,7 +45,6 @@ export default {
      */
     emits: [
         'update:modelValue',
-        'blur',
     ],
 
     /**
@@ -85,6 +84,14 @@ export default {
         // ==========【方法】=============================================================================================
 
         /**
+         * 触发更新值
+         */
+        function emitModelValue(val) {
+            // 触发更新值
+            emit('update:modelValue', val)
+        }
+
+        /**
          * 格式化声明值
          */
         function formatModelValue(val) {
@@ -117,7 +124,7 @@ export default {
                 }
             }
 
-            return val
+            return Array.isArray(val) ? val.join(',') : val
         }
 
         /**
@@ -219,28 +226,30 @@ export default {
          */
         function onBlur() {
 
-            let val = currentValue.value
+            const val = currentValue.value
 
             // 如果修改值
             if (props.formatAfter) {
 
                 // 如果是方法
                 if (_.isFunction(props.formatAfter)) {
-                    val = props.formatAfter(val)
+
+                    // 触发更新值
+                    emitModelValue(props.formatAfter(val))
+                    return
+                }
 
                 // 如果是参数
-                } else if (props.formatAfter === true || utils.isValidObject(props.formatAfter)) {
+                if (props.formatAfter === true || utils.isValidObject(props.formatAfter)) {
 
-                    // 格式化字符串值
-                    val = formatStringValue(val, props.formatAfter === true ? {} : props.formatAfter, props.valueArray)
+                    // 触发更新值
+                    emitModelValue(formatStringValue(val, props.formatAfter === true ? {} : props.formatAfter, props.valueArray))
+                    return
                 }
             }
 
-            // 更新值
-            emit('update:modelValue', val)
-
-            // 失去焦点触发
-            emit('blur', val)
+            // 触发更新值
+            emitModelValue(props.valueArray ? utils.split(val, ',') : val)
         }
 
         // ==========【返回】=============================================================================================

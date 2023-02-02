@@ -12,12 +12,13 @@
     </template>
 
     <!--:class="fieldFocused ? 'q-field&#45;&#45;float q-field&#45;&#45;focused q-field&#45;&#45;highlighted' : ''"-->
+    <!--:clearable="clearable && (! multiple || collapseTags)"-->
     <q-field
         class="n-field-table"
         :model-value="showValue"
         :disable="disable"
         :readonly="readonly"
-        :clearable="clearable && (! multiple || collapseTags)"
+        :clearable="clearable"
         @focus="onFieldFocus"
         @blur="onFieldBlur"
         @clear="onFieldClear"
@@ -602,12 +603,16 @@ export default {
          * 当前格式化显示标签
          */
         function currentFormatLabel(item) {
+
             // 如果有格式化显示标签方法
-            return _.isFunction(props.formatLabel)
+            if (_.isFunction(props.formatLabel)) {
                 // 执行格式化显示标签方法
-                ? props.formatLabel(item)
-                // 否则显示该值的标签字段
-                : item[currentlabelKey.value]
+                return props.formatLabel(item)
+            }
+
+            // 否则显示该值的标签字段
+            const val = item[currentlabelKey.value]
+            return utils.isValidValue(val) ? val : item[props.valueKey]
         }
 
         /**
@@ -841,6 +846,8 @@ export default {
             // 停止冒泡
             e.stopPropagation()
 
+            console.log('onFieldBluronFieldBlur', props.filter, showPopup.value)
+
             if (
                 // 如果开启筛选
                 props.filter
@@ -1071,6 +1078,8 @@ export default {
             popupRef,
             // 是否显示对话框
             showDialog,
+            // 是否显示弹出层
+            showPopup,
             // 当前已选数据
             selected,
             // 当前表格列数据

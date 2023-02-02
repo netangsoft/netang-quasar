@@ -592,6 +592,8 @@ export default {
             inputValue,
             // 弹出层节点
             popupRef,
+            // 是否显示弹出层
+            showPopup,
             // 树节点
             treeRef,
             // 树选择数据
