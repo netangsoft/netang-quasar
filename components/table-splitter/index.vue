@@ -1,17 +1,27 @@
 <template>
     <n-splitter
         class="absolute-full"
+        v-model="currentValue"
+        :reverse="reverse"
+        :unit="unit"
+        :limits="limits"
+        :horizontal="horizontal"
+
+        v-model:after="currentAfter"
         @update:after="setSelection"
         :hide-after-in-mobile="hideAfterInMobile"
-        v-bind="$attrs"
+        :cache="cache"
     >
         <!-- 表格 -->
         <template v-slot:before="{ after, toggleAfter }">
             <n-table
-                v-bind="tableProps"
+                v-bind="$attrs"
             >
                 <!-- 工具栏右边插槽(手机端不显示) -->
                 <template #toolbar-right v-if="isWatcher">
+
+                    <!-- 工具栏右边插槽 -->
+                    <slot name="toolbar-right" />
 
                     <!-- 是否显示详情 -->
                     <q-toggle
@@ -58,7 +68,7 @@
 
             <!-- 空状态 -->
             <n-empty
-                :description="description"
+                :description="renderDescription"
                 v-else
             />
 
@@ -76,25 +86,50 @@ import { NTableKey } from '../../utils/symbols'
 export default {
 
     /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
+
+    /**
      * 标识
      */
-    name: 'NSplitterTable',
+    name: 'NTableSplitter',
 
     /**
      * 声明属性
      */
     props: {
-        // 表格声明参数
-        tableProps: Object,
+        // 值 v-model
+        modelValue: {
+            type: Number,
+            default: 50,
+        },
+        reverse: Boolean,
+        unit: String,
+        limits: Array,
+        horizontal: Boolean,
+
+        // 显示后置插槽 v-model:after
+        // 注意: 如果非双向绑定, 如 :after 并不会影响内部值变化, 仅做初始值使用
+        after: {
+            type: Boolean,
+            default: true,
+        },
         // 手机模式隐藏后插槽
         hideAfterInMobile: {
             type: Boolean,
             default: true,
         },
-        // 空状态描述
-        description: {
+        // 是否开启缓存
+        cache: {
+            type: [ Boolean, String ],
+            default: true,
+        },
+
+        // 工具提示
+        tooltip: {
             type: String,
-            default: '没有找到任何数据',
+            default: '是否显示详情',
         },
         // 渲染组件路径
         renderPath: {
@@ -103,17 +138,25 @@ export default {
         },
         // 格式化已选表格的数据并返回渲染组件参数
         renderQuery: Function,
-        // 工具提示
-        tooltip: {
+        // 渲染空状态描述
+        renderDescription: {
             type: String,
-            default: '是否显示详情',
+            default: '没有找到任何数据',
         },
     },
 
     /**
+     * 声明事件
+     */
+    emits: [
+        'update:modelValue',
+        'update:after',
+    ],
+
+    /**
      * 组合式
      */
-    setup(props, { slots }) {
+    setup(props, { emit, slots }) {
 
         // ==========【计算属性】=========================================================================================
 
@@ -121,7 +164,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return utils.isValidObject(slots) ? Object.keys(slots) : []
+            return utils.isValidObject(slots) ? Object.keys(slots).filter(e => e !== 'toolbar-right') : []
         })
 
         /**
@@ -166,7 +209,41 @@ export default {
         // 当前已选单条数据
         const currentSelectedItem = ref(null)
 
+        // 当前值
+        const currentValue = ref(props.modelValue)
+
+        // 当前显示前置插槽
+        const currentAfter = ref(props.after)
+
         // ==========【监听数据】=========================================================================================
+
+        /**
+         * 监听声明值
+         */
+        watch(() => props.modelValue, function (val) {
+            currentValue.value = val
+        })
+
+        /**
+         * 监听声明显示前置插槽
+         */
+        watch(() => props.after, function (val) {
+            currentAfter.value = val
+        })
+
+        /**
+         * 监听当前值
+         */
+        watch(currentValue, function (val) {
+            emit('update:modelValue', val)
+        })
+
+        /**
+         * 监听当前显示前置插槽
+         */
+        watch(currentAfter, function (val) {
+            emit('update:after', val)
+        })
 
         /**
          * 监听表格已选数据(非手机端有效)
@@ -234,6 +311,11 @@ export default {
             isWatcher,
             // 当前传参
             currentQuery,
+
+            // 当前值
+            currentValue,
+            // 当前显示前置插槽
+            currentAfter,
 
             // 设置表格选择类型
             setSelection,

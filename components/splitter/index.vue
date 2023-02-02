@@ -61,10 +61,7 @@ export default {
         // 手机模式隐藏后插槽
         hideAfterInMobile: Boolean,
         // 是否开启缓存
-        cache: {
-            type: [ Boolean, String ],
-            default: true,
-        },
+        cache: [ Boolean, String ],
     },
 
     /**
