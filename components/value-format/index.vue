@@ -1,7 +1,7 @@
 <template>
     <slot
-        :value="currentValue"
-        :emitValue="emitValue"
+        :scope="current"
+        :emit="emitValue"
     />
 </template>
 
@@ -9,6 +9,11 @@
 import { ref, watch } from 'vue'
 
 export default {
+
+    /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
 
     /**
      * 标识
@@ -46,7 +51,16 @@ export default {
         // ==========【数据】============================================================================================
 
         // 当前值
-        const currentValue = ref(formatModelValue(props.modelValue))
+        const current = ref({
+            value: formatModelValue(props.modelValue),
+        })
+
+        // 如果是自动触发更新
+        if (! props.noEmit) {
+            // 触发更新值
+            // 此处用于判断声明值是否有改变
+            emitValue()
+        }
 
         // ==========【监听数据】=========================================================================================
 
@@ -56,7 +70,7 @@ export default {
         watch(() => props.modelValue, function (val) {
 
             // 格式化声明值
-            currentValue.value = formatModelValue(val)
+            current.value.value = formatModelValue(val)
 
         }, {
             // 深度监听
@@ -66,17 +80,14 @@ export default {
         /**
          * 监听当前值
          */
-        watch(currentValue, function (value) {
+        watch(current, function (value) {
 
-            // 如果是不自动触发更新
-            if (props.noEmit) {
+            // 如果是自动触发更新
+            if (! props.noEmit) {
 
-                // 则无任何操作
-                return
+                // 立即执行触发更新值
+                emitValue(value.value)
             }
-
-            // 立即执行触发更新值
-            emitValue(value)
 
         }, {
             // 深度监听
@@ -99,17 +110,36 @@ export default {
         /**
          * 触发更新值
          */
-        function emitValue(value) {
+        function emitValue() {
 
-            // 触发更新值
-            emit(
-                'update:modelValue',
-                _.isFunction(props.after) ?
-                    // 如果有修改提交值方法
-                    props.after({ value, formatArray, formatString })
-                    // 否则返回当前值
-                    : value
-            )
+            // if (
+            //     value !== void 0
+            //     && typeof value === 'object'
+            //     && value instanceof Event
+            // ) {
+            //     // 停止冒泡
+            //     value.stopPropagation()
+            //
+            //     // 获取当前值
+            //     value = current.value.value
+            // }
+
+            // 获取当前值
+            const value = current.value.value
+
+            // 获取新值
+            const newValue = _.isFunction(props.after) ?
+                // 如果有修改提交值方法
+                props.after({ value, formatArray, formatString })
+                // 否则返回当前值
+                : value
+
+            // 如果值有改变
+            if (newValue !== props.modelValue) {
+
+                // 触发更新值
+                emit('update:modelValue', newValue)
+            }
         }
 
         /**
@@ -169,7 +199,7 @@ export default {
                 // 是否给每个值去除首位空格
                 trim: true,
                 // 替换内容
-                replace: /\n|\，|\s+/g,
+                replace: /\n|,|，|\s+/g,
                 // 是否去重
                 unique: true,
                 // 分隔符
@@ -192,9 +222,6 @@ export default {
 
             // 如果有分割符
             if (utils.isValidValue(o.separator, true)) {
-
-                // 分隔符
-                o.separator = utils.trimString(o.separator)
 
                 // 是否替换
                 if (o.replace) {
@@ -231,7 +258,7 @@ export default {
 
         return {
             // 当前值
-            currentValue,
+            current,
             // 触发更新值
             emitValue,
         }

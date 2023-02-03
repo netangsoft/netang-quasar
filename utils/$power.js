@@ -1010,6 +1010,13 @@ async function request(params) {
                         // 关闭窗口、跳转并刷新页面
                         case 'closePushRefresh':
 
+                            // 如果是渲染页面
+                            // 说明该页面在 <table-splitter> 组件内部被渲染, 则不需要关闭当前窗口
+                            if (_.has($route.query, 'n_renderpage') && $route.query.n_renderpage === 1) {
+                                // 则无任何操作
+                                return
+                            }
+
                             const opts = {
                                 type: 'closeCurrentTab',
                             }

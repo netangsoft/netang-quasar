@@ -143,6 +143,9 @@ export default {
             type: String,
             default: '没有找到任何数据',
         },
+        // 不需要加载渲染页面标识参数
+        // 额外加载参数 { n_renderpage: 1 }
+        noRendPageName: Boolean,
     },
 
     /**
@@ -184,14 +187,19 @@ export default {
                 currentSelectedItem.value
                 && _.isFunction(props.renderQuery)
             ) {
-                const res = props.renderQuery(currentSelectedItem.value)
-                if (utils.isValidObject(res)) {
+                const resQuery = props.renderQuery(currentSelectedItem.value)
+                if (utils.isValidObject(resQuery)) {
 
-                    // 格式化已选数据, 并返回参数
-                    return Object.assign({
-                        // 是否为渲染页面
-                        n_render_page: 1,
-                    }, res)
+                    // 如果需要加载渲染页面标识参数
+                    if (! props.noRendPageName) {
+                        // 格式化已选数据, 并返回参数
+                        return Object.assign({}, resQuery, {
+                            // 是否为渲染页面
+                            n_renderpage: 1,
+                        })
+                    }
+
+                    return resQuery
                 }
             }
 
@@ -205,6 +213,9 @@ export default {
 
         // 获取表格注入
         const $table = inject(NTableKey)
+
+        // 原始表格选择状态
+        const rawTableSelection = $table.tableSelection.value
 
         // 当前已选单条数据
         const currentSelectedItem = ref(null)
@@ -289,7 +300,7 @@ export default {
                 return
             }
 
-            const selection = showAfter ? 'single' : 'multiple'
+            const selection = showAfter ? 'single' : rawTableSelection
             if ($table.tableSelection.value !== selection) {
                 $table.tableSelection.value = selection
 

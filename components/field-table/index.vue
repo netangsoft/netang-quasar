@@ -423,7 +423,7 @@ export default {
             let newSelected = valueToSelected(val, false, false)
 
             // 如果值类型是数组对象
-            if (props.valueType === 'arrayObject') {
+            if (props.valueType === 'objectArray') {
 
                 // 设置已选数据
                 setSelected(newSelected)
@@ -542,7 +542,7 @@ export default {
 
             if (
                 // 如果值类型不是数组对象
-                props.valueType !== 'arrayObject'
+                props.valueType !== 'objectArray'
                 // 如果初始加载已选数据
                 && ! props.noFirstLoadSelected
                 // 如果有请求路由路径
@@ -631,7 +631,7 @@ export default {
         function valueToSelected(val, isFirst, toSelected) {
 
             // 如果值类型是数组对象
-            if (props.valueType === 'arrayObject') {
+            if (props.valueType === 'objectArray') {
 
                 // 如果是有效数组
                 if (utils.isValidArray(val)) {
@@ -678,7 +678,7 @@ export default {
         function selectedToValue(val) {
 
             // 如果值类型是数组对象
-            if (props.valueType === 'arrayObject') {
+            if (props.valueType === 'objectArray') {
 
                 // 则直接返回
                 return val
@@ -698,7 +698,7 @@ export default {
                 : []
 
             // 如果值类型是数组
-            if (props.valueType === 'array') {
+            if (props.valueType === 'stringArray') {
 
                 // 直接返回数组
                 return values
@@ -845,8 +845,6 @@ export default {
 
             // 停止冒泡
             e.stopPropagation()
-
-            console.log('onFieldBluronFieldBlur', props.filter, showPopup.value)
 
             if (
                 // 如果开启筛选

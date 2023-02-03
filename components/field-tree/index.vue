@@ -3,7 +3,7 @@
         class="n-field-tree"
         :model-value="showValue"
         :readonly="readonly"
-        :clearable="clearable && (! multiple || collapseTags)"
+        :clearable="clearable"
         @focus="onFieldFocus"
         @blur="onFieldBlur"
         @clear="onFieldClear"
