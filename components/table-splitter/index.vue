@@ -308,7 +308,7 @@ export default {
                 if (showAfter && $table.tableSelected.value.length > 1) {
 
                     // 如果有多条已选数据, 则只取第一条数据
-                    $table.tableSelected.value = [ $table.tableSelected.value[0] ]
+                    $table.tableSelected.value = [ $table.tableSelected.value[$table.tableSelected.value.length - 1] ]
                 }
             }
         }
