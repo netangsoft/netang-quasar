@@ -204,12 +204,12 @@ export default {
         // 标签字段
         labelKey:  String,
         // 值类型
-        // string: 分隔符隔开的字符串
-        // array: 数组
-        // arrayObject: 数组对象
+        // string: 字符串或数字
+        // stringArray: 普通数组(包含字符串或数字的一维数组)
+        // objectArray: 对象数组(包含对象的一维数组)
         valueType: {
             type: String,
-            default: 'arrayObject'
+            default: 'objectArray'
         },
         // 值分隔符(值类型为 string 有效)
         valueSeparator: {
