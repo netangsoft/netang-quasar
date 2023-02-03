@@ -63,7 +63,7 @@ export default {
                 })
             }
 
-            utils.forEach(_.get(props.props, 'cols'), function(item) {
+            $n.forEach($n.get(props.props, 'cols'), function(item) {
 
                 const {
                     // 标识
@@ -79,9 +79,9 @@ export default {
                 }
 
                 // 如果有统计字段
-                if (_.has(props.data, name)) {
+                if ($n.has(props.data, name)) {
                     // 判断是否是价格
-                    res.value = _.has(item, 'price') ? utils.price(props.data[name]) : props.data[name]
+                    res.value = $n.has(item, 'price') ? $n.price(props.data[name]) : props.data[name]
                 }
 
                 lists.push(res)

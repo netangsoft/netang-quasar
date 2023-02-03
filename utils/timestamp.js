@@ -3,7 +3,7 @@ import { stateTimeDiff } from '../store'
 /**
  * 获取当前时间戳
  */
-utils.timestamp = function(isMicro = false) {
+$n.timestamp = function(isMicro = false) {
 
     // 获取当前时间戳(毫秒)
     const nowTime = new Date().getTime()

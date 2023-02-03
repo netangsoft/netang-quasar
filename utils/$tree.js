@@ -29,7 +29,7 @@ function getTreeNode(data, nodeId) {
  */
 function getChildren(data, callback) {
     for (const item of data) {
-        if (utils.run(callback)(item) === false) {
+        if ($n.run(callback)(item) === false) {
             return false
         }
         // 如果是父节点
@@ -75,24 +75,24 @@ function create(params) {
     }, params)
 
     // 获取权限注入
-    const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n.has(params, '$power') ? params.$power : inject(NPowerKey)
     const hasPowr = !! $power
 
     // 获取权限路由
-    const $route = utils.isValidString(path) ?
+    const $route = $n.isValidString(path) ?
         // 如果为自定义路由
-        utils.router.resolve({
+        $n.router.resolve({
             path,
             query,
         })
         // 否则获取当前路由
-        : (hasPowr ? $power.getRoute() : utils.router.getRoute())
+        : (hasPowr ? $power.getRoute() : $n.router.getRoute())
 
     // 权限按钮
     const powerBtns = hasPowr ? $power.powerBtns : ref([])
 
     // 是否有展开节点
-    const hasExpanded = ! _.isNil(expanded) && isRef(expanded)
+    const hasExpanded = ! $n.isNil(expanded) && isRef(expanded)
 
     // 如果开启展开节点缓存
     if (hasExpanded && cache) {
@@ -138,7 +138,7 @@ function create(params) {
     function updateNode(data) {
 
         // 获取 id
-        const id = _.get(formData.value, 'id')
+        const id = $n.get(formData.value, 'id')
 
         // 更新表单数据
         formData.value = Object.assign({}, formData.value, data)
@@ -158,7 +158,7 @@ function create(params) {
         // 否则为新增节点
         } else if (
             // 如果为新增节点
-            _.get(data, 'id')
+            $n.get(data, 'id')
             // 没有节点存在
             && ! nodeItem
         ) {
@@ -185,7 +185,7 @@ function create(params) {
         }
 
         // 获取节点索引
-        const nodeIndex = _.findIndex(parentNodeItem.children, { id })
+        const nodeIndex = $n.findIndex(parentNodeItem.children, { id })
         if (nodeIndex > -1) {
             parentNodeItem.children.splice(nodeIndex, 1)
         }
@@ -213,18 +213,18 @@ function create(params) {
 
         const allPowerBtn = {}
         for (const item of powerBtns.value) {
-            if (_.has(maps, _.get(item, 'name'))) {
+            if ($n.has(maps, $n.get(item, 'name'))) {
                 allPowerBtn[maps[item.name]] = item
             }
         }
 
         return {
-            all: utils.isValidObject(allPowerBtn),
-            update: _.has(allPowerBtn, 'update'),
-            move: _.has(allPowerBtn, 'move'),
-            copy: _.has(allPowerBtn, 'copy'),
-            delete: _.has(allPowerBtn, 'delete'),
-            status: _.has(allPowerBtn, 'status'),
+            all: $n.isValidObject(allPowerBtn),
+            update: $n.has(allPowerBtn, 'update'),
+            move: $n.has(allPowerBtn, 'move'),
+            copy: $n.has(allPowerBtn, 'copy'),
+            delete: $n.has(allPowerBtn, 'delete'),
+            status: $n.has(allPowerBtn, 'status'),
             allPowerBtn,
         }
     }
@@ -234,7 +234,7 @@ function create(params) {
      */
     function confirmMenu(callback) {
         // 确认框
-        utils.confirm({
+        $n.confirm({
             message: '确认要执行该操作吗？',
         })
             // 点击确认执行
@@ -272,13 +272,13 @@ function create(params) {
             // 移至节点下
             case 'moveDown':
 
-                if (! _.get(o.menuStatus, 'value.allPowerBtn.move.url')) {
+                if (! $n.get(o.menuStatus, 'value.allPowerBtn.move.url')) {
                     console.error('没有找到复制地址')
                     return
                 }
 
                 // 创建对话框
-                utils.$dialog.create({
+                $n.$dialog.create({
                     // 标题
                     title: `移动至节点的${o.type === 'moveUp' ? '上方' : (o.type === 'moveDown' ? '下方' : '内部')}`,
                     // 宽度
@@ -298,8 +298,8 @@ function create(params) {
                     async onConfirm({ value: moveNodeId }) {
 
                         // 是否为正确的 id
-                        if (! utils.hasId(moveNodeId)) {
-                            utils.toast({
+                        if (! $n.hasId(moveNodeId)) {
+                            $n.toast({
                                 message: '请选择节点',
                             })
                             return false
@@ -307,7 +307,7 @@ function create(params) {
 
                         // 如果节点是自己
                         if (moveNodeId === o.node.id) {
-                            utils.toast({
+                            $n.toast({
                                 message: '不能选择当前节点',
                             })
                             return false
@@ -316,14 +316,14 @@ function create(params) {
                         // 获取需移动至的节点
                         const moveNodeItem = getNode(moveNodeId)
                         if (! moveNodeItem) {
-                            utils.alert({
+                            $n.alert({
                                 message: '移动至的节点不存在',
                             })
                             return false
                         }
 
                         // 克隆当前树列表数据
-                        const nodesClone = _.cloneDeep(nodes.value)
+                        const nodesClone = $n.cloneDeep(nodes.value)
 
                         // 获取当前节点
                         const nodeItem = getNode(o.node.id)
@@ -358,7 +358,7 @@ function create(params) {
                             })
 
                             // 将本节点从原父节点中删除
-                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
+                            const nodeItemIndex = $n.findIndex(parentNodeItem.children, { id: nodeItem.id })
                             parentNodeItem.children.splice(nodeItemIndex, 1)
 
                             // 将本节点添加至移动至的节点的子节点中
@@ -383,11 +383,11 @@ function create(params) {
                             })
 
                             // 将本节点从原父节点中删除
-                            const nodeItemIndex = _.findIndex(parentNodeItem.children, { id: nodeItem.id })
+                            const nodeItemIndex = $n.findIndex(parentNodeItem.children, { id: nodeItem.id })
                             parentNodeItem.children.splice(nodeItemIndex, 1)
 
                             // 获取移动至节点的索引
-                            const moveNodeItemIndex = _.findIndex(moveParentNodeItem.children, { id: moveNodeId })
+                            const moveNodeItemIndex = $n.findIndex(moveParentNodeItem.children, { id: moveNodeId })
 
                             for (let i = moveNodeItemIndex + (o.type === 'moveUp' ? 0 : 1); i < moveParentNodeItem.children.length; i++) {
                                 const item = moveParentNodeItem.children[i]
@@ -404,7 +404,7 @@ function create(params) {
                         }
 
                         // 请求 - 移动
-                        const { status } = await utils.http({
+                        const { status } = await $n.http({
                             url: o.menuStatus.value.allPowerBtn.move.url,
                             data: {
                                 data: moveLists,
@@ -424,7 +424,7 @@ function create(params) {
                 // 确认菜单
                 confirmMenu(async function() {
 
-                    if (! _.get(o.menuStatus, 'value.allPowerBtn.copy.url')) {
+                    if (! $n.get(o.menuStatus, 'value.allPowerBtn.copy.url')) {
                         console.error('没有找到复制地址')
                         return
                     }
@@ -448,7 +448,7 @@ function create(params) {
                     }
 
                     // 请求 - 复制
-                    const { status, data: res } = await utils.http({
+                    const { status, data: res } = await $n.http({
                         url: o.menuStatus.value.allPowerBtn.copy.url,
                         data: {
                             data: copyLists,
@@ -462,7 +462,7 @@ function create(params) {
                     if (isLeafNode) {
 
                         // 如果返回了 id
-                        if (utils.hasId(res)) {
+                        if ($n.hasId(res)) {
 
                             // 更新数据
                             Object.assign(newAttr, res)
@@ -487,7 +487,7 @@ function create(params) {
                     }
 
                     // 轻提示
-                    utils.toast({
+                    $n.toast({
                         type: 'positive',
                         message: '复制成功',
                     })
@@ -500,13 +500,13 @@ function create(params) {
                 // 如果有子节点
                 if (o.node.children.length) {
                     // 提示框
-                    utils.alert({
+                    $n.alert({
                         message: '请先删除该节点下的子节点',
                     })
                     return
                 }
 
-                if (! _.get(o.menuStatus, 'value.allPowerBtn.delete.url')) {
+                if (! $n.get(o.menuStatus, 'value.allPowerBtn.delete.url')) {
                     console.error('没有找到删除地址')
                     return
                 }
@@ -515,7 +515,7 @@ function create(params) {
                 confirmMenu(async function() {
 
                     // 请求 - 删除
-                    const { status } = await utils.http({
+                    const { status } = await $n.http({
                         url: o.menuStatus.value.allPowerBtn.delete.url,
                         data: {
                             id: o.node.id,
@@ -529,7 +529,7 @@ function create(params) {
                     deleteNode(o.node)
 
                     // 轻提示
-                    utils.toast({
+                    $n.toast({
                         type: 'positive',
                         message: '删除成功',
                     })
@@ -541,7 +541,7 @@ function create(params) {
             // 全部正常
             case 'statusNormal':
 
-                if (! _.get(o.menuStatus, 'value.allPowerBtn.status.url')) {
+                if (! $n.get(o.menuStatus, 'value.allPowerBtn.status.url')) {
                     console.error('没有找到状态地址')
                     return
                 }
@@ -566,7 +566,7 @@ function create(params) {
                     }
 
                     // 请求 - 全部禁用/正常
-                    const { status } = await utils.http({
+                    const { status } = await $n.http({
                         url: o.menuStatus.value.allPowerBtn.status.url,
                         data: {
                             // ids
@@ -590,7 +590,7 @@ function create(params) {
                     }
 
                     // 轻提示
-                    utils.toast({
+                    $n.toast({
                         type: 'positive',
                         message: '恭喜您，操作成功',
                     })
@@ -604,8 +604,8 @@ function create(params) {
      */
     function getExpandedCache(defaultValue = []) {
         // 获取展开节点缓存
-        const res = utils.storage.get('tree_expanded_' + $route.fullPath)
-        return utils.isValidArray(res) ? res : defaultValue
+        const res = $n.storage.get('tree_expanded_' + $route.fullPath)
+        return $n.isValidArray(res) ? res : defaultValue
     }
 
     /**
@@ -613,7 +613,7 @@ function create(params) {
      */
     function setExpandedCache(expanded) {
         // 设置展开节点缓存(永久缓存)
-        utils.storage.set('tree_expanded_' + $route.fullPath, expanded, 0)
+        $n.storage.set('tree_expanded_' + $route.fullPath, expanded, 0)
     }
 
     return {
@@ -639,7 +639,7 @@ function create(params) {
 /**
  * 树业务
  */
-utils.$tree = {
+$n.$tree = {
     // 创建树实例
     create,
 }

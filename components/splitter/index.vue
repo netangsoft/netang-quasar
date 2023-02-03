@@ -104,10 +104,10 @@ export default {
         if (props.cache) {
 
             // 设置缓存名
-            cacheName = `splitter:${props.cache === true ? ($power && $power.routePath ? $power.routePath : utils.router.getRoute('path')) : props.cache}:`
+            cacheName = `splitter:${props.cache === true ? ($power && $power.routePath ? $power.routePath : $n.router.getRoute('path')) : props.cache}:`
 
             // 从缓存获取初始值
-            let cache = utils.storage.get(cacheName + 'modelValue')
+            let cache = $n.storage.get(cacheName + 'modelValue')
             if (cache !== null) {
                 rawValue = cache
             }
@@ -119,7 +119,7 @@ export default {
 
             } else {
                 // 从缓存获取初始值
-                cache = utils.storage.get(cacheName + 'before')
+                cache = $n.storage.get(cacheName + 'before')
                 if (cache !== null) {
                     rawBefore = cache
                 }
@@ -132,7 +132,7 @@ export default {
 
             } else {
                 // 从缓存获取初始值
-                cache = utils.storage.get(cacheName + 'after')
+                cache = $n.storage.get(cacheName + 'after')
                 if (cache !== null) {
                     rawAfter = cache
                 }
@@ -155,7 +155,7 @@ export default {
         }
 
         // 创建防抖睡眠方法
-        const sleep = utils.debounceSleep()
+        const sleep = $n.debounceSleep()
 
         // 当前值
         const currentValue = ref(rawValue)
@@ -184,7 +184,7 @@ export default {
 
             const keys = []
 
-            if (utils.isValidObject(slots)) {
+            if ($n.isValidObject(slots)) {
 
                 for (const key in slots) {
                     if (key === 'before') {
@@ -243,7 +243,7 @@ export default {
                 await sleep(500, key)
 
                 // 设置缓存(永久缓存)
-                utils.storage.set(cacheName + key, val, 0)
+                $n.storage.set(cacheName + key, val, 0)
             }
         }
 

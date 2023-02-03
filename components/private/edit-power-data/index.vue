@@ -184,7 +184,7 @@
                 </div>
 
                 <!-- 请求成功参数 -->
-                <!--<div class="col-xs-12 col-sm-6 col-md-3" v-if="utils.indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">-->
+                <!--<div class="col-xs-12 col-sm-6 col-md-3" v-if="$n.indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">-->
 
                 <!--    &lt;!&ndash; 树 &ndash;&gt;-->
                 <!--    <n-field-tree-->
@@ -230,10 +230,10 @@
 
                             <q-item-section side>
                                 <div class="text-grey-8 q-gutter-xs">
-                                    <q-btn icon="add" size="12px" flat dense round @click="utils.arr.add(formData.requestQuery.table, itemIndex, '')" />
-                                    <q-btn icon="remove" size="12px" flat dense round @click="utils.arr.delete(formData.requestQuery.table, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_less" size="12px" flat dense round @click="utils.arr.up(formData.requestQuery.table, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_more" size="12px" flat dense round @click="utils.arr.down(formData.requestQuery.table, itemIndex)" :disable="formData.requestQuery.table.length <= itemIndex + 1" />
+                                    <q-btn icon="add" size="12px" flat dense round @click="$n.arr.add(formData.requestQuery.table, itemIndex, '')" />
+                                    <q-btn icon="remove" size="12px" flat dense round @click="$n.arr.delete(formData.requestQuery.table, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_less" size="12px" flat dense round @click="$n.arr.up(formData.requestQuery.table, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_more" size="12px" flat dense round @click="$n.arr.down(formData.requestQuery.table, itemIndex)" :disable="formData.requestQuery.table.length <= itemIndex + 1" />
                                 </div>
                             </q-item-section>
                         </q-item>
@@ -264,10 +264,10 @@
 
                         <q-item-section side>
                             <div class="text-grey-8 q-gutter-xs">
-                                <q-btn icon="add" size="12px" flat dense round @click="utils.arr.add(formData.requestQuery.query, itemIndex, '')" />
-                                <q-btn icon="remove" size="12px" flat dense round @click="utils.arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                <q-btn icon="expand_less" size="12px" flat dense round @click="utils.arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                <q-btn icon="expand_more" size="12px" flat dense round @click="utils.arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
+                                <q-btn icon="add" size="12px" flat dense round @click="$n.arr.add(formData.requestQuery.query, itemIndex, '')" />
+                                <q-btn icon="remove" size="12px" flat dense round @click="$n.arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                <q-btn icon="expand_less" size="12px" flat dense round @click="$n.arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                <q-btn icon="expand_more" size="12px" flat dense round @click="$n.arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
                             </div>
                         </q-item-section>
                     </q-item>
@@ -367,9 +367,9 @@ export default {
 
             let obj = {}
 
-            if (utils.isJson(props.modelValue)) {
-                const data = utils.json.parse(props.modelValue)
-                if (utils.isValidObject(data)) {
+            if ($n.isJson(props.modelValue)) {
+                const data = $n.json.parse(props.modelValue)
+                if ($n.isValidObject(data)) {
                     obj = data
                 }
             }
@@ -415,7 +415,7 @@ export default {
             const rawKeys = Object.keys(rawObj)
 
             // 删除数据中的无效键值
-            utils.forIn(obj, function (item, key) {
+            $n.forIn(obj, function (item, key) {
                 // 如果键值不在原始键值中
                 if (rawKeys.indexOf(key) === -1) {
                     // 则删除
@@ -424,12 +424,12 @@ export default {
             })
 
             // 判断 requestSuccess 值是否合法
-            if (_.has(obj, 'requestSuccess') && ! utils.isValidObject(obj.requestSuccess)) {
+            if ($n.has(obj, 'requestSuccess') && ! $n.isValidObject(obj.requestSuccess)) {
                 delete(obj.requestSuccess)
             }
 
             // 判断 requestQuery 值是否合法
-            if (_.has(obj, 'requestQuery') && ! utils.isValidObject(obj.requestQuery)) {
+            if ($n.has(obj, 'requestQuery') && ! $n.isValidObject(obj.requestQuery)) {
                 delete(obj.requestQuery)
             }
 
@@ -446,12 +446,12 @@ export default {
             obj.confirmContent = ''
             if (obj.confirmPassword) {
                 confirm = 2
-                if (utils.isValidString(obj.confirmPassword)) {
+                if ($n.isValidString(obj.confirmPassword)) {
                     obj.confirmContent = obj.confirmPassword
                 }
             } else if (obj.confirm) {
                 confirm = 1
-                if (utils.isValidString(obj.confirm)) {
+                if ($n.isValidString(obj.confirm)) {
                     obj.confirmContent = obj.confirm
                 }
             }
@@ -460,36 +460,36 @@ export default {
 
             // 【格式化请求参数中的 table】
             // ------------------------------------------------------------
-            if (utils.isValidString(obj.requestQuery.table)) {
+            if ($n.isValidString(obj.requestQuery.table)) {
                 obj.requestQuery.table = [obj.requestQuery.table]
-            } else if (! utils.isValidArray(obj.requestQuery.table)) {
+            } else if (! $n.isValidArray(obj.requestQuery.table)) {
                 obj.requestQuery.table = ['']
             }
 
             // 【格式化请求参数中的 query】
             // ------------------------------------------------------------
-            if (_.has(obj.requestQuery, 'query')) {
+            if ($n.has(obj.requestQuery, 'query')) {
 
                 // 如果是有效值
-                if (utils.isValidValue(obj.requestQuery.query)) {
+                if ($n.isValidValue(obj.requestQuery.query)) {
                     obj.requestQuery.query = [obj.requestQuery.query]
 
                 // 如果是有效对象
-                } else if (utils.isValidObject(obj.requestQuery.query)) {
-                    obj.requestQuery.query = [utils.json.stringify(obj.requestQuery.query)]
+                } else if ($n.isValidObject(obj.requestQuery.query)) {
+                    obj.requestQuery.query = [$n.json.stringify(obj.requestQuery.query)]
 
                 // 如果是有效数组
-                } else if (utils.isValidArray(obj.requestQuery.query)) {
+                } else if ($n.isValidArray(obj.requestQuery.query)) {
                     const query = []
-                    utils.forEach(obj.requestQuery.query, function(item, key) {
+                    $n.forEach(obj.requestQuery.query, function(item, key) {
 
                         // 如果是有效值
-                        if (utils.isValidValue(item)) {
+                        if ($n.isValidValue(item)) {
                             query.push(item)
 
                         // 如果是对象
-                        } else if (utils.isValidObject(item)) {
-                            query.push(utils.json.stringify(item))
+                        } else if ($n.isValidObject(item)) {
+                            query.push($n.json.stringify(item))
                         }
                     })
                     obj.requestQuery.query = query.length ? query : ['']
@@ -506,15 +506,15 @@ export default {
 
             // 【格式化其他参数】
             // ------------------------------------------------------------
-            if (! _.has(obj, 'params')) {
+            if (! $n.has(obj, 'params')) {
                 obj.params = ''
 
             // 如果不是字符串
-            } else if (! utils.isValidString(obj.params)) {
-                if (utils.isValidObject(obj.params)) {
-                    obj.params = utils.json.stringify(obj.params)
-                } else if (utils.isValidArray(obj.params)) {
-                    obj.params = utils.json.stringify(obj.params)
+            } else if (! $n.isValidString(obj.params)) {
+                if ($n.isValidObject(obj.params)) {
+                    obj.params = $n.json.stringify(obj.params)
+                } else if ($n.isValidArray(obj.params)) {
+                    obj.params = $n.json.stringify(obj.params)
                 } else {
                     obj.params = ''
                 }
@@ -543,20 +543,20 @@ export default {
                     // 请求表格参数
                     const lists = []
 
-                    utils.forEach(data.requestQuery[field], function(value) {
+                    $n.forEach(data.requestQuery[field], function(value) {
 
                         value = formatParams(value)
 
                         // 如果有值
-                        if (utils.isRequired(value)) {
+                        if ($n.isRequired(value)) {
 
                             // 如果为表格
                             if (field === 'table') {
 
-                                if (Array.isArray(value) || _.isPlainObject(value)) {
+                                if (Array.isArray(value) || $n.isPlainObject(value)) {
 
                                     // 轻提示
-                                    utils.toast({
+                                    $n.toast({
                                         message: '请求列表参数格式不能是数组或对象',
                                     })
                                     return false
@@ -565,7 +565,7 @@ export default {
                             // 否则为参数
                             } else if (Array.isArray(value)) {
                                 // 轻提示
-                                utils.toast({
+                                $n.toast({
                                     message: '请求传参参数格式不能是数组',
                                 })
                                 return false
@@ -577,7 +577,7 @@ export default {
                     })
 
                     if (lists.length) {
-                        if (! _.has(obj, 'requestQuery')) {
+                        if (! $n.has(obj, 'requestQuery')) {
                             obj.requestQuery = {}
                         }
                         obj.requestQuery[field] = lists.length === 1 ? lists[0] : lists
@@ -588,14 +588,14 @@ export default {
 
                 // 格式化其他参数
                 function formatParams(value) {
-                    value = utils.trimString(value)
+                    value = $n.trimString(value)
                     if (
                         (value.startsWith('[') || value.startsWith('{'))
-                        && utils.isJson(value)
+                        && $n.isJson(value)
                     ) {
-                        value = utils.json.parse(value)
+                        value = $n.json.parse(value)
 
-                        if (! Array.isArray(value) && ! _.isPlainObject(value)) {
+                        if (! Array.isArray(value) && ! $n.isPlainObject(value)) {
                             return ''
                         }
                     }
@@ -641,7 +641,7 @@ export default {
                         // 如果没有选择跳转页面
                         if (! data.toPage) {
                             // 轻提示
-                            utils.toast({
+                            $n.toast({
                                 message: '请选择跳转页面',
                             })
                             return false
@@ -664,11 +664,11 @@ export default {
 
                         // 如果是(1:提交前确认)
                         if (data.confirm === 1) {
-                            obj.confirm = utils.isValidString(data.confirmContent) ? data.confirmContent : true
+                            obj.confirm = $n.isValidString(data.confirmContent) ? data.confirmContent : true
 
                         // 否则是(2:提交前确认登录密码)
                         } else {
-                            obj.confirmPassword = utils.isValidString(data.confirmContent) ? data.confirmContent : true
+                            obj.confirmPassword = $n.isValidString(data.confirmContent) ? data.confirmContent : true
                         }
                     }
 
@@ -677,7 +677,7 @@ export default {
                         obj.requestSuccess = {
                             type: data.requestSuccess.type
                         }
-                        // if (utils.indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
+                        // if ($n.indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
                         //     if (data.requestSuccess.params) {
                         //         obj.requestSuccess.params = data.requestSuccess.params
                         //     } else {
@@ -689,13 +689,13 @@ export default {
 
                 // 自定义参数
                 const params = formatParams(data.params)
-                if (utils.isRequired(params)) {
+                if ($n.isRequired(params)) {
                     obj.params = params
                 }
             }
 
             // 转为 json
-            return utils.isValidObject(obj) ? utils.json.stringify(obj) : ''
+            return $n.isValidObject(obj) ? $n.json.stringify(obj) : ''
         }
 
         // ==========【返回】=============================================================================================

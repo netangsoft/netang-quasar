@@ -42,7 +42,7 @@
                         <q-icon
                             size="xs"
                             name="check"
-                            v-show="utils.indexOf(tableVisibleColumns, item.name) > -1"
+                            v-show="$n.indexOf(tableVisibleColumns, item.name) > -1"
                         />
                     </q-item-section>
                 </q-item>
@@ -79,7 +79,7 @@ export default {
          * 表格可见列点击
          */
         function onTableVisible(item) {
-            const index = utils.indexOf(tableVisibleColumns.value, item.name)
+            const index = $n.indexOf(tableVisibleColumns.value, item.name)
             if (index > -1) {
                 tableVisibleColumns.value.splice(index, 1)
             } else {

@@ -3,7 +3,7 @@ import { Loading } from 'quasar'
 /**
  * 加载
  */
-utils.loading = {
+$n.loading = {
     show() {
         Loading.show()
     },

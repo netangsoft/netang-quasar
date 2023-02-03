@@ -29,7 +29,7 @@ function updateLogin(res) {
     return _updateAdminUserInfo({
         id: i,
         token: t,
-        info: utils.isValidObject(admin_user_info) ? admin_user_info : {},
+        info: $n.isValidObject(admin_user_info) ? admin_user_info : {},
     })
 }
 
@@ -61,12 +61,12 @@ function _updateAdminUserInfo(res) {
     // 设置已登录
     res.isLogin = true
 
-    if (! utils.isValidObject(res.info)) {
+    if (! $n.isValidObject(res.info)) {
         res.info = {}
     }
 
     // 保存缓存(永久缓存)
-    utils.cookie.set('_tk', res, 0)
+    $n.cookie.set('_tk', res, 0)
 
     // 设置管理员信息状态
     stateAdminUserInfo.value = res
@@ -92,7 +92,7 @@ function getAdminUserId() {
  * 跳转登录页面
  */
 function pushLogin(query) {
-    utils.router.push({
+    $n.router.push({
         path: 'login',
         query,
     })
@@ -104,7 +104,7 @@ function pushLogin(query) {
 function logout() {
 
     // 删除管理员信息
-    utils.cookie.delete('_tk')
+    $n.cookie.delete('_tk')
 
     // 清空管理员信息状态
     stateAdminUserInfo.value = {
@@ -117,7 +117,7 @@ function logout() {
 /**
  * 鉴权业务
  */
-utils.$auth = {
+$n.$auth = {
     // 是否登录
     isLogin,
     // 登录后更新数据

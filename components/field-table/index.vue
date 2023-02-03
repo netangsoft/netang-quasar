@@ -287,7 +287,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return utils.isValidObject(slots) ? Object.keys(slots) : []
+            return $n.isValidObject(slots) ? Object.keys(slots) : []
         })
 
         /**
@@ -301,7 +301,7 @@ export default {
          * 当前显示字段
          */
         const currentShowKeys = computed(function() {
-            return _.uniq(utils.isValidArray(props.showKeys)
+            return $n.uniq($n.isValidArray(props.showKeys)
                 ? props.showKeys
                 : [ props.valueKey, currentlabelKey.value ])
         })
@@ -319,7 +319,7 @@ export default {
         const showValue = computed(function () {
 
             // 如果有已选数据
-            return utils.isValidArray(selected.value)
+            return $n.isValidArray(selected.value)
                 // 取已选数据第一条
                 ? currentFormatLabel(selected.value[0])
                 : ''
@@ -329,9 +329,9 @@ export default {
 
 
         // 创建权限实例
-        const $power = utils.$power.create({
+        const $power = $n.$power.create({
             // 路由路径
-            path: utils.isValidString(props.path) ? props.path : false,
+            path: $n.isValidString(props.path) ? props.path : false,
             // 路由参数
             query: props.query,
             // 关闭权限页面
@@ -344,7 +344,7 @@ export default {
         } = $power
 
         // 创建表格实例
-        const $table = utils.$table.create({
+        const $table = $n.$table.create({
             // 权限实例
             $power,
             // 附加请求数据
@@ -372,7 +372,7 @@ export default {
         })
 
         // 创建防抖睡眠方法
-        const sleep = utils.debounceSleep()
+        const sleep = $n.debounceSleep()
 
         // 输入框节点
         const inputRef = ref(null)
@@ -502,7 +502,7 @@ export default {
             await sleep(props.inputDebounce)
 
             // 是否有值
-            const hasValue = utils.isValidValue(val)
+            const hasValue = $n.isValidValue(val)
 
             const n_search = {}
             n_search[currentFilterKey.value] = [
@@ -605,14 +605,14 @@ export default {
         function currentFormatLabel(item) {
 
             // 如果有格式化显示标签方法
-            if (_.isFunction(props.formatLabel)) {
+            if ($n.isFunction(props.formatLabel)) {
                 // 执行格式化显示标签方法
                 return props.formatLabel(item)
             }
 
             // 否则显示该值的标签字段
             const val = item[currentlabelKey.value]
-            return utils.isValidValue(val) ? val : item[props.valueKey]
+            return $n.isValidValue(val) ? val : item[props.valueKey]
         }
 
         /**
@@ -634,13 +634,13 @@ export default {
             if (props.valueType === 'objectArray') {
 
                 // 如果是有效数组
-                if (utils.isValidArray(val)) {
+                if ($n.isValidArray(val)) {
                     for (const item of val) {
                         if (
                             // 如果元素不是有效对象
-                            ! utils.isValidObject(item)
+                            ! $n.isValidObject(item)
                             // 如果元素没有值字段
-                            || ! _.has(item, props.valueKey)
+                            || ! $n.has(item, props.valueKey)
                         ) {
                             return []
                         }
@@ -660,11 +660,11 @@ export default {
                 || ! routePath
             ) {
                 // 将值转为数组
-                val = props.valueType === 'string' ? utils.split(val, props.valueSeparator) : val
+                val = props.valueType === 'string' ? $n.split(val, props.valueSeparator) : val
 
                 // 如果是有效数组
-                if (utils.isValidArray(val)) {
-                    val = val.filter(e => utils.isValidValue(e))
+                if ($n.isValidArray(val)) {
+                    val = val.filter(e => $n.isValidValue(e))
                     return toSelected ? val.map(e => setSelectedItem(e)) : val
                 }
             }
@@ -705,7 +705,7 @@ export default {
             }
 
             // 返回转为分隔符隔开的字符串
-            return utils.numberDeep(utils.join(values, props.valueSeparator))
+            return $n.numberDeep($n.join(values, props.valueSeparator))
         }
 
         /**
@@ -714,7 +714,7 @@ export default {
         async function onRequestSelected(value) {
 
             // 请求数据
-            const { status, data } = await utils.http({
+            const { status, data } = await $n.http({
                 url: $table.routePath,
                 data: Object.assign(
                     // 获取表格请求数据
@@ -743,7 +743,7 @@ export default {
                 ),
             })
 
-            return status && utils.isValidArray(_.get(data, 'rows')) ? data.rows : []
+            return status && $n.isValidArray($n.get(data, 'rows')) ? data.rows : []
         }
 
         /**
@@ -754,24 +754,24 @@ export default {
             let columns
 
             // 如果有声明路由表格列数据
-            if (utils.isValidArray(props.columns)) {
-                columns = _.cloneDeep(props.columns)
+            if ($n.isValidArray(props.columns)) {
+                columns = $n.cloneDeep(props.columns)
 
             // 如果有路由路径
             } else if (routePath) {
                 // 否则如果有路由表格列数据
-                const rawTableColumns = utils.$table.config(routePath, 'columns')
-                if (utils.isValidArray(rawTableColumns)) {
-                    columns = _.cloneDeep(rawTableColumns)
+                const rawTableColumns = $n.$table.config(routePath, 'columns')
+                if ($n.isValidArray(rawTableColumns)) {
+                    columns = $n.cloneDeep(rawTableColumns)
                 }
             }
 
-            if (utils.isValidArray(columns)) {
-                if (utils.isValidArray(props.hideSearchKeys)) {
+            if ($n.isValidArray(columns)) {
+                if ($n.isValidArray(props.hideSearchKeys)) {
                     for (const item of columns) {
                         if (
                             props.hideSearchKeys.indexOf(item.name) > -1
-                            && _.has(item, 'search')
+                            && $n.has(item, 'search')
                         ) {
                             item.search.hide = true
                         }
@@ -791,21 +791,21 @@ export default {
             const columns = []
 
             // 如果有原始表格列数据
-            if (utils.isValidArray($table.tableColumns)) {
+            if ($n.isValidArray($table.tableColumns)) {
 
                 // 克隆原始表格列数据
-                const rawTableColumns = _.cloneDeep($table.tableColumns)
+                const rawTableColumns = $n.cloneDeep($table.tableColumns)
 
                 // 快捷表格显示的属性名称数组
-                utils.forEach(currentShowKeys.value, function (key) {
+                $n.forEach(currentShowKeys.value, function (key) {
                     for (const item of rawTableColumns) {
                         if (item.name === key) {
                             // 删除搜索字段
-                            if (_.has(item, 'search')) {
+                            if ($n.has(item, 'search')) {
                                 delete item.search
                             }
                             // 删除可见字段
-                            if (_.has(item, 'visible')) {
+                            if ($n.has(item, 'visible')) {
                                 delete item.visible
                             }
                             columns.push(item)
@@ -982,7 +982,7 @@ export default {
                 opt[props.valueKey] = row[props.valueKey]
 
                 // 获取当前数据索引
-                const itemIndex = _.findIndex(_selected, opt)
+                const itemIndex = $n.findIndex(_selected, opt)
 
                 // 如果不存在
                 if (itemIndex === -1) {
@@ -1049,7 +1049,7 @@ export default {
         onUpdated(function () {
             if (
                 popupRef.value
-                && _.has(popupRef.value, 'currentComponent.ref.updatePosition')
+                && $n.has(popupRef.value, 'currentComponent.ref.updatePosition')
             ) {
                 popupRef.value.currentComponent.ref.updatePosition()
             }

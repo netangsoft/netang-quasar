@@ -53,7 +53,7 @@ export default {
         function onDialog() {
 
             // 创建对话框
-            utils.$dialog.create({
+            $n.$dialog.create({
                 // 标题
                 title: props.title,
                 // 宽

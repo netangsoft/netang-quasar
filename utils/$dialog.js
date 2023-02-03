@@ -10,9 +10,9 @@ import { NDialogKey } from './symbols'
 function create(params) {
     if (
         // 如果是路由组件
-        _.has(params, 'route')
+        $n.has(params, 'route')
         // 或自定义组件
-        || _.has(params, 'name')
+        || $n.has(params, 'name')
     ) {
         return Dialog.create({
             // 组件
@@ -35,7 +35,7 @@ function onInject() {
 /**
  * 对话框业务
  */
-utils.$dialog = {
+$n.$dialog = {
     // 创建对话框
     create,
     // 获取对话框注入数据

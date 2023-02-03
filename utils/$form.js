@@ -18,7 +18,7 @@ function create(params) {
     }, params)
 
     // 获取权限注入
-    const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n.has(params, '$power') ? params.$power : inject(NPowerKey)
 
     // ==========【返回】=================================================================================================
 
@@ -46,7 +46,7 @@ function create(params) {
 /**
  * 业务表单
  */
-utils.$form = {
+$n.$form = {
     // 创建表单
     create,
 }

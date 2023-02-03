@@ -3,17 +3,17 @@ import { isRef } from 'vue'
 /**
  * 获取公共数据
  */
-utils.getData = async function(url, pageStatus, emptyDescription, refValue) {
+$n.getData = async function(url, pageStatus, emptyDescription, refValue) {
 
-    const warn = _.isNil(pageStatus) || ! isRef(pageStatus)
+    const warn = $n.isNil(pageStatus) || ! isRef(pageStatus)
 
     // 如果是数组, 说明需要同时请求多个地址
     // --------------------------------------------------
     if (Array.isArray(url)) {
 
-        const result = await utils.http(_.map(url, function (item) {
+        const result = await $n.http($n.map(url, function (item) {
             return {
-                url: utils.config('commonDataUrl') + item,
+                url: $n.config('commonDataUrl') + item,
                 warn,
             }
         }))
@@ -25,7 +25,7 @@ utils.getData = async function(url, pageStatus, emptyDescription, refValue) {
                 if (! warn) {
                     pageStatus.value = false
                 }
-                if (! _.isNil(emptyDescription) && isRef(emptyDescription)) {
+                if (! $n.isNil(emptyDescription) && isRef(emptyDescription)) {
                     emptyDescription.value = data.msg
                 }
                 return false
@@ -38,22 +38,22 @@ utils.getData = async function(url, pageStatus, emptyDescription, refValue) {
 
     // 单个请求
     // --------------------------------------------------
-    const { status, data } = await utils.http({
-        url: utils.config('commonDataUrl') + url,
+    const { status, data } = await $n.http({
+        url: $n.config('commonDataUrl') + url,
         warn,
     })
     if (! status) {
         if (! warn) {
             pageStatus.value = false
         }
-        if (! _.isNil(emptyDescription) && isRef(emptyDescription)) {
+        if (! $n.isNil(emptyDescription) && isRef(emptyDescription)) {
             emptyDescription.value = data.msg
         }
         return false
     }
 
     // 直接设置 value
-    if (! _.isNil(refValue) && isRef(refValue)) {
+    if (! $n.isNil(refValue) && isRef(refValue)) {
         refValue.value = data
     }
 

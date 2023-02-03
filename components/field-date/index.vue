@@ -197,17 +197,17 @@ export default {
 
         // 是否为选择
         const isSelect = computed(function() {
-            return utils.indexOf(['year', 'month', 'time'], props.type) > -1
+            return $n.indexOf(['year', 'month', 'time'], props.type) > -1
         })
 
         // 是否为范围
         const isRange = computed(function() {
-            return utils.indexOf(['daterange', 'datetimerange'], props.type) > -1
+            return $n.indexOf(['daterange', 'datetimerange'], props.type) > -1
         })
 
         // 是否为选择时间
         const isDatetime = computed(function() {
-            return utils.indexOf(['datetime', 'datetimerange'], props.type) > -1
+            return $n.indexOf(['datetime', 'datetimerange'], props.type) > -1
         })
 
         // 选择数据列表
@@ -222,14 +222,14 @@ export default {
                     lists: []
                 }
                 for (let i = 0; i <= 23; i++) {
-                    hh.lists.push([i, _.padStart(String(i), 2, '0')])
+                    hh.lists.push([i, $n.padStart(String(i), 2, '0')])
                 }
                 const ii = {
                     type: 'ii',
                     lists: []
                 }
                 for (let i = 0; i <= 59; i++) {
-                    ii.lists.push([i, _.padStart(String(i), 2, '0')])
+                    ii.lists.push([i, $n.padStart(String(i), 2, '0')])
                 }
                 arr.push(hh, ii)
                 if (props.showSecond) {
@@ -238,7 +238,7 @@ export default {
                         lists: []
                     }
                     for (let i = 0; i <= 59; i++) {
-                        ss.lists.push([i, _.padStart(String(i), 2, '0')])
+                        ss.lists.push([i, $n.padStart(String(i), 2, '0')])
                     }
                     arr.push(ss)
                 }
@@ -267,7 +267,7 @@ export default {
                 lists: []
             }
             for (let i = 1; i <= 12; i++) {
-                mm.lists.push([i, _.padStart(String(i), 2, '0')])
+                mm.lists.push([i, $n.padStart(String(i), 2, '0')])
             }
 
             arr.push(mm)
@@ -333,9 +333,9 @@ export default {
                         ii: '',
                     })
 
-                    if (utils.isDate(val)) {
+                    if ($n.isDate(val)) {
 
-                        const { hh, ii, ss } = utils.dateObject(val)
+                        const { hh, ii, ss } = $n.dateObject(val)
 
                         // 设置时间数据
                         Object.assign(obj, {
@@ -368,8 +368,8 @@ export default {
                                 obj.y = val
 
                             // 否则如果是日期格式
-                            } else if (utils.isDate(val)) {
-                                const { y } = utils.dateObject(val)
+                            } else if ($n.isDate(val)) {
+                                const { y } = $n.dateObject(val)
                                 obj.y = y
                             }
                         }
@@ -380,13 +380,13 @@ export default {
                     // 否则是选择月
 
                     // 如果是这样的格式 202207, 则转换为 2022-07
-                    const newVal = utils.ymd.toString(val)
+                    const newVal = $n.ymd.toString(val)
                     if (newVal) {
                         val = newVal
                     }
 
-                    if (utils.isDate(val)) {
-                        const { y, mm } = utils.dateObject(val)
+                    if ($n.isDate(val)) {
+                        const { y, mm } = $n.dateObject(val)
                         Object.assign(obj, {
                             y,
                             mm,
@@ -404,13 +404,13 @@ export default {
             let to = ''
 
             // 如果是这样的格式 20220708, 则转换为 2022-07-08
-            const newVal = utils.ymd.toString(val)
+            const newVal = $n.ymd.toString(val)
             if (newVal) {
                 val = newVal
             }
 
-            if (utils.isDate(val)) {
-                const { y, mm, dd } = utils.dateObject(val)
+            if ($n.isDate(val)) {
+                const { y, mm, dd } = $n.dateObject(val)
                 from = `${y}/${mm}/${dd}`
 
                 // 如果不是日期选择范围, 则返回单个日期
@@ -420,8 +420,8 @@ export default {
             }
 
             // 如果是日期选择范围
-            if (isRange.value && utils.isDate(props.end)) {
-                const { y, mm, dd } = utils.dateObject(props.end)
+            if (isRange.value && $n.isDate(props.end)) {
+                const { y, mm, dd } = $n.dateObject(props.end)
                 to = `${y}/${mm}/${dd}`
             }
 
@@ -441,8 +441,8 @@ export default {
                 to: '',
             }
 
-            if (utils.isDate(props.modelValue)) {
-                const { hh, ii, ss } = utils.dateObject(props.modelValue)
+            if ($n.isDate(props.modelValue)) {
+                const { hh, ii, ss } = $n.dateObject(props.modelValue)
                 obj.from = `${hh}:${ii}`
                 if (props.showSecond) {
                     obj.from += `:${ss}`
@@ -455,8 +455,8 @@ export default {
                 obj.from = props.showSecond ? '00:00:00' : '00:00'
             }
 
-            if (isRange.value && utils.isDate(props.end)) {
-                const { hh, ii, ss } = utils.dateObject(props.end)
+            if (isRange.value && $n.isDate(props.end)) {
+                const { hh, ii, ss } = $n.dateObject(props.end)
                 obj.to = `${hh}:${ii}`
                 if (props.showSecond) {
                     obj.to += `:${ss}`
@@ -482,9 +482,9 @@ export default {
                 // 如果是选择时间
                 if (props.type === 'time') {
                     if (
-                        ! utils.isValidValue(dateValue.hh)
-                        || ! utils.isValidValue(dateValue.ii)
-                        || (props.showSecond && ! utils.isValidValue(dateValue.ss))) {
+                        ! $n.isValidValue(dateValue.hh)
+                        || ! $n.isValidValue(dateValue.ii)
+                        || (props.showSecond && ! $n.isValidValue(dateValue.ss))) {
                         return ''
                     }
                     format = 'HH:mm'
@@ -495,13 +495,13 @@ export default {
 
                 // 否则是选择年月
                 } else {
-                    if (! utils.isValidValue(dateValue.y)) {
+                    if (! $n.isValidValue(dateValue.y)) {
                         return ''
                     }
 
                     const isMonth = props.type === 'month'
                     if (isMonth) {
-                        if (! utils.isValidValue(dateValue.mm)) {
+                        if (! $n.isValidValue(dateValue.mm)) {
                             return ''
                         }
 
@@ -526,7 +526,7 @@ export default {
                 return ''
             }
 
-            if (! utils.isRequired(dateValue)) {
+            if (! $n.isRequired(dateValue)) {
                 return ''
             }
 
@@ -538,8 +538,8 @@ export default {
                 } = dateValue
 
                 if (
-                    ! utils.isValidValue(from)
-                    || ! utils.isValidValue(to)
+                    ! $n.isValidValue(from)
+                    || ! $n.isValidValue(to)
                 ) {
                     return ''
                 }
@@ -616,7 +616,7 @@ export default {
         function onUpdateDateValue(val) {
 
             // 如果为 null, 则清空数据
-            if (_.isNil(val)) {
+            if ($n.isNil(val)) {
                 emit('update:modelValue', null)
                 if (isRange.value) {
                     emit('update:end', null)
@@ -698,7 +698,7 @@ export default {
          * 提交
          */
         function onEmit(key, value) {
-            emit(key, utils.numberDeep(value))
+            emit(key, $n.numberDeep(value))
         }
 
         /**
@@ -712,9 +712,9 @@ export default {
                 nextTick(function() {
 
                     // 遍历选择列表
-                    utils.forEach(selectLists.value, function(selectItem, selectItemIndex) {
+                    $n.forEach(selectLists.value, function(selectItem, selectItemIndex) {
                         // 遍历选单个列表
-                        utils.forEach(selectItem.lists, function(item, itemIndex) {
+                        $n.forEach(selectItem.lists, function(item, itemIndex) {
                             if (dateValue.value[selectItem.type] !== '' && dateValue.value[selectItem.type] == item[0]) {
                                 scrollRef.value[selectItemIndex].setScrollPosition('vertical', 32 * itemIndex, 0)
                                 return true

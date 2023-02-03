@@ -308,7 +308,7 @@ export default {
             let rightDrawer = false
 
             // 如果有插槽
-            if (utils.isValidObject(slots)) {
+            if ($n.isValidObject(slots)) {
                 for (const key in slots) {
                     if (key.startsWith('toolbar-')) {
                         toolbar.push(key.replace('toolbar-', ''))
@@ -336,13 +336,13 @@ export default {
         // ==========【监听数据】=========================================================================================
 
         // 如果有树节点点击方法
-        if (_.isFunction(props.treeNodeClick)) {
+        if ($n.isFunction(props.treeNodeClick)) {
 
             /**
              * 树节点 all
              */
             const treeNodesAll = computed(function () {
-                return utils.collection(props.treeNodes)
+                return $n.collection(props.treeNodes)
                     .keyBy(props.treeNodeKey)
                     .toObject()
             })
@@ -356,7 +356,7 @@ export default {
             watch(treeSelected, function(nodeKey) {
 
                 // 如果节点值不是有效值
-                if (! utils.isValidValue(nodeKey)) {
+                if (! $n.isValidValue(nodeKey)) {
 
                     // 则无任何操作
                     return
@@ -365,7 +365,7 @@ export default {
                 // 树节点点击
                 const res = props.treeNodeClick(nodeKey, treeNodesAll.value[nodeKey])
 
-                if (utils.isValidObject(res)) {
+                if ($n.isValidObject(res)) {
 
                     // 设置表格传参
                     $table.setQuery(res)

@@ -3,7 +3,7 @@
  */
 export function initAuthStore() {
     // 获取管理员信息缓存
-    const cache = utils.cookie.get('_tk')
+    const cache = $n.cookie.get('_tk')
     return checkAdminUserInfo(cache) ? cache : {
         id: 0,
         isLogin: false,
@@ -15,7 +15,7 @@ export function initAuthStore() {
  * 验证管理员信息
  */
 export function checkAdminUserInfo(data) {
-    return ! utils.validator(data, {
+    return ! $n.validator(data, {
         // 管理员 id
         id: 'required|natural_no_zero',
         // 登录 token

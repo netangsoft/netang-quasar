@@ -1,5 +1,5 @@
 <template>
-    <div class="flex column absolute-full" v-if="utils.isValidArray(options)">
+    <div class="flex column absolute-full" v-if="$n.isValidArray(options)">
         <q-scroll-area class="n-flex-1">
 
             <div class="n-search q-pa-sm q-pt-sm q-gutter-sm">
@@ -189,7 +189,7 @@ export default {
     setup() {
         return {
             // 如果金额为分
-            centToYuan: utils.config('priceCent') === true,
+            centToYuan: $n.config('priceCent') === true,
         }
     }
 }

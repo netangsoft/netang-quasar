@@ -106,7 +106,7 @@
                         <div
                             class="cursor-pointer full-width"
                             :class="{
-                                'text-primary': utils.indexOf(treeTicked, node.id) > -1,
+                                'text-primary': $n.indexOf(treeTicked, node.id) > -1,
                             }"
                             @click="onNode($event, node)"
                         >{{node.label}}</div>
@@ -193,7 +193,7 @@ export default {
         const showValue = computed(function () {
 
             // 如果有已选数据
-            return utils.isValidArray(treeTickedNodes.value)
+            return $n.isValidArray(treeTickedNodes.value)
                 // 取已选数据第一条的标签
                 ? treeTickedNodes.value[0].label
                 : ''
@@ -243,10 +243,10 @@ export default {
 
             const lists = []
 
-            utils.forEach(treeTicked.value, function (treeKey) {
+            $n.forEach(treeTicked.value, function (treeKey) {
 
                 // 获取树选择的节点
-                if (_.has(treeAll, treeKey)) {
+                if ($n.has(treeAll, treeKey)) {
                     lists.push({
                         id: treeKey,
                         label: treeAll[treeKey][props.showAllLevels ? 'path' : 'label'],
@@ -290,7 +290,7 @@ export default {
                 // 如果弹出层是隐藏的
                 ! showPopup.value
                 // 如果输入框有值
-                && utils.isValidValue(val)
+                && $n.isValidValue(val)
             ) {
                 // 显示弹出层
                 popupRef.value.show()
@@ -323,13 +323,13 @@ export default {
                     }
 
                     // 如果是父节点
-                    if (utils.isValidArray(item.children)) {
+                    if ($n.isValidArray(item.children)) {
                         getChildren(item.children, item.id, path)
                     }
                 }
             }
 
-            if (utils.isValidArray(props.nodes)) {
+            if ($n.isValidArray(props.nodes)) {
                 getChildren(props.nodes, 0, '')
             }
 
@@ -347,21 +347,21 @@ export default {
                 // 如果是单选
                 ! props.multiple
                 // 如果有值
-                && utils.isRequired(props.modelValue)
+                && $n.isRequired(props.modelValue)
                 // 存在节点
-                && _.has(treeAll, props.modelValue)
+                && $n.has(treeAll, props.modelValue)
             ) {
                 // 获取父节点
                 function getParent({ id, pid, children }) {
 
                     // 如果是父级节点
-                    if (utils.isValidArray(children)) {
+                    if ($n.isValidArray(children)) {
                         // 设为展开
                         expanded.push(id)
                     }
 
                     // 如果有父节点, 则继续向上寻找
-                    if (pid && _.has(treeAll, pid)) {
+                    if (pid && $n.has(treeAll, pid)) {
                         getParent(treeAll[pid])
                     }
                 }
@@ -370,7 +370,7 @@ export default {
             }
 
             if (props.expanded) {
-                expanded = _.uniq(_.concat(expanded, props.expanded))
+                expanded = $n.uniq($n.concat(expanded, props.expanded))
             }
 
             return expanded
@@ -383,11 +383,11 @@ export default {
 
             // 如果是多选
             if (props.multiple) {
-                return utils.isValidArray(val) ? val : []
+                return $n.isValidArray(val) ? val : []
             }
 
             // 如果为有效值
-            if (utils.isRequired(val)) {
+            if ($n.isRequired(val)) {
                 return [ val ]
             }
 
@@ -412,7 +412,7 @@ export default {
             if (props.multiple) {
 
                 // 如果是父节点
-                if (utils.isValidArray(children)) {
+                if ($n.isValidArray(children)) {
 
                     // 则无任何操作
                     return
@@ -422,7 +422,7 @@ export default {
                 const _ticked = [...treeTicked.value]
 
                 // 获取值在树数据中的索引
-                const index = utils.indexOf(_ticked, id)
+                const index = $n.indexOf(_ticked, id)
 
                 // 如果在数据中
                 if (index > -1) {
@@ -443,7 +443,7 @@ export default {
 
                 if (
                     // 如果是父节点
-                    utils.isValidArray(children)
+                    $n.isValidArray(children)
                     // 如果仅可选择叶子节点
                     && ! props.strict
                 ) {
@@ -576,7 +576,7 @@ export default {
          * 在组件因为响应式状态变更而更新其 DOM 树之后调用
          */
         onUpdated(function () {
-            if (_.has(popupRef.value, 'currentComponent.ref.updatePosition')) {
+            if ($n.has(popupRef.value, 'currentComponent.ref.updatePosition')) {
                 popupRef.value.currentComponent.ref.updatePosition()
             }
         })

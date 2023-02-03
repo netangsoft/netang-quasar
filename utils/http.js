@@ -6,9 +6,9 @@ import { statePower } from '../store'
 /**
  * 初始化 http
  */
-utils.http = createHttp({
+$n.http = createHttp({
     // 基础 url
-    baseUrl: utils.config('apiUrl'),
+    baseUrl: $n.config('apiUrl'),
     // 是否开启错误提醒(true:普通方式/false:不开启/alert:对话框方式)
     warn: 'alert',
     // 检查结果的 code 是否正确(前提数据类型必须为 json)
@@ -20,7 +20,7 @@ utils.http = createHttp({
     // 是否开启防抖(防止重复请求)
     debounce: true,
     // 缓存方法
-    storage: utils.storage,
+    storage: $n.storage,
     // 是否已更新过鉴权
     _isUpdatedAuthToken: false,
 
@@ -35,7 +35,7 @@ utils.http = createHttp({
     onOptions({ options, para }) {
 
         // 取消请求
-        if (_.isFunction(para.onCancel)) {
+        if ($n.isFunction(para.onCancel)) {
             const source = axios.CancelToken.source()
             options.cancelToken = source.token
 
@@ -47,7 +47,7 @@ utils.http = createHttp({
         }
 
         // 获取上传进度
-        if (para.upload === true && _.isFunction(para.onUploadProgress)) {
+        if (para.upload === true && $n.isFunction(para.onUploadProgress)) {
             options.onUploadProgress = function (e) {
                 para.onUploadProgress(Math.round(e.loaded * 100 / e.total), e)
             }
@@ -60,7 +60,7 @@ utils.http = createHttp({
     async onRequest({ options, para, onError, next }) {
 
         // 如果无网络
-        // if (! utils.state.get('network').isOnline) {
+        // if (! $n.state.get('network').isOnline) {
         //     return onError({
         //         code: dicts.CODE__SERVER_ERROR,
         //         msg: '网络不给力，请检查设置后重试',
@@ -74,7 +74,7 @@ utils.http = createHttp({
         //     appWgtVersion,
         //     // 【自定义】app 类型(1:app-android,2:app-ios,3:web-mobile,4:web-pc)
         //     appType,
-        // } = utils.getSystemInfo()
+        // } = $n.getSystemInfo()
 
         // 如果验证 code, 说明是请求业务服务器
         if (para.checkCode) {
@@ -95,8 +95,8 @@ utils.http = createHttp({
             if (para.token) {
 
                 // 如果已登录
-                if (utils.$auth.isLogin()) {
-                    const { token } = utils.$auth.getAdminUserInfo()
+                if ($n.$auth.isLogin()) {
+                    const { token } = $n.$auth.getAdminUserInfo()
 
                     // 头部添加鉴权认证
                     options.headers.Authorization = token
@@ -109,7 +109,7 @@ utils.http = createHttp({
 
                 // 否则未登录 && 如果开启强制登录, 则跳转登录页面
                 } else if (para.login) {
-                    utils.$auth.pushLogin()
+                    $n.$auth.pushLogin()
                     return false
                 }
             }
@@ -127,7 +127,7 @@ utils.http = createHttp({
         // 如果请求成功
         if (res.status && para.checkCode && para.token) {
             // 设置权限数据
-            utils.$power.setData(_.get(res, 'response.data.power'))
+            $n.$power.setData($n.get(res, 'response.data.power'))
         }
 
         return res
@@ -168,7 +168,7 @@ utils.http = createHttp({
             // #if IS_DEBUG
             if (
                 data.code === dicts.CODE__SERVER_ERROR
-                && utils.isValidString(_.get(r, 'response.data'))
+                && $n.isValidString($n.get(r, 'response.data'))
             ) {
                 message = r.response.data
             }
@@ -179,7 +179,7 @@ utils.http = createHttp({
             if (para.warn === 'alert') {
 
                 // 提示框
-                utils.alert({
+                $n.alert({
                     message,
 
                     // #if IS_DEBUG
@@ -194,7 +194,7 @@ utils.http = createHttp({
             // 否则为轻提示
             } else {
                 // 轻提示
-                utils.toast({
+                $n.toast({
                     message,
 
                     // #if IS_DEBUG
@@ -207,12 +207,12 @@ utils.http = createHttp({
         }
 
         // 页面状态
-        if (! _.isNil(para.pageStatus) && isRef(para.pageStatus)) {
+        if (! $n.isNil(para.pageStatus) && isRef(para.pageStatus)) {
             para.pageStatus.value = false
         }
 
         // 空状态描述
-        if (! _.isNil(para.emptyDescription) && isRef(para.emptyDescription)) {
+        if (! $n.isNil(para.emptyDescription) && isRef(para.emptyDescription)) {
             para.emptyDescription.value = data.msg
         }
     },
@@ -222,7 +222,7 @@ utils.http = createHttp({
      */
     async onBusinessError({ data, para, onHttp }) {
 
-        if (utils.indexOf([
+        if ($n.indexOf([
             // 状态码(411:强制退出)
             dicts.CODE__LOGOUT,
             // 状态码(410:token 过期需要重新鉴权)
@@ -235,15 +235,15 @@ utils.http = createHttp({
         ], data.code) > -1) {
 
             // 轻提示
-            utils.toast({
+            $n.toast({
                 message: data.msg || '请重新登录',
             })
 
             // 退出登录
-            utils.$auth.logout()
+            $n.$auth.logout()
 
             // 跳转登录页面
-            utils.$auth.pushLogin()
+            $n.$auth.pushLogin()
 
             return false
         }

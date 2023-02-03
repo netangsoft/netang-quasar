@@ -26,7 +26,7 @@ function create(params) {
     // const rowsPerPageOptions = [3, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
-    const o = _.merge({
+    const o = $n.merge({
         // 路由路径
         path: '',
         // 路由参数
@@ -98,32 +98,32 @@ function create(params) {
     // 如果有渲染注入
     if (!! $render) {
         // 如果有表格传参, 则合并参数
-        const tableProps = _.get($render, 'props.tableProps')
-        if (utils.isValidObject(tableProps)) {
-            _.merge(o, tableProps)
+        const tableProps = $n.get($render, 'props.tableProps')
+        if ($n.isValidObject(tableProps)) {
+            $n.merge(o, tableProps)
         }
     }
 
     // 获取权限注入
-    const $power = _.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n.has(params, '$power') ? params.$power : inject(NPowerKey)
     const hasPowr = !! $power
 
     // 获取权限路由
-    const $route = utils.isValidString(o.path) ?
+    const $route = $n.isValidString(o.path) ?
         // 如果为自定义路由
-        utils.router.resolve({
+        $n.router.resolve({
             path: o.path,
-            query: utils.isValidObject(o.query) ? o.query : {},
+            query: $n.isValidObject(o.query) ? o.query : {},
         })
         // 否则获取当前路由
-        : (hasPowr ? $power.getRoute() : utils.router.getRoute())
+        : (hasPowr ? $power.getRoute() : $n.router.getRoute())
 
     // 是否有权限按钮
     const hasPowerBtns = hasPowr ? $power.powerBtns.value.length : false
 
     // 表格已选数据
     const tableSelected = hasPowr ? $power.tableSelected : ref([])
-    if (utils.isValidArray(o.selected)) {
+    if ($n.isValidArray(o.selected)) {
         tableSelected.value = o.selected
     }
 
@@ -131,7 +131,7 @@ function create(params) {
     const isCache = !! o.cache
 
     // 缓存名
-    const cacheName = $route.fullPath ? $route.fullPath : (utils.isValidString(o.cache) ? o.cache : '')
+    const cacheName = $route.fullPath ? $route.fullPath : ($n.isValidString(o.cache) ? o.cache : '')
 
     // 表格列
     const tableColumns = []
@@ -149,48 +149,48 @@ function create(params) {
     const tableImgNames = ref([])
 
     // 设置列参数
-    utils.forEach(o.columns, function(item) {
+    $n.forEach(o.columns, function(item) {
 
         if (
-            ! _.has(item, 'field')
-            && _.has(item, 'name')
+            ! $n.has(item, 'field')
+            && $n.has(item, 'name')
         ) {
             item.field = item.name
         }
 
-        if (! _.has(item, 'align')) {
+        if (! $n.has(item, 'align')) {
             item.align = 'left'
         }
 
         // 是否隐藏
-        item.hide = _.get(item, 'hide') === true
+        item.hide = $n.get(item, 'hide') === true
 
         // 如果有显示项
-        if (_.get(item, 'visible') !== false) {
+        if ($n.get(item, 'visible') !== false) {
             o.visibleColumns.push(item.field)
         }
 
         // 如果有时间戳
-        if (_.has(item, 'time')) {
-            item.format = val => date.formatDate(utils.toDate(val), item.time === true ? `YYYY-MM-DD HH:mm` : item.time)
+        if ($n.has(item, 'time')) {
+            item.format = val => date.formatDate($n.toDate(val), item.time === true ? `YYYY-MM-DD HH:mm` : item.time)
 
         // 如果有数据字典
-        } else if (_.has(item, 'dict')) {
-            item.format = val => utils.dict(item.dict, val)
+        } else if ($n.has(item, 'dict')) {
+            item.format = val => $n.dict(item.dict, val)
 
         // 如果有图片
-        } else if (_.has(item, 'img') && item.img === true) {
+        } else if ($n.has(item, 'img') && item.img === true) {
             tableImgNames.value.push(item.name)
 
         // 如果有价格
-        } else if (_.has(item, 'price')) {
-            item.format = val => utils.price(val)
+        } else if ($n.has(item, 'price')) {
+            item.format = val => $n.price(val)
         }
 
         // 如果有路由
-        if (_.get(item, 'route')) {
+        if ($n.get(item, 'route')) {
             // 如果该值在当前路由路径中, 则显示
-            if (utils.indexOf($route.fullPath, item.route) > -1) {
+            if ($n.indexOf($route.fullPath, item.route) > -1) {
                 tableColumns.push(item)
             }
 
@@ -200,10 +200,10 @@ function create(params) {
     })
 
     // 获取可见列缓存
-    const visibleColumnsCache = o.showVisibleColumns && isCache ? utils.storage.get('table:visible_columns:' + cacheName) : []
+    const visibleColumnsCache = o.showVisibleColumns && isCache ? $n.storage.get('table:visible_columns:' + cacheName) : []
 
     // 表格可见列
-    const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : _.uniq([...o.visibleColumns]))
+    const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : $n.uniq([...o.visibleColumns]))
 
     // 表格加载状态
     const tableLoading = ref(o.loading)
@@ -215,7 +215,7 @@ function create(params) {
     const tablePagination = ref($route.fullPath ? o.pagination : {})
 
     // 表格宫格
-    const tableGrid = ref(o.showGrid && isCache ? utils.storage.get('table:grid:' + cacheName) === true : false)
+    const tableGrid = ref(o.showGrid && isCache ? $n.storage.get('table:grid:' + cacheName) === true : false)
 
     // 表格请求参数(将表格传参中的搜索参数剥离掉, 剩下的直接当做参数传递给服务器)
     let tableRequestQuery = {}
@@ -242,7 +242,7 @@ function create(params) {
         // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
         firstTableSearchValue,
         // 表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
-    } = utils.$search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
+    } = $n.$search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
 
     // 表格搜索数据值
     const tableSearchValue = ref($route.fullPath ? firstTableSearchValue : [])
@@ -263,7 +263,7 @@ function create(params) {
         const lists = []
 
         // 先格式化权限按钮列表
-        utils.forEach(utils.$power.formatBtns($power.powerBtns.value), function(item) {
+        $n.forEach($n.$power.formatBtns($power.powerBtns.value), function(item) {
 
             // 如果是固定按钮
             if (item.fixed) {
@@ -282,10 +282,10 @@ function create(params) {
             // 非手机模式
             ! $q.platform.is.mobile
             // 有权限列表
-            && utils.isValidArray($power.powerBtns.value)
+            && $n.isValidArray($power.powerBtns.value)
         ) {
             for (const item of $power.powerBtns.value) {
-                if (_.has(item, 'data.dbclick') === true) {
+                if ($n.has(item, 'data.dbclick') === true) {
                     return item
                 }
             }
@@ -296,7 +296,7 @@ function create(params) {
      * 是否显示固定在右边的权限按钮列表
      */
     const showTableFixed = computed(function () {
-        return utils.indexOf(tableVisibleColumns.value, 'settings') > -1
+        return $n.indexOf(tableVisibleColumns.value, 'settings') > -1
     })
 
     // ==========【监听数据】=============================================================================================
@@ -309,7 +309,7 @@ function create(params) {
 
             // 设置宫格模式缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set('table:grid:' + cacheName, val, 0)
+            $n.storage.set('table:grid:' + cacheName, val, 0)
             // #endif
         })
     }
@@ -322,7 +322,7 @@ function create(params) {
 
             // 设置可见列缓存(永久缓存)
             // #if ! IS_DEV
-            utils.storage.set('table:visible_columns:' + cacheName, val, 0)
+            $n.storage.set('table:visible_columns:' + cacheName, val, 0)
             // #endif
         })
     }
@@ -333,10 +333,10 @@ function create(params) {
     if (hasPowerBtns) {
         watch(tableFixedPowerBtns, function (lists) {
 
-            const index = utils.indexOf(tableVisibleColumns.value, 'settings')
+            const index = $n.indexOf(tableVisibleColumns.value, 'settings')
 
             // 如果有固定在右边的权限按钮列表
-            if (utils.isValidArray(lists)) {
+            if ($n.isValidArray(lists)) {
 
                 // 如果设置不在可见列中
                 if (index === -1) {
@@ -375,9 +375,9 @@ function create(params) {
      */
     function setQuery(query) {
 
-        if (utils.isValidObject(query)) {
+        if ($n.isValidObject(query)) {
 
-            query = _.cloneDeep(query)
+            query = $n.cloneDeep(query)
 
             // 搜索参数键值数组
             const searchQueryKey = []
@@ -388,11 +388,11 @@ function create(params) {
             const NSearchValues = []
 
             // 参数中是否有自定义搜索参数
-            const hasNSearch = _.has(query, 'n_search')
+            const hasNSearch = $n.has(query, 'n_search')
             if (hasNSearch) {
                 // 删除在搜索中存在的参数键值
-                utils.forIn(query.n_search, function (item, key) {
-                    if (_.has(query, key)) {
+                $n.forIn(query.n_search, function (item, key) {
+                    if ($n.has(query, key)) {
                         delete query[key]
                     }
                 })
@@ -401,14 +401,14 @@ function create(params) {
             // 如果允许从参数中获取搜索值
             if (o.searchFromQuery) {
 
-                utils.forEach(rawSearchOptions, function (item, index) {
+                $n.forEach(rawSearchOptions, function (item, index) {
 
                     const valueItem = tableSearchValue.value[index]
 
                     // 如果传参在搜素 n_search 参数中
-                    if (hasNSearch && _.has(query.n_search, item.name)) {
+                    if (hasNSearch && $n.has(query.n_search, item.name)) {
                         const newSearchItem = query.n_search[item.name]
-                        if (utils.isValidArray(newSearchItem)) {
+                        if ($n.isValidArray(newSearchItem)) {
                             valueItem[0].compare = newSearchItem[0].compare
                             valueItem[0].value = newSearchItem[0].value
 
@@ -421,23 +421,23 @@ function create(params) {
                         NSearchKeys.push(item.name)
 
                     // 如果传参在搜索参数中
-                    } else if (_.has(query, item.name)) {
+                    } else if ($n.has(query, item.name)) {
                         // 设置单个搜索值
-                        setItemValue(valueItem, utils.isRequired(query[item.name]) ? query[item.name] : '')
+                        setItemValue(valueItem, $n.isRequired(query[item.name]) ? query[item.name] : '')
                         // 设置参数中搜索的 key
                         searchQueryKey.push(item.name)
                     }
                 })
 
-                utils.forEach(searchQueryKey, function (key) {
+                $n.forEach(searchQueryKey, function (key) {
                     delete query[key]
                 })
 
                 if (hasNSearch) {
-                    utils.forIn(query.n_search, function(item, key) {
+                    $n.forIn(query.n_search, function(item, key) {
                         if (
                             NSearchKeys.indexOf(key) === -1
-                            && utils.isValidArray(item)
+                            && $n.isValidArray(item)
                         ) {
                             item[0].field = key
                             NSearchValues.push(item[0])
@@ -451,8 +451,8 @@ function create(params) {
                 }
 
             } else {
-                utils.forIn(query.n_search, function(item, key) {
-                    if (utils.isValidArray(item)) {
+                $n.forIn(query.n_search, function(item, key) {
+                    if ($n.isValidArray(item)) {
                         item[0].field = key
                         NSearchValues.push(item[0])
                         if (item.length > 1) {
@@ -563,7 +563,7 @@ function create(params) {
 
         const newValue = []
 
-        utils.forEach(rawSearchOptions, function (item, index) {
+        $n.forEach(rawSearchOptions, function (item, index) {
             // 如果该搜索条件是隐藏的
             if (item.hide) {
                 newValue.push(tableSearchValue.value[index])
@@ -574,7 +574,7 @@ function create(params) {
         })
 
         // 还原表格搜索数据
-        tableSearchValue.value = _.cloneDeep(newValue)
+        tableSearchValue.value = $n.cloneDeep(newValue)
 
         // 表格重新加载
         if (reload) {
@@ -611,7 +611,7 @@ function create(params) {
         }
 
         // 如果排序字段是有效值
-        if (utils.isValidValue(sortBy)) {
+        if ($n.isValidValue(sortBy)) {
             Object.assign(data, {
                 // 排序字段
                 order_by: sortBy,
@@ -621,20 +621,20 @@ function create(params) {
         }
 
         // 合并参数
-        utils.forIn(Object.assign({}, rawQuery, tableRequestQuery, o.data), function(value, key) {
+        $n.forIn(Object.assign({}, rawQuery, tableRequestQuery, o.data), function(value, key) {
             // 如果有值
-            if (utils.isRequired(value)) {
+            if ($n.isRequired(value)) {
                 data[key] = value
             }
         })
 
         // 获取搜索值
-        const search = utils.$search.formatValue(rawSearchOptions, tableSearchValue.value)
-        if (utils.isValidArray(search)) {
-            data.n_search = _.has(data, 'n_search') ? _.concat(data.n_search, search) : search
+        const search = $n.$search.formatValue(rawSearchOptions, tableSearchValue.value)
+        if ($n.isValidArray(search)) {
+            data.n_search = $n.has(data, 'n_search') ? $n.concat(data.n_search, search) : search
         }
 
-        if (_.isNil(isSummary)) {
+        if ($n.isNil(isSummary)) {
             isSummary = isRequestSummary
         }
 
@@ -672,8 +672,8 @@ function create(params) {
         let result
 
         // 如果有自定义请求方法
-        if (_.isFunction(o.request)) {
-            result = await utils.runAsync(o.request)({
+        if ($n.isFunction(o.request)) {
+            result = await $n.runAsync(o.request)({
                 data,
                 props,
                 rows: tableRows,
@@ -692,7 +692,7 @@ function create(params) {
                 // debounce: false,
             }, o.httpSettings)
 
-            result = await utils.http(opts)
+            result = await $n.http(opts)
         }
 
         const { status, data: res } = result
@@ -709,8 +709,8 @@ function create(params) {
 
             // 如果请求表格合计
             if (isRequestSummary) {
-                const summary = _.get(res, 'summary')
-                tableSummary.value = utils.isValidObject(summary) ? summary : null
+                const summary = $n.get(res, 'summary')
+                tableSummary.value = $n.isValidObject(summary) ? summary : null
             }
 
             // 更新页码
@@ -725,8 +725,8 @@ function create(params) {
             tablePagination.value.descending = descending
 
             // 格式化单条数据
-            if (_.isFunction(o.formatRow)) {
-                utils.forEach(rows, function(row) {
+            if ($n.isFunction(o.formatRow)) {
+                $n.forEach(rows, function(row) {
                     o.formatRow({
                         row,
                         rows: tableRows,
@@ -761,7 +761,7 @@ function create(params) {
         opt[o.rowKey] = row[o.rowKey]
 
         // 获取当前数据索引
-        const itemIndex = _.findIndex(tableSelected.value, opt)
+        const itemIndex = $n.findIndex(tableSelected.value, opt)
 
         // 如果不存在, 则添加
         if (itemIndex === -1) {
@@ -786,7 +786,7 @@ function create(params) {
         _tableRowClick(...e)
 
         // 如果有自定义单击事件
-        if (_.isFunction(o.rowClick)) {
+        if ($n.isFunction(o.rowClick)) {
             o.rowClick(...e)
         }
     }
@@ -817,7 +817,7 @@ function create(params) {
         _tableRowDblclick(...e)
 
         // 如果有自定义双击表格行事件
-        if (_.isFunction(o.tableRowDblclick)) {
+        if ($n.isFunction(o.tableRowDblclick)) {
             o.tableRowDblclick(...e)
         }
     }
@@ -826,14 +826,14 @@ function create(params) {
      * 设置表格搜索参数
      */
     async function setTableSearchOptions(format) {
-        tableSearchOptions.value = await utils.$search.getOptions(rawSearchOptions, format)
+        tableSearchOptions.value = await $n.$search.getOptions(rawSearchOptions, format)
     }
 
     /**
      * 是否有表格搜索值
      */
     function hasTableSearchValue() {
-        return !! utils.$search.formatValue(rawSearchOptions, tableSearchValue.value).length
+        return !! $n.$search.formatValue(rawSearchOptions, tableSearchValue.value).length
     }
 
     // 如果开启搜索
@@ -936,13 +936,13 @@ function create(params) {
  * 获取表格配置
  */
 function config(routePath, path, defaultValue) {
-    return _.cloneDeep(_.get(tablesConfig, utils.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue))
+    return $n.cloneDeep($n.get(tablesConfig, $n.slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue))
 }
 
 /**
  * 业务表格
  */
-utils.$table = {
+$n.$table = {
     // 创建表格
     create,
     // 获取表格配置

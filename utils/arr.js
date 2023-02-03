@@ -1,14 +1,14 @@
 /*
  * 操作数组
  */
-utils.arr = {
+$n.arr = {
 
     /**
      * 增加
      */
     add(children, index, newItem) {
         if (Array.isArray(children)) {
-            children.splice(index + 1, 0, _.isFunction(newItem) ? newItem() : newItem)
+            children.splice(index + 1, 0, $n.isFunction(newItem) ? newItem() : newItem)
         }
     },
 

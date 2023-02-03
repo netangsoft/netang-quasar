@@ -1,27 +1,27 @@
 /**
  * 获取图片
  */
-utils.getImage = function(src, params) {
+$n.getImage = function(src, params) {
 
     if (src) {
 
         // 如果为数组, 则获取第一个
-        if (utils.isValidArray(src)) {
+        if ($n.isValidArray(src)) {
             src = src[0]
 
         // 如果为对象
-        } else if (utils.isValidObject(src)) {
+        } else if ($n.isValidObject(src)) {
 
-            if (_.has(src, 'params')) {
+            if ($n.has(src, 'params')) {
                 params = src.params
             }
 
-            if (_.has(src, 'img')) {
+            if ($n.has(src, 'img')) {
                 src = src.img
             }
         }
 
-        if (utils.isValidString(src)) {
+        if ($n.isValidString(src)) {
 
             // http(s):// 或 data: 或 blob: 开头的地址
             if (/^(http(s)?:\/\/|data:|blob:)/i.test(src)) {
@@ -29,12 +29,12 @@ utils.getImage = function(src, params) {
             }
 
             // 如果为对象定义的规格
-            if (utils.isValidObject(params)) {
+            if ($n.isValidObject(params)) {
 
                 // 【自动缩放】
                 // 如果没有定义 w
                 // --------------------------------------------------
-                if (! _.has(params, 'w')) {
+                if (! $n.has(params, 'w')) {
 
                     const {
                         width,
@@ -46,11 +46,11 @@ utils.getImage = function(src, params) {
 
                         let w = width
 
-                        if (! utils.isNumeric(w) && _.isString(w)) {
+                        if (! $n.isNumeric(w) && $n.isString(w)) {
                             w = w.replace('px', '')
                         }
 
-                        if (utils.isNumeric(w)) {
+                        if ($n.isNumeric(w)) {
                             w = Number(w)
                             if (w > 0) {
 
@@ -75,7 +75,7 @@ utils.getImage = function(src, params) {
                 // --------------------------------------------------
             }
 
-            const uploaderConfig = utils.config('uploader.upload')
+            const uploaderConfig = $n.config('uploader.upload')
             switch (uploaderConfig.type) {
                 // 七牛云
                 case 'qiniu':
@@ -127,7 +127,7 @@ utils.getImage = function(src, params) {
                         src += '/format/' + format
                     }
 
-                    return utils.slash(uploaderConfig.domain, 'end', true) + src
+                    return $n.slash(uploaderConfig.domain, 'end', true) + src
             }
         }
     }

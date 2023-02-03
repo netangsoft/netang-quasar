@@ -1,8 +1,8 @@
 /**
  * 预览图片
  */
-utils.previewImage = function(src) {
-    utils.toast({
+$n.previewImage = function(src) {
+    $n.toast({
         message: '预览图片还没做'
     })
 }

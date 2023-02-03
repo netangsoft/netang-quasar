@@ -5,15 +5,15 @@ import dictData from '@/configs/dict.json'
  */
 
 // 设置字典数据
-utils.dictData = dictData
+$n.dictData = dictData
 
 /**
  * 获取字典值对应的文字
  */
-utils.dict = function(key, value, defaultValue = '') {
+$n.dict = function(key, value, defaultValue = '') {
     if (
         key
-        && _.has(dictData, key)
+        && $n.has(dictData, key)
     ) {
         for (const item of dictData[key]) {
             if (item[1] === value) {
@@ -25,11 +25,11 @@ utils.dict = function(key, value, defaultValue = '') {
     return defaultValue
 }
 
-utils.dictOptions = function(key, textKey = 'label', valueKey = 'value') {
+$n.dictOptions = function(key, textKey = 'label', valueKey = 'value') {
 
     const lists = []
 
-    const dictItem = _.get(dictData, key, [])
+    const dictItem = $n.get(dictData, key, [])
 
     for (const item of dictItem) {
 

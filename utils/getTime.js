@@ -3,10 +3,10 @@ import { date as quasarDate } from 'quasar'
 /**
  * 获取时间
  */
-utils.getTime = function(time, params, defaultValue = '') {
+$n.getTime = function(time, params, defaultValue = '') {
 
     if (! time) {
-        return utils.isValidString(params) ? params : defaultValue
+        return $n.isValidString(params) ? params : defaultValue
     }
 
     let {
@@ -33,10 +33,10 @@ utils.getTime = function(time, params, defaultValue = '') {
     }, params)
 
     // 传入时间
-    const date = utils.toDate(time)
+    const date = $n.toDate(time)
 
     // 当前时间
-    const now = utils.toDate(utils.timestamp())
+    const now = $n.toDate($n.timestamp())
 
     // 如果是自然化时间
     // 如果是今天, 则显示时分秒

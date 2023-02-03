@@ -40,7 +40,7 @@ function setItemCompare(item) {
     // 如果类型为日期
     if (item.type === 'date') {
         // 添加日期快捷选项
-        utils.forEach(quickRange, function(label, key) {
+        $n.forEach(quickRange, function(label, key) {
             opts1.push({ label, value: key + 20 })
         })
 
@@ -54,8 +54,8 @@ function setItemCompare(item) {
 
     // 如果有比较类型
     if (
-        _.has(item, 'compare')
-        && utils.isValidArray(item.compare)
+        $n.has(item, 'compare')
+        && $n.isValidArray(item.compare)
     ) {
         const {
             compare,
@@ -84,11 +84,11 @@ function setItemCompare(item) {
     item.compareOptions2 = []
 
     // 如果比较类型有 >
-    if (_.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GT }) > -1) {
+    if ($n.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GT }) > -1) {
         item.compareOptions2.push({ label: '<', value: dicts.SEARCH_COMPARE_TYPE__LT })
 
     // 如果比较类型有 >=
-    } else if (_.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GTE }) > -1) {
+    } else if ($n.findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GTE }) > -1) {
         item.compareOptions2.push({ label: '≤', value: dicts.SEARCH_COMPARE_TYPE__LTE })
     }
 }
@@ -103,10 +103,10 @@ export function setItemValue(value, val) {
         // 比较类型为 in
         value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
         // 设置值为将数组转为逗号分隔的字符串
-        value[0].value = utils.join(val, ',')
+        value[0].value = $n.join(val, ',')
 
     // 如果值是逗号隔开
-    } else if (utils.split(val, ',').length > 1) {
+    } else if ($n.split(val, ',').length > 1) {
         // 比较类型为 in
         value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
         // 设置值为将数组转为逗号分隔的字符串
@@ -130,15 +130,15 @@ function formatItemValueCompare(value, { compareOptions1 }) {
     const value1 = value[0]
 
     // 如果值1 的比较条件不在值1 的限制范围内
-    if (_.findIndex(compareOptions1, { value: value1.compare }) === -1) {
+    if ($n.findIndex(compareOptions1, { value: value1.compare }) === -1) {
         // 则取比较条件中的第一个
         value1.compare = compareOptions1[0].value
     }
 
     // 如果比较类型不为 in / not in
-    if (utils.indexOf([ dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN ], value1.compare) === -1) {
+    if ($n.indexOf([ dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN ], value1.compare) === -1) {
         // 如果值中含有逗号
-        const arr = utils.split(value1.value, ',')
+        const arr = $n.split(value1.value, ',')
         if (arr.length > 1) {
             value1.value = arr[0]
         }
@@ -173,23 +173,23 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
     // 搜索参数键值数组
     const searchQueryKey = []
 
-    utils.forEach(tableColumns, function (item) {
-        if (_.has(item, 'search.type')) {
+    $n.forEach(tableColumns, function (item) {
+        if ($n.has(item, 'search.type')) {
 
             // 【设置原始表格搜索参数】
             // --------------------------------------------------
 
             // 搜索参数
-            const newItem = _.merge({
+            const newItem = $n.merge({
                 // 标签
                 label: item.label,
             }, item.search)
 
             // 标识
-            newItem.name = _.has(newItem, 'name') ? newItem.name : item.name
+            newItem.name = $n.has(newItem, 'name') ? newItem.name : item.name
 
             // 如果有字典标识
-            if (_.has(item, 'dict')) {
+            if ($n.has(item, 'dict')) {
                 newItem.dict = item.dict
             }
 
@@ -226,16 +226,16 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
             }
 
             // 添加原始表格搜索值
-            rawTableSearchValue.push(_.cloneDeep(value))
+            rawTableSearchValue.push($n.cloneDeep(value))
 
             if (
                 // 如果开启从参数中获取搜索值
                 searchFromQuery
                 // 如果在传参中有搜索参数
-                && _.has(query, newItem.name)
+                && $n.has(query, newItem.name)
             ) {
                 // 如果有值
-                if (utils.isRequired(query[newItem.name])) {
+                if ($n.isRequired(query[newItem.name])) {
                     // 设置单个搜索值
                     setItemValue(value, query[newItem.name])
                 }
@@ -245,10 +245,10 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
 
             // 否则, 如果表格参数中有设置初始值
             } else if (
-                _.has(newItem, 'value')
-                && utils.isValidArray(newItem.value)
+                $n.has(newItem, 'value')
+                && $n.isValidArray(newItem.value)
             ) {
-                value = _.merge([], value, newItem.value)
+                value = $n.merge([], value, newItem.value)
             }
 
             // 格式化单个值的比较条件
@@ -260,7 +260,7 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
     })
 
     if (searchQueryKey.length) {
-        utils.forIn(query, function(val, key) {
+        $n.forIn(query, function(val, key) {
             if (searchQueryKey.indexOf(key) === -1) {
                 rawQuery[key] = val
             }
@@ -288,43 +288,43 @@ async function getOptions(rawSearchOptions, format) {
 
     const lists = []
 
-    if (utils.isValidArray(rawSearchOptions)) {
+    if ($n.isValidArray(rawSearchOptions)) {
         for (const item of rawSearchOptions) {
 
             const newItem = Object.assign({}, item)
 
             // 格式化单个参数
-            if (_.isFunction(format)) {
-                const res = await utils.runAsync(format)(newItem)
-                if (utils.isValidObject(res)) {
-                    _.merge(newItem, res)
+            if ($n.isFunction(format)) {
+                const res = await $n.runAsync(format)(newItem)
+                if ($n.isValidObject(res)) {
+                    $n.merge(newItem, res)
                 }
             }
 
             // 如果有字典标识, 则一定是下拉菜单
-            if (_.has(newItem, 'dict')) {
-                _.merge(newItem, {
+            if ($n.has(newItem, 'dict')) {
+                $n.merge(newItem, {
                     searchType: 'select',
                     select: {
-                        options: utils.dictOptions(newItem.dict)
+                        options: $n.dictOptions(newItem.dict)
                     },
                 })
 
             // 如果有下拉菜单选项
-            } else if (_.has(newItem, 'select')) {
+            } else if ($n.has(newItem, 'select')) {
                 newItem.searchType = 'select'
                 newItem.select = Object.assign({
                     options: [],
                 }, newItem.select)
 
                 // 如果下拉选项是方法
-                if (_.isFunction(newItem.select.options)) {
+                if ($n.isFunction(newItem.select.options)) {
                     // 读取下拉选项
-                    newItem.select.options = await utils.runAsync(newItem.select.options)()
+                    newItem.select.options = await $n.runAsync(newItem.select.options)()
                 }
 
             // 如果有树选项(调用的是 <n-field-tree> 组件)
-            } else if (_.has(newItem, 'tree')) {
+            } else if ($n.has(newItem, 'tree')) {
                 newItem.searchType = 'tree'
                 newItem.tree = Object.assign({
                     nodes: [],
@@ -333,13 +333,13 @@ async function getOptions(rawSearchOptions, format) {
                 }, newItem.tree)
 
                 // 如果节点数组是方法
-                if (_.isFunction(newItem.tree.nodes)) {
+                if ($n.isFunction(newItem.tree.nodes)) {
                     // 读取下拉选项
-                    newItem.tree.nodes = await utils.runAsync(newItem.tree.nodes)()
+                    newItem.tree.nodes = await $n.runAsync(newItem.tree.nodes)()
                 }
 
             // 如果有表格选项(调用的是 <n-field-table> 组件)
-            } else if (_.has(newItem, 'table')) {
+            } else if ($n.has(newItem, 'table')) {
                 newItem.searchType = 'table'
                 newItem.table = Object.assign({
                     // 值字段(必填)
@@ -370,20 +370,20 @@ function formatValue(rawSearchOptions, searchValue) {
 
     const lists = []
 
-    utils.forEach(rawSearchOptions, function ({ name, type }, itemIndex) {
+    $n.forEach(rawSearchOptions, function ({ name, type }, itemIndex) {
 
         // 添加值1
         function addValue1(value1) {
 
             // 如果有值1
-            if (utils.isValidValue(value1.value)) {
+            if ($n.isValidValue(value1.value)) {
 
                 // 如果值1 类型为 in / not in
-                if (utils.indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], value1.compare) > -1) {
+                if ($n.indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], value1.compare) > -1) {
                     const vals = []
-                    utils.forEach(utils.split(utils.trimString(value1.value).replaceAll('，', ','), ','), function (item) {
-                        item = utils.numberDeep(item)
-                        if (utils.isValidValue(item)) {
+                    $n.forEach($n.split($n.trimString(value1.value).replaceAll('，', ','), ','), function (item) {
+                        item = $n.numberDeep(item)
+                        if ($n.isValidValue(item)) {
                             vals.push(item)
                         }
                     })
@@ -401,7 +401,7 @@ function formatValue(rawSearchOptions, searchValue) {
                 lists.push({
                     field: name,
                     compare: value1.compare,
-                    value: utils.numberDeep(value1.value),
+                    value: $n.numberDeep(value1.value),
                 })
             }
         }
@@ -432,14 +432,14 @@ function formatValue(rawSearchOptions, searchValue) {
                             field: name,
                             // ≥
                             compare: dicts.SEARCH_COMPARE_TYPE__GTE,
-                            value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.from} ${res.time.from}`), 'X')),
+                            value: $n.numberDeep(quasarDate.formatDate($n.toDate(`${res.date.from} ${res.time.from}`), 'X')),
                         },
                         // 日期止
                         {
                             field: name,
                             // ≤
                             compare: dicts.SEARCH_COMPARE_TYPE__LTE,
-                            value: utils.numberDeep(quasarDate.formatDate(utils.toDate(`${res.date.to} ${res.time.to}`), 'X')),
+                            value: $n.numberDeep(quasarDate.formatDate($n.toDate(`${res.date.to} ${res.time.to}`), 'X')),
                         }
                     )
                 }
@@ -450,13 +450,13 @@ function formatValue(rawSearchOptions, searchValue) {
             addValue1(value1)
 
             // 只有值1 类型为 > / ≥ 值2才有效
-            if (utils.indexOf([dicts.SEARCH_COMPARE_TYPE__GT, dicts.SEARCH_COMPARE_TYPE__GTE], value1.compare) > -1) {
+            if ($n.indexOf([dicts.SEARCH_COMPARE_TYPE__GT, dicts.SEARCH_COMPARE_TYPE__GTE], value1.compare) > -1) {
                 const value2 = searchValue[itemIndex][1]
-                if (utils.isValidValue(value2.value)) {
+                if ($n.isValidValue(value2.value)) {
                     lists.push({
                         field: name,
                         compare: value2.compare,
-                        value: utils.numberDeep(value2.value),
+                        value: $n.numberDeep(value2.value),
                     })
                 }
             }
@@ -469,7 +469,7 @@ function formatValue(rawSearchOptions, searchValue) {
 /**
  * 搜素业务
  */
-utils.$search = {
+$n.$search = {
     // 获取原始值
     getRawData,
     // 获取参数

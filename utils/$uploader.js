@@ -60,10 +60,10 @@ function create(params) {
         loadInfo: false,
         // 单文件上传提示
         confirm: false,
-    }, _.get(params, 'props'))
+    }, $n.get(params, 'props'))
 
     // 上传文件列表
-    const uploadFileLists = _.has(params, 'uploadFileLists') && isRef(params.uploadFileLists) ? params.uploadFileLists : ref([])
+    const uploadFileLists = $n.has(params, 'uploadFileLists') && isRef(params.uploadFileLists) ? params.uploadFileLists : ref([])
 
     /**
      * 上传配置
@@ -72,12 +72,12 @@ function create(params) {
         {
             type: 'local',
         },
-        utils.config('uploader.upload')
+        $n.config('uploader.upload')
     )
     const configLimit = Object.assign({
         maxSize: 100,
         exts: [],
-    }, utils.config('uploader.limit.' + props.type))
+    }, $n.config('uploader.limit.' + props.type))
 
     // 如果有单个文件的最大大小
     if (props.maxSize) {
@@ -85,7 +85,7 @@ function create(params) {
     }
 
     // 如果有单个文件的限制后缀
-    if (utils.isValidArray(props.exts)) {
+    if ($n.isValidArray(props.exts)) {
         configLimit.exts = props.exts
     }
 
@@ -121,7 +121,7 @@ function create(params) {
             }
         }
 
-        const hashsString = utils.join(hashs, ',')
+        const hashsString = $n.join(hashs, ',')
 
         return {
             value: props.valueArray ? hashs : hashsString,
@@ -140,10 +140,10 @@ function create(params) {
         const result = getValue()
 
         // 更新值
-        utils.run(onUpdateModelValue)(result)
+        $n.run(onUpdateModelValue)(result)
 
         // 更新
-        utils.run(onUpdate)(result)
+        $n.run(onUpdate)(result)
     }
 
     /**
@@ -151,23 +151,23 @@ function create(params) {
      */
     function update() {
         // 更新
-        utils.run(onUpdate)(getValue())
+        $n.run(onUpdate)(getValue())
     }
 
     /**
      * 初始化上传列表
      */
     async function initUploadFileLists() {
-        if (utils.isRequired(props.modelValue)) {
+        if ($n.isRequired(props.modelValue)) {
 
             // 获取值数组
-            const hashs = props.valueArray ? props.modelValue : utils.split(props.modelValue, ',')
+            const hashs = props.valueArray ? props.modelValue : $n.split(props.modelValue, ',')
 
             // 如果类型不是图片 || 初始加载文件信息, 则请求文件信息
             if (props.type !== 'image' || props.loadInfo) {
 
                 // 请求 - 获取文件
-                const { status, data: resExisted } = await utils.http({
+                const { status, data: resExisted } = await $n.http({
                     url: REQUEST_URL + 'get_file',
                     data: {
                         hashs,
@@ -177,7 +177,7 @@ function create(params) {
                 })
                 if (status) {
 
-                    utils.forEach(resExisted, function (existedItem) {
+                    $n.forEach(resExisted, function (existedItem) {
 
                         // 创建原始单个文件
                         const fileItem = createRawFileItem()
@@ -197,7 +197,7 @@ function create(params) {
                 return
             }
 
-            utils.forEach(hashs, function(hash) {
+            $n.forEach(hashs, function(hash) {
 
                 // 添加至上传文件列表
                 uploadFileLists.value.push(Object.assign(createRawFileItem(), {
@@ -271,7 +271,7 @@ function create(params) {
                             if (props.confirm) {
 
                                 // 确认框
-                                utils.confirm({
+                                $n.confirm({
                                     message: '最多只能上传1个文件，确认上传并替换吗？',
                                 })
                                     // 点击确认执行
@@ -301,7 +301,7 @@ function create(params) {
                         && uploadFileLists.value.length >= props.count
                     ) {
                         // 轻提示
-                        utils.toast({
+                        $n.toast({
                             message: `最多只能上传${props.count}个文件，请先删除后再上传`,
                         })
                         return
@@ -319,8 +319,8 @@ function create(params) {
         } catch (e) {
 
             // 错误提示
-            utils.alert({
-                message: utils.getThrowMessage(e),
+            $n.alert({
+                message: $n.getThrowMessage(e),
             })
         }
 
@@ -369,13 +369,13 @@ function create(params) {
     async function upload() {
         try {
             if (! _upload) {
-                const run = _.get(UPLOADERS, configUpload.type)
+                const run = $n.get(UPLOADERS, configUpload.type)
                 if (run) {
                     _upload = (await run()).default
                 }
                 if (! _upload) {
                     // 错误提示
-                    utils.alert({
+                    $n.alert({
                         message: '没有定义上传器',
                     })
                     return
@@ -406,8 +406,8 @@ function create(params) {
 
         } catch (e) {
             // 错误提示
-            utils.alert({
-                message: utils.getThrowMessage(e),
+            $n.alert({
+                message: $n.getThrowMessage(e),
             })
         }
     }
@@ -504,10 +504,10 @@ function create(params) {
                         // 如果开启去重
                         props.unique
                         // 如果该文件 hash 在上传文件列表中
-                        && _.findIndex(uploadFileLists.value, { hash }) > -1
+                        && $n.findIndex(uploadFileLists.value, { hash }) > -1
                     ) {
                         // 轻提示
-                        utils.toast({
+                        $n.toast({
                             message: '该文件已存在，不可重复上传',
                         })
 
@@ -573,7 +573,7 @@ function create(params) {
                 ! ext
                 // 如果后缀名不在允许范围内, 则无效
                 || (
-                    utils.isValidArray(exts)
+                    $n.isValidArray(exts)
                     && exts.indexOf(ext) === -1
                 )
             ) {
@@ -623,10 +623,10 @@ function create(params) {
         }
 
         // 请求 - 检查文件是否存在 hash
-        const { status, data: resExisted } = await utils.http({
+        const { status, data: resExisted } = await $n.http({
             url: REQUEST_URL + 'check_exist',
             data: {
-                hashs: _.uniq(checkHashs),
+                hashs: $n.uniq(checkHashs),
             },
             // 关闭错误
             warn: false,
@@ -648,7 +648,7 @@ function create(params) {
         }
 
         // 如果有存在的文件列表
-        if (utils.isValidArray(resExisted)) {
+        if ($n.isValidArray(resExisted)) {
 
             // 已存在文件数量
             let existedNum = 0
@@ -658,11 +658,11 @@ function create(params) {
             for (const fileItem of checkFileLists) {
 
                 // 如果文件已存在(已经上传过了, 就是检查是否秒传文件)
-                const existedItem = _.find(resExisted, { hash: fileItem.hash })
+                const existedItem = $n.find(resExisted, { hash: fileItem.hash })
                 if (existedItem) {
 
                     // 如果 类型为文件, 则不受限制 || 文件类型正确
-                    if (props.type === 'file' || fileItem.type === _.get(existedItem, 'type')) {
+                    if (props.type === 'file' || fileItem.type === $n.get(existedItem, 'type')) {
 
                         // 设置已存在文件
                         setExistedFileItem(fileItem, existedItem)
@@ -763,10 +763,10 @@ function create(params) {
             // 如果开启去重
             props.unique
             // 如果该文件 key 在上传文件列表中
-            && _.findIndex(uploadFileLists.value, { key }) > -1
+            && $n.findIndex(uploadFileLists.value, { key }) > -1
         ) {
             // 轻提示
-            utils.toast({
+            $n.toast({
                 message: '该文件已存在，不可重复上传',
             })
 
@@ -782,7 +782,7 @@ function create(params) {
         const index = name.lastIndexOf('.')
         if (index > -1) {
             title = name.substring(0, index)
-            ext = _.toLower(name.substring(index + 1))
+            ext = $n.toLower(name.substring(index + 1))
         }
 
         // 创建单个文件
@@ -843,7 +843,7 @@ function create(params) {
             json,
         } = existedItem
 
-        const fileJson = utils.json.parse(json)
+        const fileJson = $n.json.parse(json)
 
         // 设置文件
         Object.assign(fileItem, {
@@ -858,7 +858,7 @@ function create(params) {
             // 大小
             size,
             // 信息
-            json: utils.isValidObject(fileJson) ? fileJson : {},
+            json: $n.isValidObject(fileJson) ? fileJson : {},
             // 状态
             status: UPLOAD_STATUS.success,
             // 进度
@@ -890,7 +890,7 @@ function create(params) {
      * 删除单个文件
      */
     function deleteFileItem(fileItem) {
-        const index = _.findIndex(uploadFileLists.value, { id: fileItem.id })
+        const index = $n.findIndex(uploadFileLists.value, { id: fileItem.id })
         if (index > -1) {
 
             const {
@@ -917,7 +917,7 @@ function create(params) {
     function previewImage(fileItem) {
         // 预览图片
         if (fileItem.type === FilE_TYPE.image) {
-            utils.previewImage(_.has(fileItem, '__img') ? fileItem.__img : fileItem.hash)
+            $n.previewImage($n.has(fileItem, '__img') ? fileItem.__img : fileItem.hash)
         }
     }
 
@@ -926,9 +926,9 @@ function create(params) {
      */
     async function editFileTitle(newTitle, fileItem) {
 
-        if (utils.isValidValue(newTitle)) {
+        if ($n.isValidValue(newTitle)) {
 
-            newTitle = utils.trimString(newTitle)
+            newTitle = $n.trimString(newTitle)
 
             const {
                 hash,
@@ -943,7 +943,7 @@ function create(params) {
             fileItem.title = newTitle
 
             // 请求 - 修改文件名
-            const { status } = await utils.http({
+            const { status } = await $n.http({
                 url: REQUEST_URL + 'edit_file_title',
                 data: {
                     hash,
@@ -959,7 +959,7 @@ function create(params) {
             }
 
             // 轻提示
-            utils.toast({
+            $n.toast({
                 type: 'positive',
                 message: '修改成功',
             })
@@ -971,7 +971,7 @@ function create(params) {
      */
     function play(fileItem) {
         // 轻提示
-        utils.toast({
+        $n.toast({
             message: '播放还没做',
         })
     }
@@ -983,12 +983,12 @@ function create(params) {
 
         const url = fileItem.type === FilE_TYPE.image ?
             // 如果是图片
-            utils.getImage(fileItem.hash)
+            $n.getImage(fileItem.hash)
             // 否则是文件
-            : utils.getFile(fileItem.hash)
+            : $n.getFile(fileItem.hash)
 
-        if (utils.isValidString(url)) {
-            utils.copy(url, '复制地址成功')
+        if ($n.isValidString(url)) {
+            $n.copy(url, '复制地址成功')
         }
     }
 
@@ -1023,7 +1023,7 @@ function create(params) {
 /**
  * 上传器
  */
-utils.$uploader = {
+$n.$uploader = {
     // 创建对话框
     create,
 }
