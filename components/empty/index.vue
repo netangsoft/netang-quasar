@@ -1,6 +1,15 @@
 <template>
-    <div class="q-pa-lg flex flex-center absolute-full">
-        {{description || '发生未知错误'}}
+    <div class="q-pa-lg column flex-center absolute-full q-gutter-sm">
+
+        <!-- 图标 -->
+        <q-icon
+            :name="icon"
+            color="grey-5"
+            :size="$n.px(iconSize)"
+        />
+
+        <!-- 描述文字 -->
+        <div class="text-subtitle1 text-grey-7" v-if="description">{{description}}</div>
     </div>
 </template>
 
@@ -16,7 +25,17 @@ export default {
      * 声明属性
      */
     props: {
-        // 空状态描述
+        // 图标
+        icon: {
+            type: String,
+            default: 'info',
+        },
+        // 图标大小
+        iconSize: {
+            type: [ String, Number ],
+            default: 70,
+        },
+        // 描述文字
         description: String,
     },
 }

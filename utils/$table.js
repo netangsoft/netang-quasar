@@ -651,6 +651,9 @@ function create(params) {
      */
     async function tableRequest(props) {
 
+        // 加载
+        tableLoading.value = true
+
         // 解构数据
         const {
             // filter,

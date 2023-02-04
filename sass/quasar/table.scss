@@ -11,6 +11,12 @@ $dark-td-bg-color: $dark;
 
 .n-table {
 
+    // 单元格换行
+    &__col-wrap {
+        word-wrap: break-word !important;
+        white-space: pre-wrap !important;
+    }
+
     &.q-table {
         &--dense {
             // 复选框
