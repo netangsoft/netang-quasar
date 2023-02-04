@@ -1,14 +1,15 @@
 <template>
-    <div ref="targetRef" style="width: 1000px;height: 500px;"></div>
+    <!-- :style="currentStyle" -->
+    <div
+        ref="targetRef"
+        :style="currentStyle"
+    ></div>
 </template>
 
 <script>
-import { nextTick, ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import 'monaco-editor/min/vs/loader'
-
-console.log('loader', window)
+import script from '@netang/utils/script'
 
 export default {
 
@@ -24,6 +25,30 @@ export default {
         // 值 v-model
         modelValue: {
             type: [ String, Number ],
+            default: '',
+        },
+        // 宽度
+        width: {
+            type: [ String, Number ],
+            default: '100%',
+        },
+        // 高度
+        height: [ String, Number ],
+        // 脚本语言
+        language: String,
+        // 是否只读
+        readonly: Boolean,
+        // 代码视图
+        minimap: Boolean,
+        // tab 长度
+        tabSize: {
+            type: Number,
+            default: 4,
+        },
+        // 主题
+        theme: {
+            type: String,
+            default: 'vs',
         },
     },
 
@@ -37,9 +62,19 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { emit, slots }) {
+    setup(props, { emit }) {
 
         // ==========【计算属性】=========================================================================================
+
+        /**
+         * 当前样式
+         */
+        const currentStyle = computed(function () {
+            return {
+                width: $n.isNumeric(props.width) ? $n.px(props.width) : props.width,
+                height: $n.isNumeric(props.height) ? $n.px(props.height) : props.height,
+            }
+        })
 
         // ==========【数据】=============================================================================================
 
@@ -49,91 +84,178 @@ export default {
         // 编辑器实例
         let $editor = null
 
+        // 停止值观察
+        let stopValueWatcher = false
+
+        // 创建防抖睡眠方法
+        const sleep = $n.debounceSleep()
+
         // ==========【监听数据】=========================================================================================
 
         /**
-         * 监听表格已选数据(非手机端有效)
+         * 监听声明值
          */
-        // watch($table.tableSelected,  async function (selected) {
-        //
-        //     // 先清空当前已选单条数据
-        //     currentSelectedItem.value = null
-        //
-        //     // 如果不监听
-        //     if (! isWatcher.value) {
-        //
-        //         // 则无需任何操作
-        //         return
-        //     }
-        //
-        //     // 下次 DOM 更新
-        //     await nextTick()
-        //
-        //     // 如果有已选单条数据
-        //     if (selected.length === 1) {
-        //
-        //         // 设置当前已选数据
-        //         currentSelectedItem.value = selected[0]
-        //     }
-        //
-        // }, {
-        //     // 深度监听
-        //     deep: true,
-        // })
+        watch(() => props.modelValue, function (val) {
+
+            // 如果停止值观察
+            if (stopValueWatcher) {
+
+                // 则无任何操作
+                return
+            }
+
+            // 取消停止值观察
+            stopValueWatcher = false
+
+            // 设置值
+            setValue(val)
+        })
 
         // ==========【方法】============================================================================================
+
+        function load() {
+
+            // 如果已加载
+            if (window.monaco) {
+                // 创建编辑器
+                create()
+                return
+            }
+
+            // 版本
+            const version = '0.34.1'
+
+            // 加载 script
+            script([
+                [
+                    `https://cdn.staticfile.org/monaco-editor/${version}/min/vs/loader.js`,
+                    `https://fastly.jsdelivr.net/npm/monaco-editor@${version}/min/vs/loader.js`,
+                    `https://unpkg.com/monaco-editor@${version}/min/vs/loader.js`,
+                ]
+            ])
+                .then(function ([ url ]) {
+
+                    // 按需加载
+                    const _require = window.require
+
+                    // 配置
+                    _require.config({
+                        // 路径
+                        paths: {
+                            vs: url.replace('/loader.js', ''),
+                        },
+                        // 语言
+                        'vs/nls' : {
+                            availableLanguages: {
+                                '*': 'zh-cn',
+                            }
+                        }
+                    })
+
+                    // 加载
+                    _require(['vs/editor/editor.main'], function () {
+                        // 创建编辑器
+                        create()
+                    })
+                })
+        }
 
         /**
          * 创建编辑器
          */
         function create() {
 
-            // window.require.config({
-            //     'vs/nls': {
-            //         availableLanguages: {
-            //             '*': 'zh-cn'
-            //         }
-            //     }
-            // });
-
             // 创建编辑器
             $editor = monaco.editor.create(targetRef.value, {
-                // 初始值
-                value: props.modelValue,
                 // 主题
-                // theme: 'vs-dark',
+                theme: props.theme,
                 // 脚本语言
-                language: 'javascript',
+                language: props.language,
                 // 自动布局
                 automaticLayout: true,
                 // 自动换行
                 wordWrap: 'on',
-                tabSize: 4,
+                // tab 长度
+                tabSize: props.tabSize,
                 // 代码略缩图
-                // minimap: {
-                //     enabled: false,
-                // },
+                minimap: {
+                    enabled: props.minimap,
+                },
                 // 右键
                 contextmenu: true,
                 // 是否只读
-                // readOnly: true,
-            });
+                readOnly: props.readonly,
+            })
 
-            // monaco.editor.create(targetRef.value, {
-            //     // theme: 'vs-dark',
-            //     value: props.modelValue,
-            //
-            //     // 自适应调整
-            //     automaticLayout: true,
-            //
-            //     // 自动换行
-            //     wordWrap: 'on',
-            //     language: 'json',
-            //     colorDecorators: true,
-            //     tabSize: 4,
-            //     // readOnly: true,
-            // });
+            // 监听失去焦点事件
+            $editor.onDidBlurEditorText(function () {
 
+                // 获取编辑器内容
+                const value = getValue()
+                if (value === void 0) {
+                    return
+                }
+
+                // 停止值观察
+                stopValueWatcher = true
+
+                // 触发更新值
+                emit('update:modelValue', value)
+            })
+
+            // 等编辑器全部加载完成后, 设置内容值
+            sleep(300)
+                .then(function () {
+                    // 设置值
+                    setValue(props.modelValue)
+                })
+        }
+
+        /**
+         * 设置值
+         */
+        function setValue(value) {
+            if ($editor) {
+
+                // 编辑器设置内容
+                $editor.setValue(value)
+
+                // 代码格式化
+                $editor.getAction('editor.action.formatDocument').run()
+            }
+        }
+
+        /**
+         * 获取值
+         */
+        function getValue() {
+
+            if ($editor) {
+
+                // 获取编辑器的值
+                let value = $editor.getValue()
+
+                // 如果语言为 json
+                if (
+                    props.language === 'json'
+                    && $n.isValidValue(value)
+                ) {
+                    try {
+                        value = JSON.stringify(JSON.parse(value))
+
+                    } catch (e) {
+                        // 轻提示
+                        $n.toast({
+                            message: 'JSON 语法错误'
+                        })
+                        return
+                    }
+                }
+
+                return value
+            }
+
+            return ''
         }
 
         // ==========【生命周期】=========================================================================================
@@ -143,8 +265,8 @@ export default {
          */
         onMounted(function() {
 
-            // 创佳编辑器
-            create()
+            // 加载
+            load()
         })
 
         // ==========【返回】=========================================================================================
@@ -152,6 +274,8 @@ export default {
         return {
             // 根节点
             targetRef,
+            // 当前样式
+            currentStyle,
         }
     }
 }
