@@ -220,7 +220,7 @@ function create(params) {
                             const isSingle = item.show === 'single'
 
                             // 如果是单条 || 多条显示
-                            if (isSingle || item.show === 'multi') {
+                            if (isSingle || item.show === 'multiple') {
 
                                 // 初始为不显示
                                 item.show = false
@@ -674,14 +674,14 @@ function getRequestQuery(o) {
         }
     }
 
-    // 获取表格数据
+    // 获取列表数据
     if (
         // 如果按钮参数有显示类型
         $n.has(o.data, 'show')
         // 按钮参数的显示类型必须是单选或多选
-        && $n.indexOf(['single', 'multi'], o.data.show) > -1
-        // 如果有请求传参的表格设置
-        && $n.has(o.data, 'requestQuery.table')
+        && $n.indexOf(['single', 'multiple'], o.data.show) > -1
+        // 如果有请求传参的列表设置
+        && $n.has(o.data, 'requestQuery.list')
         // 如果有表格数据
         && $n.isValidArray(o.tableSelected)
     ) {
@@ -706,7 +706,7 @@ function getRequestQuery(o) {
             }
         }
 
-        const resTable = parseQuery(newQuery, o.data.requestQuery.table)
+        const resTable = parseQuery(newQuery, o.data.requestQuery.list)
         if ($n.isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
@@ -1050,8 +1050,8 @@ async function request(params) {
                             $n.run(o.$form?.resetForm)()
                             break
 
-                        // 刷新表格
-                        case 'refreshTable':
+                        // 刷新列表
+                        case 'refreshList':
                             $n.run(o.$table?.tableRefresh)()
                             break
                     }

@@ -35,8 +35,8 @@ function create(params) {
         data: {},
         // 表格行唯一键值
         rowKey: 'id',
-        // 选择类型, 可选值 single multiple none
-        selection: 'multiple',
+        // 选择类型, 可选值 none single(默认) multiple
+        // selection: '',
         // 分隔栏, 可选值 horizontal vertical cell none
         separator: 'cell',
         // 已选数据
@@ -107,6 +107,18 @@ function create(params) {
     // 获取权限注入
     const $power = $n.has(params, '$power') ? params.$power : inject(NPowerKey)
     const hasPowr = !! $power
+
+    // 获取选择类型(默认 single)
+    if (! $n.has(o, 'selection') || ! $n.isValidString(o.selection)) {
+        if (hasPowr) {
+            o.selection = $n.get($power, 'powerPage.data.selection')
+            if (! $n.isValidString(o.selection)) {
+                o.selection = 'single'
+            }
+        } else {
+            o.selection = 'single'
+        }
+    }
 
     // 获取权限路由
     const $route = $n.isValidString(o.path) ?

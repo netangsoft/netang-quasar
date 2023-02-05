@@ -616,6 +616,39 @@ function create(params) {
         $n.storage.set('tree_expanded_' + $route.fullPath, expanded, 0)
     }
 
+    /**
+     * 展开全部
+     */
+    function expandAll() {
+
+        // 展开节点 ids
+        const ids = []
+
+        function getChildren(data) {
+            for (const { id, children } of data) {
+                ids.push(id)
+                if ($n.isValidArray(children)) {
+                    getChildren(children)
+                }
+            }
+        }
+
+        if ($n.isValidArray(nodes.value)) {
+            getChildren(nodes.value)
+        }
+
+        // 设置展开节点数组
+        expanded.value = ids
+    }
+
+    /**
+     * 收起全部
+     */
+    function collapseAll() {
+        // 设置展开节点数组
+        expanded.value = [0]
+    }
+
     return {
         // 当前地址
         fullPath: $route.fullPath,
@@ -633,6 +666,10 @@ function create(params) {
         getExpandedCache,
         // 设置展开节点缓存
         setExpandedCache,
+        // 展开全部
+        expandAll,
+        // 收起全部
+        collapseAll,
     }
 }
 
