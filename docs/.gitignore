@@ -15,6 +15,7 @@ package-lock.json
 .project
 .temp
 .cache
+dist
 *.suo
 *.ntvs*
 *.njsproj

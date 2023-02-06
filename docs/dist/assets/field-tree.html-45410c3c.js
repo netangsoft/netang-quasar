@@ -1,1 +1,0 @@
-import{_ as t,p as r,q as a,R as e,t as c}from"./framework-204010b2.js";const s={},o=e("h1",{id:"tree",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#tree","aria-hidden":"true"},"#"),c(" tree")],-1),n=[o];function _(d,i){return r(),a("div",null,n)}const f=t(s,[["render",_],["__file","field-tree.html.vue"]]);export{f as default};

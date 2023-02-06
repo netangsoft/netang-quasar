@@ -1,1 +1,0 @@
-import{_ as t,p as a,q as c,R as e,t as r}from"./framework-204010b2.js";const s={},l=e("h1",{id:"table",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#table","aria-hidden":"true"},"#"),r(" table")],-1),o=[l];function n(_,d){return a(),c("div",null,o)}const f=t(s,[["render",n],["__file","field-table.html.vue"]]);export{f as default};
