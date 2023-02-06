@@ -1,4 +1,15 @@
-import routers from '@/router/routers'
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+
+import $n_forIn from '@netang/utils/forIn'
+import $n_slash from '@netang/utils/slash'
+
+import { configs } from './config'
+
+const {
+    // 自定义路由
+    routers,
+} = configs
 
 /**
  * 获取路由
