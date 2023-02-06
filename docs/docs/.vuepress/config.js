@@ -5,7 +5,7 @@ export default defineUserConfig({
     // 站点的标题
     title: 'netang-quasar',
     // 部署站点的基础路径
-    base: '/netang-quasar/docs/dist/',
+    base: '/netang-quasar/dist/',
     // base: '/netang-quasar/',
     // 打包目录
     dest: path.join(__dirname, '../../dist'),
