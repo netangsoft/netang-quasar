@@ -1,15 +1,46 @@
 import { ref, computed, provide, inject, watch } from 'vue'
 import { date, useQuasar } from 'quasar'
 
-// 表格配置
-import tablesConfig from '@/tables'
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+import $n_cloneDeep from 'lodash/cloneDeep'
+import $n_merge from 'lodash/merge'
+import $n_isFunction from 'lodash/isFunction'
+import $n_findIndex from 'lodash/findIndex'
+import $n_uniq from 'lodash/uniq'
+import $n_concat from 'lodash/concat'
+import $n_isNil from 'lodash/isNil'
 
-import {
-    // 设置单个搜索值
-    setItemValue,
-} from './search'
+import $n_router from '@netang/vue-utils/router'
+
+import $n_forEach from '@netang/utils/forEach'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_storage from '@netang/utils/storage'
+
+import $n_isRequired from '@netang/utils/isRequired'
+import $n_forIn from '@netang/utils/forIn'
+import $n_runAsync from '@netang/utils/runAsync'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_toDate from '@netang/utils/toDate'
+import $n_slash from '@netang/utils/slash'
+import $n_http from '@netang/utils/http'
+
+import $n_search, { setItemValue } from './search'
+import $n_power from './power'
+import $n_dict from './dict'
+import $n_price from './price'
+
+import { configs } from './config'
 
 import { NRenderKey, NPowerKey, NTableKey } from './symbols'
+
+const {
+    // 表格配置
+    tablesConfig,
+} = configs
 
 /**
  * 创建表格
@@ -23,7 +54,6 @@ function create(params) {
 
     // 每页显示行数选项
     const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
-    // const rowsPerPageOptions = [3, 40, 50, 100, 200, 500, 1000]
 
     // 获取参数
     const o = $n_merge({

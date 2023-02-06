@@ -22,11 +22,25 @@
 
 <script>
 import { computed, defineAsyncComponent, provide } from 'vue'
+import $n_router from '@netang/vue-utils/router'
 
-import routers from '@/router/routers'
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_slash from '@netang/utils/slash'
+
 import components from '../private/components'
 
 import { NRenderKey } from '../../utils/symbols'
+import { configs } from '../../utils/config'
+
+const {
+    // 自定义路由
+    routers,
+} = configs
 
 export default {
 

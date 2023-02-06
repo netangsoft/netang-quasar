@@ -23,6 +23,15 @@
 import { ref, inject, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
 
+import $n_isNil from 'lodash/isNil'
+
+import $n_router from '@netang/vue-utils/router'
+
+import $n_storage from '@netang/utils/storage'
+import $n_sleep from '@netang/utils/sleep'
+import $n_percentValue from '@netang/utils/percentValue'
+import $n_pxValue from '@netang/utils/pxValue'
+
 import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols.js'
 
 import { NPowerKey } from '../../utils/symbols'
@@ -268,8 +277,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/sass/var.scss";
-
 .n-drawer {
     // 拖拽手柄
     &__drag-handle {

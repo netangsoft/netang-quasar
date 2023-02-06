@@ -52,10 +52,25 @@
 import { ref, computed, defineAsyncComponent, provide, watch } from 'vue'
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 
-import routers from '@/router/routers'
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_runAsync from '@netang/utils/runAsync'
+import $n_slash from '@netang/utils/slash'
+import $n_px from '@netang/utils/px'
 
 import components from '../private/components'
 import { NDialogKey } from '../../utils/symbols'
+
+import $n_toast from '../../utils/toast'
+import { configs } from '../../utils/config'
+
+const {
+    // 自定义路由
+    routers,
+} = configs
 
 export default {
 
@@ -330,7 +345,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 .n-dialog-proxy {
 
     &--fullscreen {

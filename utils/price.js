@@ -1,6 +1,11 @@
 import $n_decimal from '@netang/utils/decimal'
 
-import $n_config from './config'
+import { configs } from './config'
+
+const {
+    // 是否开启人民币分转元
+    priceCentToYuan,
+} = configs
 
 /**
  * 换算金额
@@ -12,6 +17,6 @@ export default function price(value, params) {
         // 小数点位数
         decimalLength: 2,
         // 是否开启人民币分转元(如值 189 -> 1.89)
-        centToYuan: $n_config('priceCent') === true,
+        centToYuan: priceCentToYuan === true,
     }, params))
 }

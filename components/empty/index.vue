@@ -5,7 +5,7 @@
         <q-icon
             :name="icon"
             color="grey-5"
-            :size="$n_px(iconSize)"
+            :size="toPx(iconSize)"
         />
 
         <!-- 描述文字 -->
@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import $n_px from '@netang/utils/px'
+
 export default {
 
     /**
@@ -38,5 +40,18 @@ export default {
         // 描述文字
         description: String,
     },
+
+    /**
+     * 组合式
+     */
+    setup() {
+
+        // ==========【方法】=============================================================================================
+
+        return {
+            // 转像素
+            toPx: $n_px,
+        }
+    }
 }
 </script>

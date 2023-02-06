@@ -72,6 +72,9 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
+import $n_filter from 'lodash/filter'
+
+import $n_isValidObject from '@netang/utils/isValidObject'
 
 export default {
 
@@ -514,8 +517,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-input-number {
 
     // 居中显示

@@ -7,6 +7,11 @@ import $n_http from '@netang/utils/http'
 
 import { configs } from './config'
 
+const {
+    // 请求公共数据地址
+    apiDataUrl,
+} = configs
+
 /**
  * 获取公共数据
  */
@@ -20,7 +25,7 @@ export default async function getData(url, pageStatus, emptyDescription, refValu
 
         const result = await $n_http($n_map(url, function (item) {
             return {
-                url: configs.commonDataUrl + item,
+                url: apiDataUrl + item,
                 warn,
             }
         }))
@@ -46,7 +51,7 @@ export default async function getData(url, pageStatus, emptyDescription, refValu
     // 单个请求
     // --------------------------------------------------
     const { status, data } = await $n_http({
-        url: configs.commonDataUrl + url,
+        url: apiDataUrl + url,
         warn,
     })
     if (! status) {

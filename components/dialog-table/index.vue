@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import $n_dialog from '../../utils/dialog'
+
 export default {
 
     /**
@@ -43,7 +45,7 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { emit }) {
+    setup(props) {
 
         // ==========【方法】=============================================================================================
 

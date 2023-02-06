@@ -176,6 +176,34 @@
 <script>
 import { ref, computed, watch, onUpdated } from 'vue'
 
+import $n_has from 'lodash/has'
+import $n_uniq from 'lodash/uniq'
+import $n_cloneDeep from 'lodash/cloneDeep'
+import $n_isFunction from 'lodash/isFunction'
+import $n_findIndex from 'lodash/findIndex'
+import $n_get from 'lodash/get'
+
+import $n_forEach from '@netang/utils/forEach'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_join from '@netang/utils/join'
+import $n_split from '@netang/utils/split'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_numberDeep from '@netang/utils/numberDeep'
+import $n_sleep from '@netang/utils/sleep'
+import $n_http from '@netang/utils/http'
+
+import $n_power from '../../utils/power'
+import $n_table from '../../utils/table'
+
+import { configs } from '../../utils/config'
+
+const {
+    // 字典常量
+    dicts,
+} = configs
+
 export default {
 
     /**
@@ -1118,8 +1146,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-field-table {
     .q-field__input--padding {
         padding-left: 4px;

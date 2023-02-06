@@ -7,6 +7,13 @@
 
 <script>
 import { ref, watch } from 'vue'
+import $n_isFunction from 'lodash/isFunction'
+import $n_uniq from 'lodash/uniq'
+
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_split from '@netang/utils/split'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_trimString from '@netang/utils/trimString'
 
 export default {
 

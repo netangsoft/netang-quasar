@@ -1,9 +1,4 @@
 /**
- * 文件请求地址
- */
-export const REQUEST_URL = 'system/file/index?call='
-
-/**
  * 文件类型映射
  */
 export const FilE_TYPE = {

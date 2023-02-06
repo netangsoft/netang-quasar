@@ -1,5 +1,5 @@
 <template>
-    <div class="flex column absolute-full" v-if="$n_isValidArray(options)">
+    <div class="flex column absolute-full" v-if="isValidArray(options)">
         <q-scroll-area class="n-flex-1">
 
             <div class="n-search q-pa-sm q-pt-sm q-gutter-sm">
@@ -163,12 +163,38 @@
 </template>
 
 <script>
+import NSearchItem from '../search-item'
+import NFieldDate from '../field-date'
+import NInputNumber from '../input-number'
+import NFieldTree from '../field-tree'
+import NFieldTable from '../field-table'
+
+import $n_isValidArray from '@netang/utils/isValidArray'
+
+import { configs } from '../../utils/config'
+
+const {
+    priceCentToYuan,
+} = configs
+
 export default {
 
     /**
      * 标识
      */
     name: 'NSearch',
+
+    /**
+     * 组件
+     */
+    components: {
+        NSearchItem,
+        NFieldDate,
+        NInputNumber,
+        NFieldTree,
+        NFieldTable,
+    },
+
     /**
      * 声明属性
      */
@@ -189,7 +215,9 @@ export default {
     setup() {
         return {
             // 如果金额为分
-            centToYuan: $n_config('priceCent') === true,
+            centToYuan: priceCentToYuan,
+
+            isValidArray: $n_isValidArray,
         }
     }
 }

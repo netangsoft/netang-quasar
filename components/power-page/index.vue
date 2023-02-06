@@ -20,7 +20,10 @@
 
 <script>
 import { inject } from 'vue'
+
 import { NPowerKey } from '../../utils/symbols'
+
+import NEmpty from '../empty'
 
 export default {
 
@@ -28,6 +31,13 @@ export default {
      * 标识
      */
     name: 'NPowerPage',
+
+    /**
+     * 组件
+     */
+    components: {
+        NEmpty,
+    },
 
     /**
      * 组合式

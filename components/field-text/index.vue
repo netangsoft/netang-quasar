@@ -73,6 +73,10 @@
 <script>
 import { computed } from 'vue'
 
+import $n_forIn from '@netang/utils/forIn'
+
+import $n_copy from '../../utils/copy'
+
 export default {
 
     /**

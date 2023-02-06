@@ -43,7 +43,7 @@
                             ref="scrollRef"
                             :style="{
                                 width: selectLists.length === 1 ? '136px' : '80px',
-                                height: '300px',
+                                height: '300px'
                             }"
                             v-for="(selectItem, selectItemIndex) in selectLists"
                             :key="`list-${selectItemIndex}`"
@@ -137,6 +137,18 @@
 <script>
 import { ref, reactive, computed, watch, nextTick } from 'vue'
 import { date as quasarDate } from 'quasar'
+
+import $n_padStart from 'lodash/padStart'
+import $n_isNil from 'lodash/isNil'
+
+import $n_forEach from '@netang/utils/forEach'
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_isRequired from '@netang/utils/isRequired'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_numberDeep from '@netang/utils/numberDeep'
+import $n_isDate from '@netang/utils/isDate'
+import $n_dateObject from '@netang/utils/dateObject'
+import $n_ymd from '@netang/utils/ymd'
 
 import { quickRange, getQuickRange } from './methods'
 

@@ -123,8 +123,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-toolbar {
     &__body {
         .q-btn {

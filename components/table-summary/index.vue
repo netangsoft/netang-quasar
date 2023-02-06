@@ -16,6 +16,13 @@
 <script>
 import { computed, inject } from 'vue'
 
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+
+import $n_forEach from '@netang/utils/forEach'
+
+import $n_price from '../../utils/price'
+
 import { NTableKey } from '../../utils/symbols'
 
 export default {

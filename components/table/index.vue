@@ -179,7 +179,21 @@
 <script>
 import { ref, watch, computed, inject } from 'vue'
 
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_collection from '@netang/utils/collection'
+
 import { NDialogKey, NTableKey } from '../../utils/symbols'
+
+import NToolbar from '../toolbar'
+import NDrawer from '../drawer'
+import NThumbnail from '../thumbnail'
+import NTableColumnFixed from '../table-column-fixed'
+import NTableSummary from '../table-summary'
+import NTablePagination from '../table-pagination'
+import NSearch from '../search'
 
 export default {
 
@@ -187,6 +201,19 @@ export default {
      * 标识
      */
     name: 'NTable',
+
+    /**
+     * 组件
+     */
+    components: {
+        NToolbar,
+        NDrawer,
+        NThumbnail,
+        NTableColumnFixed,
+        NTableSummary,
+        NTablePagination,
+        NSearch,
+    },
 
     /**
      * 声明属性

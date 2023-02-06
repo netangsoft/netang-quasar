@@ -81,6 +81,15 @@
 import { nextTick, ref, watch, computed, inject } from 'vue'
 import { useQuasar } from 'quasar'
 
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_isValidObject from '@netang/utils/isValidObject'
+
+import NSplitter from '../splitter'
+import NTable from '../table'
+import NRender from '../render'
+import NEmpty from '../empty'
+
 import { NTableKey } from '../../utils/symbols'
 
 export default {
@@ -94,6 +103,16 @@ export default {
      * 标识
      */
     name: 'NTableSplitter',
+
+    /**
+     * 组件
+     */
+    components: {
+        NSplitter,
+        NTable,
+        NRender,
+        NEmpty,
+    },
 
     /**
      * 声明属性

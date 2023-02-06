@@ -1,6 +1,6 @@
 {
   "name": "@netang/quasar",
-  "version": "0.0.53",
+  "version": "0.0.54",
   "description": "netang-quasar",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,7 +20,6 @@
   "homepage": "https://github.com/netangsoft/netang-quasar#readme",
   "devDependencies": {
     "@netang/node-utils": "^0.2.61",
-    "@netang/quasar": "0.0.53",
     "@netang/utils": "^0.4.0",
     "@netang/vue-utils": "^3.0.23",
     "lodash": "^4.17.21",

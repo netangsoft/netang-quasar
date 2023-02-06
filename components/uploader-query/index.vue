@@ -44,8 +44,8 @@
                     <div
                         class="n-uploader-query__button--square cursor-pointer"
                         :style="{
-                            width: $n_px(currentSize),
-                            height: $n_px(currentSize),
+                            width: toPx(currentSize),
+                            height: toPx(currentSize),
                         }"
                         @click="uploader.chooseUpload"
                         v-show="showSquareButton"
@@ -53,7 +53,7 @@
                     >
                         <q-icon
                             name="add"
-                            :size="$n_px(currentSize / 2)"
+                            :size="toPx(currentSize / 2)"
                         />
                         <div class="n-uploader-query__button--square__text" v-if="buttonText">{{buttonText}}</div>
                     </div>
@@ -76,9 +76,9 @@
                 >
                     <q-img
                         :src="getImage(fileItem)"
-                        :spinner-size="$n_px(currentSize / 2)"
-                        :width="$n_px(currentSize)"
-                        :height="$n_px(currentSize)"
+                        :spinner-size="toPx(currentSize / 2)"
+                        :width="toPx(currentSize)"
+                        :height="toPx(currentSize)"
                         fit="fill"
                     >
                         <!-- 内容 -->
@@ -99,7 +99,7 @@
                             <q-circular-progress
                                 indeterminate
                                 rounded
-                                :size="$n_px(currentSize / 1.5)"
+                                :size="toPx(currentSize / 1.5)"
                                 :thickness="0.14"
                                 color="white"
                                 v-if="fileItem.status < UPLOAD_STATUS.uploading"
@@ -108,7 +108,7 @@
                             <!-- 上传中 -->
                             <q-circular-progress
                                 :value="fileItem.progress"
-                                :size="$n_px(currentSize / 1.5)"
+                                :size="toPx(currentSize / 1.5)"
                                 :thickness="0.14"
                                 color="white"
                                 track-color="grey-5"
@@ -118,7 +118,7 @@
                                 <q-icon
                                     class="cursor-pointer"
                                     name="pause"
-                                    :size="$n_px(currentSize / 3)"
+                                    :size="toPx(currentSize / 3)"
                                     @click="uploader.deleteFileItem(fileItem)"
                                 />
                             </q-circular-progress>
@@ -163,16 +163,16 @@
                     <div
                         class="n-uploader-query__button--square cursor-pointer"
                         :style="{
-                        width: $n_px(currentSize),
-                        height: $n_px(currentSize),
-                    }"
+                            width: toPx(currentSize),
+                            height: toPx(currentSize),
+                        }"
                         @click="uploader.chooseUpload"
                         v-show="showSquareButton"
                         v-else-if="! noButton && currentButtonType === 'square'"
                     >
                         <q-icon
                             name="add"
-                            :size="$n_px(currentSize / 2)"
+                            :size="toPx(currentSize / 2)"
                         />
                         <div class="n-uploader-query__button--square__text" v-if="buttonText">{{buttonText}}</div>
                     </div>
@@ -191,7 +191,7 @@
                         ghost: fileItemIndex === fromIndex,
                     }"
                     :style="{
-                        height: $n_px(currentSize),
+                        height: toPx(currentSize),
                     }"
                     :draggable="currentDrag"
                     @mousedown.self="mousedown($event, fileItemIndex)"
@@ -204,8 +204,8 @@
                     <div
                         class="n-uploader-query__item__icon"
                         :style="{
-                            width: $n_px(currentSize),
-                            height: $n_px(currentSize),
+                            width: toPx(currentSize),
+                            height: toPx(currentSize),
                         }"
                     >
                         <!-- 上传中前 -->
@@ -213,7 +213,7 @@
                             class="n-uploader-query__item__icon__icon"
                             indeterminate
                             rounded
-                            :size="$n_px(currentSize / 1.8)"
+                            :size="toPx(currentSize / 1.8)"
                             :thickness="0.18"
                             v-if="fileItem.status < UPLOAD_STATUS.uploading"
                         />
@@ -222,7 +222,7 @@
                         <q-circular-progress
                             class="n-uploader-query__item__icon__icon"
                             :value="fileItem.progress"
-                            :size="$n_px(currentSize / 1.8)"
+                            :size="toPx(currentSize / 1.8)"
                             :thickness="0.18"
                             show-value
                             v-else-if="fileItem.status === UPLOAD_STATUS.uploading"
@@ -230,7 +230,7 @@
                             <q-icon
                                 class="cursor-pointer"
                                 name="pause"
-                                :size="$n_px(currentSize / 3)"
+                                :size="toPx(currentSize / 3)"
                                 @click="uploader.deleteFileItem(fileItem)"
                             />
                         </q-circular-progress>
@@ -239,7 +239,7 @@
                         <q-icon
                             class="n-uploader-query__item__icon__icon"
                             name="description"
-                            :size="$n_px(currentSize / 1.5)"
+                            :size="toPx(currentSize / 1.5)"
                             v-else-if="type === 'file'"
                         />
 
@@ -248,7 +248,7 @@
                             class="n-uploader-query__item__icon__icon cursor-pointer"
                             name="play_circle"
                             title="播放"
-                            :size="$n_px(currentSize / 1.5)"
+                            :size="toPx(currentSize / 1.5)"
                             @click="uploader.play(fileItem)"
                             v-else
                         />
@@ -331,11 +331,23 @@
 import { onMounted, computed, inject } from 'vue'
 import { useQuasar } from 'quasar'
 
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+
+import $n_px from '@netang/utils/px'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_isValidString from '@netang/utils/isValidString'
+
+import $n_getImage from '../../utils/getImage'
+
+import NDragger from '../dragger'
+
+import { NUploaderKey } from '../../utils/symbols'
+
 import {
     // 上传状态
     UPLOAD_STATUS,
 } from '../../utils/useUploader'
-import { NUploaderKey } from '../../utils/symbols'
 
 export default {
 
@@ -343,6 +355,13 @@ export default {
      * 标识
      */
     name: 'NUploaderQuery',
+
+    /**
+     * 组件
+     */
+    components: {
+        NDragger,
+    },
 
     /**
      * 声明属性
@@ -507,6 +526,8 @@ export default {
             getImage,
             // 获取文件名称
             getFileName,
+
+            toPx: $n_px,
         }
     },
 }

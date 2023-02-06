@@ -42,7 +42,7 @@
                         <q-icon
                             size="xs"
                             name="check"
-                            v-show="$n_indexOf(tableVisibleColumns, item.name) > -1"
+                            v-show="indexOf(tableVisibleColumns, item.name) > -1"
                         />
                     </q-item-section>
                 </q-item>
@@ -53,6 +53,8 @@
 
 <script>
 import { inject } from 'vue'
+
+import $n_indexOf from '@netang/utils/indexOf'
 
 import { NTableKey } from '../../../utils/symbols'
 
@@ -99,6 +101,8 @@ export default {
 
             // 表格可见列点击
             onTableVisible,
+
+            indexOf: $n_indexOf,
         }
     },
 }

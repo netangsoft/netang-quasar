@@ -2,6 +2,7 @@ import $n_has from 'lodash/has'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_merge from 'lodash/merge'
 import $n_isFunction from 'lodash/isFunction'
+import $n_findIndex from 'lodash/findIndex'
 
 import $n_forEach from '@netang/utils/forEach'
 import $n_isValidArray from '@netang/utils/isValidArray'
@@ -21,7 +22,13 @@ import $n_toDate from '@netang/utils/toDate'
 import { date as quasarDate } from 'quasar'
 import { getQuickRange, quickRange } from '../components/field-date/methods'
 
-// $n_dictOptions
+import $n_dictOptions from './dictOptions'
+import { configs } from './config'
+
+const {
+    // 字典常量
+    dicts,
+} = configs
 
 /**
  * 比较类型默认值

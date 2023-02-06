@@ -1,3 +1,6 @@
+import { provide, inject, ref, computed } from 'vue'
+import { useQuasar } from 'quasar'
+
 import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
 import $n_merge from 'lodash/merge'
@@ -6,6 +9,8 @@ import $n_toLower from 'lodash/toLower'
 import $n_isNumber from 'lodash/isNumber'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_isFunction from 'lodash/isFunction'
+
+import $n_router from '@netang/vue-utils/router'
 
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
@@ -25,24 +30,23 @@ import $n_numberDeep from '@netang/utils/numberDeep'
 import $n_indexOf from '@netang/utils/indexOf'
 import $n_runAsync from '@netang/utils/runAsync'
 import $n_run from '@netang/utils/run'
+import $n_http from '@netang/utils/http'
+
+import { statePower } from '../store'
+import { NRenderKey, NPowerKey, NFormKey, NTableKey } from './symbols'
 
 import $n_config from './config'
 import $n_getData from './getData'
 import $n_toast from './toast'
 import $n_confirm from './confirm'
 import $n_bus from './bus'
-import $n_http from './http'
 
-// ~~~~~
-// $n_router
-// dicts
-// http
+import { configs } from './config'
 
-import { provide, inject, ref, computed } from 'vue'
-import { useQuasar } from 'quasar'
-
-import { statePower } from '../store'
-import { NRenderKey, NPowerKey, NFormKey, NTableKey } from './symbols'
+const {
+    // 字典常量
+    dicts,
+} = configs
 
 /**
  * 创建权限实例

@@ -1,16 +1,22 @@
 import $n_has from 'lodash/has'
 import $n_isString from 'lodash/isString'
 import $n_findIndex from 'lodash/findIndex'
+import $n_trim from 'lodash/trim'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
+import $n_http from '@netang/utils/http'
 
-import $n_http from '../http'
 import $n_toast from '../toast'
 
+import { configs } from '../config'
+
+const {
+    // api 文件请求地址
+    apiFileUrl,
+} = configs
+
 import {
-    // 文件请求地址
-    REQUEST_URL,
     UPLOAD_STATUS,
 } from '../useUploader'
 
@@ -21,7 +27,7 @@ async function getQiniuToken(bucket = 'public') {
 
     // 请求数据
     const { status, data } = await $n_http({
-        url: REQUEST_URL + 'get_qiniu_token',
+        url: apiFileUrl + 'get_qiniu_token',
         data: {
             bucket,
         },
@@ -127,7 +133,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
 
         // 请求 - 上传文件至 cdn
         const { status: statusCallback, data: resCallback } = await $n_http({
-            url: REQUEST_URL + 'upload_cdn_callback',
+            url: apiFileUrl + 'upload_cdn_callback',
             data: query,
             // 关闭错误提示
             warn: false,

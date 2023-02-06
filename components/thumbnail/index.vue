@@ -1,9 +1,9 @@
 <template>
     <q-img
         :src="currentSrc"
-        :spinner-size="$n_px(size / 2)"
-        :width="$n_px(size)"
-        :height="$n_px(size)"
+        :spinner-size="toPx(size / 2)"
+        :width="toPx(size)"
+        :height="toPx(size)"
         fit="fill"
         v-if="currentSrc"
     >
@@ -11,7 +11,7 @@
         <div
             class="absolute-full transparent cursor-pointer"
             @click.prevent.stop="onPreview"
-            @dblclick.prevent.stop="$n_noop"
+            @dblclick.prevent.stop="onNoop"
             v-if="preview"
         ></div>
     </q-img>
@@ -21,6 +21,11 @@
 import { computed } from 'vue'
 import { useQuasar } from 'quasar'
 
+import $n_px from '@netang/utils/px'
+import $n_noop from '@netang/utils/noop'
+
+import $n_previewImage from '../../utils/previewImage'
+import $n_getImage from '../../utils/getImage'
 
 export default {
 
@@ -81,6 +86,11 @@ export default {
             currentSrc,
             // 预览
             onPreview,
+
+            // 转像素
+            toPx: $n_px,
+            // 点击空方法
+            onNoop: $n_noop,
         }
     }
 }

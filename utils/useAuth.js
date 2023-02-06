@@ -11,7 +11,7 @@ const {
 export function initAuthStore() {
     // 获取管理员信息缓存
     const cache = $n_cookie.get('_tk')
-    return checkAdminUserInfo(cache) ? cache : {
+    return checkUserInfo(cache) ? cache : {
         id: 0,
         isLogin: false,
         info: {},
@@ -19,9 +19,9 @@ export function initAuthStore() {
 }
 
 /**
- * 验证管理员信息
+ * 验证用户信息
  */
-export function checkAdminUserInfo(data) {
+export function checkUserInfo(data) {
     return ! $n_validator(data, {
         // 管理员 id
         id: 'required|natural_no_zero',

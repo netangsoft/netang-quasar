@@ -1,3 +1,6 @@
+import { ref, isRef } from 'vue'
+import SparkMD5 from 'spark-md5'
+
 import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
 import $n_toLower from 'lodash/toLower'
@@ -13,22 +16,23 @@ import $n_join from '@netang/utils/join'
 import $n_split from '@netang/utils/split'
 import $n_trimString from '@netang/utils/trimString'
 import $n_run from '@netang/utils/run'
-
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_copy from '@netang/utils/copy'
+import $n_http from '@netang/utils/http'
 
 import $n_config from './config'
 import $n_toast from './toast'
 import $n_confirm from './confirm'
-import $n_http from './http'
 import $n_alert from './alert'
 
-import { computed, ref, isRef } from 'vue'
-import SparkMD5 from 'spark-md5'
+import { configs } from './config'
+
+const {
+    // api 文件请求地址
+    apiFileUrl,
+} = configs
 
 import {
-    // 文件请求地址
-    REQUEST_URL,
     // 文件类型映射
     FilE_TYPE,
     // 文件名称映射
@@ -119,9 +123,9 @@ function create(params) {
     /**
      * 上传文件后缀名
      */
-    const accept = computed(function () {
-
-    })
+    // const accept = computed(function () {
+    //
+    // })
 
     // ==========【监听数据】==============================================================================================
 
@@ -193,7 +197,7 @@ function create(params) {
 
                 // 请求 - 获取文件
                 const { status, data: resExisted } = await $n_http({
-                    url: REQUEST_URL + 'get_file',
+                    url: apiFileUrl + 'get_file',
                     data: {
                         hashs,
                     },
@@ -649,7 +653,7 @@ function create(params) {
 
         // 请求 - 检查文件是否存在 hash
         const { status, data: resExisted } = await $n_http({
-            url: REQUEST_URL + 'check_exist',
+            url: apiFileUrl + 'check_exist',
             data: {
                 hashs: $n_uniq(checkHashs),
             },
@@ -969,7 +973,7 @@ function create(params) {
 
             // 请求 - 修改文件名
             const { status } = await $n_http({
-                url: REQUEST_URL + 'edit_file_title',
+                url: apiFileUrl + 'edit_file_title',
                 data: {
                     hash,
                     title: newTitle,

@@ -1,15 +1,16 @@
 import $n_router from '@netang/vue-utils/router'
+
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_cookie from '@netang/utils/cookie'
 
-import { stateAdminUserInfo } from '../store'
-import { checkAdminUserInfo } from './useAuth'
+import { stateUserInfo } from '../store'
+import { checkUserInfo } from './useAuth'
 
 /**
  * 是否登录
  */
 function isLogin() {
-    return stateAdminUserInfo.value.isLogin
+    return stateUserInfo.value.isLogin
 }
 
 /**
@@ -23,37 +24,37 @@ function updateLogin(res) {
         i,
         // 鉴权认证
         t,
-        // 管理员基础信息
-        admin_user_info,
+        // 用户基础信息
+        user_info,
     } = res
 
-    // 更新管理员信息
-    return _updateAdminUserInfo({
+    // 更新用户信息
+    return _updateUserInfo({
         id: i,
         token: t,
-        info: $n_isValidObject(admin_user_info) ? admin_user_info : {},
+        info: $n_isValidObject(user_info) ? user_info : {},
     })
 }
 
 /**
- * 更新管理员信息
+ * 更新用户信息
  */
-function updateAdminUserInfo(res) {
-    return _updateAdminUserInfo(Object.assign(
+function updateUserInfo(res) {
+    return _updateUserInfo(Object.assign(
         {},
-        stateAdminUserInfo.value,
+        stateUserInfo.value,
         res,
     ))
 }
-function _updateAdminUserInfo(res) {
+function _updateUserInfo(res) {
 
-    // 验证管理员信息
-    if (! checkAdminUserInfo(res)) {
+    // 验证用户信息
+    if (! checkUserInfo(res)) {
 
         // 【调试模式】
         // --------------------------------------------------
         // #ifdef IS_DEBUG
-        console.error('【验证错误 _updateAdminUserInfo】', res)
+        console.error('【验证错误 _updateUserInfo】', res)
         // #endif
         // --------------------------------------------------
 
@@ -70,24 +71,24 @@ function _updateAdminUserInfo(res) {
     // 保存缓存(永久缓存)
     $n_cookie.set('_tk', res, 0)
 
-    // 设置管理员信息状态
-    stateAdminUserInfo.value = res
+    // 设置用户信息状态
+    stateUserInfo.value = res
 
     return true
 }
 
 /**
- * 获取管理员数据
+ * 获取用户信息
  */
-function getAdminUserInfo() {
-    return stateAdminUserInfo.value
+function getUserInfo() {
+    return stateUserInfo.value
 }
 
 /**
- * 获取管理员 id
+ * 获取用户 id
  */
 function getAdminUserId() {
-    return isLogin() ? stateAdminUserInfo.value.id : 0
+    return isLogin() ? stateUserInfo.value.id : 0
 }
 
 /**
@@ -108,8 +109,8 @@ function logout() {
     // 删除管理员信息
     $n_cookie.delete('_tk')
 
-    // 清空管理员信息状态
-    stateAdminUserInfo.value = {
+    // 清空用户信息状态
+    stateUserInfo.value = {
         id: 0,
         isLogin: false,
         info: {},
@@ -124,10 +125,10 @@ const auth = {
     isLogin,
     // 登录后更新数据
     updateLogin,
-    // 更新管理员信息
-    updateAdminUserInfo,
-    // 获取管理员数据
-    getAdminUserInfo,
+    // 更新用户信息
+    updateUserInfo,
+    // 获取用户信息
+    getUserInfo,
     // 获取管理员 id
     getAdminUserId,
     // 跳转登录页面

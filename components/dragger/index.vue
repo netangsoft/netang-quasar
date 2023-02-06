@@ -17,6 +17,7 @@
 
 <script>
 import { ref, computed } from 'vue'
+import $n_isValidArray from '@netang/utils/isValidArray'
 
 export default {
 

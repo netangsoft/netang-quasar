@@ -1,8 +1,4 @@
-import validator from '@netang/utils/validator'
-
-const {
-    validate: $n_validate
-} = validator
+import { validate as $n_validate } from '@netang/utils/validator'
 
 /**
  * 单个验证规则(用于表单验证)

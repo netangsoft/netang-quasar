@@ -259,10 +259,10 @@
 
                                 <q-item-section side>
                                     <div class="text-grey-8 q-gutter-xs">
-                                        <q-btn icon="add" size="12px" flat dense round @click="$n_arr.add(formData.requestQuery.list, itemIndex, '')" />
-                                        <q-btn icon="remove" size="12px" flat dense round @click="$n_arr.delete(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
-                                        <q-btn icon="expand_less" size="12px" flat dense round @click="$n_arr.up(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
-                                        <q-btn icon="expand_more" size="12px" flat dense round @click="$n_arr.down(formData.requestQuery.list, itemIndex)" :disable="formData.requestQuery.list.length <= itemIndex + 1" />
+                                        <q-btn icon="add" size="12px" flat dense round @click="arr.add(formData.requestQuery.list, itemIndex, '')" />
+                                        <q-btn icon="remove" size="12px" flat dense round @click="arr.delete(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
+                                        <q-btn icon="expand_less" size="12px" flat dense round @click="arr.up(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
+                                        <q-btn icon="expand_more" size="12px" flat dense round @click="arr.down(formData.requestQuery.list, itemIndex)" :disable="formData.requestQuery.list.length <= itemIndex + 1" />
                                     </div>
                                 </q-item-section>
                             </q-item>
@@ -293,10 +293,10 @@
 
                             <q-item-section side>
                                 <div class="text-grey-8 q-gutter-xs">
-                                    <q-btn icon="add" size="12px" flat dense round @click="$n_arr.add(formData.requestQuery.query, itemIndex, '')" />
-                                    <q-btn icon="remove" size="12px" flat dense round @click="$n_arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_less" size="12px" flat dense round @click="$n_arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_more" size="12px" flat dense round @click="$n_arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
+                                    <q-btn icon="add" size="12px" flat dense round @click="arr.add(formData.requestQuery.query, itemIndex, '')" />
+                                    <q-btn icon="remove" size="12px" flat dense round @click="arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_less" size="12px" flat dense round @click="arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_more" size="12px" flat dense round @click="arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
                                 </div>
                             </q-item-section>
                         </q-item>
@@ -328,6 +328,35 @@
 <script>
 import { ref, watch } from 'vue'
 
+import NColumnTitle from '../../column-title'
+import NFieldTree from '../../field-tree'
+
+import $n_has from 'lodash/has'
+import $n_isPlainObject from 'lodash/isPlainObject'
+
+import $n_forEach from '@netang/utils/forEach'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_indexOf from '@netang/utils/indexOf'
+
+import $n_isRequired from '@netang/utils/isRequired'
+import $n_forIn from '@netang/utils/forIn'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_trimString from '@netang/utils/trimString'
+import $n_isJson from '@netang/utils/isJson'
+import $n_json from '@netang/utils/json'
+import $n_isValidString from '@netang/utils/isValidString'
+
+import $n_arr from '../../../utils/arr'
+import $n_toast from '../../../utils/toast'
+
+import { configs } from '../../../utils/config'
+
+const {
+    // 字典常量
+    dicts,
+} = configs
+
 export default {
 
     /**
@@ -344,6 +373,14 @@ export default {
         treeNodes: Array,
         // 树展开节点
         treeExpanded: Array,
+    },
+
+    /**
+     * 组件
+     */
+    components: {
+        NColumnTitle,
+        NFieldTree,
     },
 
     /**
@@ -518,7 +555,7 @@ export default {
                 // 如果是有效数组
                 } else if ($n_isValidArray(obj.requestQuery.query)) {
                     const query = []
-                    $n_forEach(obj.requestQuery.query, function(item, key) {
+                    $n_forEach(obj.requestQuery.query, function(item) {
 
                         // 如果是有效值
                         if ($n_isValidValue(item)) {
@@ -754,6 +791,9 @@ export default {
 
             // 获取格式化后的表单数据
             getValue,
+
+            dicts,
+            arr: $n_arr,
         }
     }
 }

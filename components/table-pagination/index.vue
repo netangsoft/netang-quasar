@@ -184,7 +184,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/sass/var.scss";
 
 // 紧凑模式
 .dense {

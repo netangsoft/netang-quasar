@@ -26,6 +26,12 @@
 import { computed, ref, watch, inject } from 'vue'
 import { useQuasar } from 'quasar'
 
+import $n_router from '@netang/vue-utils/router'
+
+import $n_storage from '@netang/utils/storage'
+import $n_sleep from '@netang/utils/sleep'
+import $n_isValidObject from '@netang/utils/isValidObject'
+
 import { NPowerKey } from '../../utils/symbols'
 
 export default {
@@ -352,8 +358,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-splitter {
 
     // 分离器激活背景色

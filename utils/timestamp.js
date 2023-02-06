@@ -6,7 +6,7 @@ import { stateTimeDiff } from '../store'
 export default function timestamp(isMicro = false) {
 
     // 获取当前时间戳(毫秒)
-    const nowTime = new Date().getTime()
+    const nowTime = Date.now()
 
     // 如果是毫秒
     if (isMicro) {

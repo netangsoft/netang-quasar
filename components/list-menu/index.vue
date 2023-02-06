@@ -12,12 +12,24 @@
 <script>
 import { watch } from 'vue'
 
+import $n_has from 'lodash/has'
+import $n_isValidArray from '@netang/utils/isValidArray'
+
+import NListMenuItem from '../list-menu-item'
+
 export default {
 
     /**
      * 标识
      */
     name: 'NListMenu',
+
+    /**
+     * 组件
+     */
+    components: {
+        NListMenuItem,
+    },
 
     /**
      * 声明属性

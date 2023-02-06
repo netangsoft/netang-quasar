@@ -31,7 +31,7 @@
             <slot
                 :label="data.label"
                 :index="0"
-                :multiple="$n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], modelValue[0].compare) > -1"
+                :multiple="indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], modelValue[0].compare) > -1"
                 v-else
             />
         </div>
@@ -39,7 +39,7 @@
         <!-- 比较2(类型为 > / >=) -->
         <div
             class="n-field-group row"
-            v-if="data.compareOptions2.length && $n_indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
+            v-if="data.compareOptions2.length && indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
         >
             <!-- 比较类型2 -->
             <q-select
@@ -65,6 +65,18 @@
 
 <script>
 import { watch } from 'vue'
+
+import $n_cloneDeep from 'lodash/cloneDeep'
+
+import $n_split from '@netang/utils/split'
+import $n_indexOf from '@netang/utils/indexOf'
+
+import { configs } from '../../utils/config'
+
+const {
+    // 字典常量
+    dicts,
+} = configs
 
 export default {
 
@@ -114,14 +126,18 @@ export default {
                 }
             }
         })
+
+        // ==========【返回】=============================================================================================
+
+        return {
+            dicts,
+            indexOf: $n_indexOf,
+        }
     },
 }
 </script>
 
-
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-search__item {
     .n-field-group {
         > .q-field--outlined {

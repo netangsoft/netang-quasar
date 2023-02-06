@@ -26,7 +26,11 @@
 </template>
 
 <script>
-import { ref, isRef, toRaw, watch } from 'vue'
+import { ref, isRef, watch, inject } from 'vue'
+
+import $n_isValidArray from '@netang/utils/isValidArray'
+
+import { NDialogKey } from '../../../../utils/symbols'
 
 export default {
 
@@ -48,7 +52,7 @@ export default {
             submit,
             // 父级声明属性
             props,
-        } = $n_dialog.inject()
+        } = inject(NDialogKey)
 
         const {
             // 树节点列表

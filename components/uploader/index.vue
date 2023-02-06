@@ -21,7 +21,10 @@
 
 <script>
 import { onMounted, ref, provide, inject } from 'vue'
-import { NPowerKey, NUploaderKey, NLayoutKey } from '../../utils/symbols'
+
+import $n_uploader from '../../utils/uploader'
+
+import { NPowerKey, NUploaderKey } from '../../utils/symbols'
 
 export default {
 

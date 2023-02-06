@@ -27,9 +27,9 @@ export default {
      */
     props: {
         // 标签
-        label: [String, Number],
+        label: [ String, Number ],
         // 提示信息
-        tooltip: [String, Number],
+        tooltip: [ String, Number ],
     },
 }
 </script>

@@ -106,7 +106,7 @@
                         <div
                             class="cursor-pointer full-width"
                             :class="{
-                                'text-primary': $n_indexOf(treeTicked, node.id) > -1,
+                                'text-primary': checkTreeNodeActive(node),
                             }"
                             @click="onNode($event, node)"
                         >{{node.label}}</div>
@@ -118,7 +118,17 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted, onUpdated } from 'vue'
+import { ref, computed, watch, onUpdated } from 'vue'
+
+import $n_has from 'lodash/has'
+import $n_uniq from 'lodash/uniq'
+import $n_concat from 'lodash/concat'
+
+import $n_forEach from '@netang/utils/forEach'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_isRequired from '@netang/utils/isRequired'
+import $n_isValidValue from '@netang/utils/isValidValue'
 
 export default {
 
@@ -406,7 +416,7 @@ export default {
         /**
          * 点击节点
          */
-        function onNode(e, { id, label, children }) {
+        function onNode(e, { id, children }) {
 
             // 如果是多选
             if (props.multiple) {
@@ -570,6 +580,13 @@ export default {
             }
         }
 
+        /**
+         * 树节点是否激活
+         */
+        function checkTreeNodeActive({ id }) {
+            return $n_indexOf(treeTicked.value, id) > -1
+        }
+
         // ==========【生命周期】=========================================================================================
 
         /**
@@ -621,14 +638,15 @@ export default {
 
             // 弹出层显示回调
             onPopupShow,
+
+            // 节点是否激活
+            checkTreeNodeActive,
         }
     },
 }
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
-
 .n-field-tree {
     .q-field__input--padding {
         padding-left: 4px;
