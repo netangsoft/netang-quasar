@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-409187be","path":"/components/field-table.html","title":"table","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675649149000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"components/field-table.md"}');export{e as data};
