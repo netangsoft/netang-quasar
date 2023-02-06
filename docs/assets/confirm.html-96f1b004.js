@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-29cfa170","path":"/utils/confirm.html","title":"confirm","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675652908000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/confirm.md"}');export{t as data};

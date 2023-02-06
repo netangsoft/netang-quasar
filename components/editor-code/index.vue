@@ -71,8 +71,8 @@ export default {
          */
         const currentStyle = computed(function () {
             return {
-                width: $n.isNumeric(props.width) ? $n.px(props.width) : props.width,
-                height: $n.isNumeric(props.height) ? $n.px(props.height) : props.height,
+                width: $n_isNumeric(props.width) ? $n_px(props.width) : props.width,
+                height: $n_isNumeric(props.height) ? $n_px(props.height) : props.height,
             }
         })
 
@@ -88,7 +88,7 @@ export default {
         let stopValueWatcher = false
 
         // 创建睡眠实例
-        const sleep = $n.sleep()
+        const sleep = $n_sleep()
 
         // ==========【监听数据】=========================================================================================
 
@@ -238,14 +238,14 @@ export default {
                 // 如果语言为 json
                 if (
                     props.language === 'json'
-                    && $n.isValidValue(value)
+                    && $n_isValidValue(value)
                 ) {
                     try {
                         value = JSON.stringify(JSON.parse(value))
 
                     } catch (e) {
                         // 轻提示
-                        $n.toast({
+                        $n_toast({
                             message: 'JSON 语法错误'
                         })
                         return

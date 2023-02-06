@@ -84,7 +84,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return $n.isValidObject(slots) ? Object.keys(slots) : []
+            return $n_isValidObject(slots) ? Object.keys(slots) : []
         })
 
         // ==========【当前值】===========================================================================================
@@ -130,7 +130,7 @@ export default {
                         // 选项还原为初始值
                         rawOptions
                         // 否则筛选选项
-                        : $n.collection(rawOptions)
+                        : $n_collection(rawOptions)
                             .where(props.optionLabel, 'like', value)
                             .toArray()
             })

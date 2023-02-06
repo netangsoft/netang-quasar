@@ -3,7 +3,7 @@ import { Notify } from 'quasar'
 /**
  * 通知
  */
-$n.notify = function(params) {
+export default function notify(params) {
     Notify.create(Object.assign({
         // 出现位置
         position: 'bottom-right',

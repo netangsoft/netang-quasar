@@ -31,7 +31,7 @@
             <slot
                 :label="data.label"
                 :index="0"
-                :multiple="$n.indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], modelValue[0].compare) > -1"
+                :multiple="$n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], modelValue[0].compare) > -1"
                 v-else
             />
         </div>
@@ -39,7 +39,7 @@
         <!-- 比较2(类型为 > / >=) -->
         <div
             class="n-field-group row"
-            v-if="data.compareOptions2.length && $n.indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
+            v-if="data.compareOptions2.length && $n_indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
         >
             <!-- 比较类型2 -->
             <q-select
@@ -102,11 +102,11 @@ export default {
          */
         watch(()=>props.modelValue[0].compare, function(val) {
             // 如果类型不为 in / not in, 为单选
-            if ($n.indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], val) === -1) {
-                const arr = $n.split(props.modelValue[0].value, ',')
+            if ($n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], val) === -1) {
+                const arr = $n_split(props.modelValue[0].value, ',')
                 if (arr.length !== 1) {
                     // 克隆值
-                    const _modelValue = $n.cloneDeep(props.modelValue)
+                    const _modelValue = $n_cloneDeep(props.modelValue)
 
                     // 更新值
                     _modelValue[0].value = arr.length > 1 ? arr[0] : ''

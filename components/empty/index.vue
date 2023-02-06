@@ -5,7 +5,7 @@
         <q-icon
             :name="icon"
             color="grey-5"
-            :size="$n.px(iconSize)"
+            :size="$n_px(iconSize)"
         />
 
         <!-- 描述文字 -->

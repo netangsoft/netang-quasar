@@ -100,7 +100,7 @@ export default {
          * 格式化声明值
          */
         function formatModelValue(value) {
-            return $n.isFunction(props.before)
+            return $n_isFunction(props.before)
                 // 如果有修改前值方法
                 ? props.before({ value, formatArray, formatString })
                 // 返回值
@@ -128,7 +128,7 @@ export default {
             const value = current.value.value
 
             // 获取新值
-            const newValue = $n.isFunction(props.after) ?
+            const newValue = $n_isFunction(props.after) ?
                 // 如果有修改提交值方法
                 props.after({ value, formatArray, formatString })
                 // 否则返回当前值
@@ -160,24 +160,24 @@ export default {
                 toString: false,
             }, params)
 
-            val = $n.isValidArray(val) ? val : []
+            val = $n_isValidArray(val) ? val : []
 
             // 如果数组有值
             if (val.length) {
 
                 // 是否给每个值去除首位空格
                 if (o.trim) {
-                    val = val.map(e => $n.trimString(e))
+                    val = val.map(e => $n_trimString(e))
                 }
 
                 // 是否验证每个值是否为有效字符串/数字
                 if (o.isValidValue) {
-                    val = val.filter(val => $n.isValidValue(val))
+                    val = val.filter(val => $n_isValidValue(val))
                 }
 
                 // 去重
                 if (o.unique) {
-                    val = $n.uniq(val)
+                    val = $n_uniq(val)
                 }
             }
 
@@ -213,15 +213,15 @@ export default {
             // 是否去除首尾空格
             if (o.trim) {
                 // 去除首尾空格
-                val = $n.trimString(val)
+                val = $n_trimString(val)
 
             // 否则转字符串
             } else {
-                val = $n.isValidValue(val) ? String(val) : ''
+                val = $n_isValidValue(val) ? String(val) : ''
             }
 
             // 如果有分割符
-            if ($n.isValidValue(o.separator, true)) {
+            if ($n_isValidValue(o.separator, true)) {
 
                 // 是否替换
                 if (o.replace) {
@@ -229,16 +229,16 @@ export default {
                 }
 
                 // 分隔成数组
-                val = $n.split(val, o.separator)
+                val = $n_split(val, o.separator)
 
                 // 如果去重
                 if (o.unique) {
-                    val = $n.uniq(val)
+                    val = $n_uniq(val)
                 }
 
                 // 如果验证每个值是否为有效字符串/数字
                 if (o.isValidValue) {
-                    val = val.filter(val => $n.isValidValue(val))
+                    val = val.filter(val => $n_isValidValue(val))
                 }
 
                 // 如果转数组

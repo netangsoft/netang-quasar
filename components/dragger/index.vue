@@ -68,7 +68,7 @@ export default {
          */
         const isDrag = computed(function() {
             return props.drag
-                && $n.isValidArray(props.modelValue)
+                && $n_isValidArray(props.modelValue)
                 && props.modelValue.length > 1
         })
 
@@ -101,7 +101,7 @@ export default {
             if (isDrag.value) {
 
                 // 如果为火狐浏览器, 则必须要setData
-                // if ($n.ua.firefox) {
+                // if ($n_ua.firefox) {
                 //     e.dataTransfer.setData('info', e.target.id)
                 // }
 

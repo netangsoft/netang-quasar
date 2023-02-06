@@ -71,7 +71,7 @@ export default {
                     // 如果不是根节点
                     attr.pid
                     // 有父节点
-                    && $n.has(parentAll, attr.pid)
+                    && $n_has(parentAll, attr.pid)
                 ) {
                     const parentItem = parentAll[attr.pid]
 
@@ -117,7 +117,7 @@ export default {
         watch([()=>props.data, ()=>props.activeValue], function() {
 
             // 设置激活状态
-            if ($n.isValidArray(props.data)) {
+            if ($n_isValidArray(props.data)) {
                 setActive()
             }
 

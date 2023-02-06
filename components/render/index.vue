@@ -67,10 +67,10 @@ export default {
             // 如果是路由路径
             if (props.path) {
                 // 获取路由组件
-                comp = $n.get(routers, `${$n.slash(props.path, 'start', false)}.component`)
+                comp = $n_get(routers, `${$n_slash(props.path, 'start', false)}.component`)
 
             // 如果有组件标识
-            } else if (props.name && $n.has(components, props.name)) {
+            } else if (props.name && $n_has(components, props.name)) {
                 // 获取自定义组件
                 comp = components[props.name]
             }
@@ -81,7 +81,7 @@ export default {
             }
 
             // 如果是方法, 则说明是异步组件
-            if ($n.isFunction(comp)) {
+            if ($n_isFunction(comp)) {
                 return defineAsyncComponent(comp)
             }
 
@@ -96,16 +96,16 @@ export default {
             // 组件标识
             name: props.name,
             // 参数
-            query: $n.isValidObject(props.query) ? props.query : {},
+            query: $n_isValidObject(props.query) ? props.query : {},
             // 组件传参
             props: props.props,
         }
 
         // 如果有路由路径
-        if ($n.isValidString(props.path)) {
+        if ($n_isValidString(props.path)) {
 
             // 获取页面路由
-            const $route = $n.router.resolve({
+            const $route = $n_router.resolve({
                 path: props.path,
                 query: data.query,
             })

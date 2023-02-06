@@ -48,7 +48,7 @@ export default {
             submit,
             // 父级声明属性
             props,
-        } = $n.dialog.inject()
+        } = $n_dialog.inject()
 
         const {
             // 树节点列表
@@ -121,7 +121,7 @@ export default {
                     return ref(val.value)
                 }
 
-                if ($n.isValidArray(val)) {
+                if ($n_isValidArray(val)) {
                     return ref(val)
                 }
             }

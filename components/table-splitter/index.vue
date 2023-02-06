@@ -167,7 +167,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return $n.isValidObject(slots) ? Object.keys(slots).filter(e => e !== 'toolbar-right') : []
+            return $n_isValidObject(slots) ? Object.keys(slots).filter(e => e !== 'toolbar-right') : []
         })
 
         /**
@@ -185,10 +185,10 @@ export default {
             // 如果有已选数据
             if (
                 currentSelectedItem.value
-                && $n.isFunction(props.renderQuery)
+                && $n_isFunction(props.renderQuery)
             ) {
                 const resQuery = props.renderQuery(currentSelectedItem.value)
-                if ($n.isValidObject(resQuery)) {
+                if ($n_isValidObject(resQuery)) {
 
                     // 如果需要加载渲染页面标识参数
                     if (! props.noRendPageName) {

@@ -3,7 +3,7 @@ import { Notify, Platform } from 'quasar'
 /**
  * 轻提示
  */
-$n.toast = function(params) {
+export default function toast(params) {
     return Notify.create(Object.assign({
         // 出现位置
         position: Platform.is.desktop ? 'top' : 'bottom',

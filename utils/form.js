@@ -1,5 +1,7 @@
 import { ref, provide, inject } from 'vue'
 
+import $n_has from 'lodash/has'
+
 import { NPowerKey, NFormKey } from './symbols'
 
 /**
@@ -18,7 +20,7 @@ function create(params) {
     }, params)
 
     // 获取权限注入
-    const $power = $n.has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n_has(params, '$power') ? params.$power : inject(NPowerKey)
 
     // ==========【返回】=================================================================================================
 
@@ -46,7 +48,9 @@ function create(params) {
 /**
  * 业务表单
  */
-$n.form = {
+const form = {
     // 创建表单
     create,
 }
+
+export default form

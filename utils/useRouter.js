@@ -9,18 +9,18 @@ export function getRouters(mainRouter, errorRouter) {
         mainRouter
     ]
 
-    $n.forIn(routers, function(item, key) {
+    $n_forIn(routers, function(item, key) {
 
         // 如果没有 meta
-        if (! $n.has(item, 'meta')) {
+        if (! $n_has(item, 'meta')) {
             item.meta = {}
         }
 
         // path
-        item.path = $n.slash(key, 'start', true)
+        item.path = $n_slash(key, 'start', true)
 
         // 如果是单独路由
-        if ($n.get(item.meta, 'parent') === false) {
+        if ($n_get(item.meta, 'parent') === false) {
             routes.push(item)
 
         // 否则为框架页面

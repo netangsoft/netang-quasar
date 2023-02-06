@@ -1,12 +1,17 @@
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_toDate from '@netang/utils/toDate'
+
+import $n_timestamp from './timestamp'
+
 import { date as quasarDate } from 'quasar'
 
 /**
  * 获取时间
  */
-$n.getTime = function(time, params, defaultValue = '') {
+export default function getTime(time, params, defaultValue = '') {
 
     if (! time) {
-        return $n.isValidString(params) ? params : defaultValue
+        return $n_isValidString(params) ? params : defaultValue
     }
 
     let {
@@ -33,10 +38,10 @@ $n.getTime = function(time, params, defaultValue = '') {
     }, params)
 
     // 传入时间
-    const date = $n.toDate(time)
+    const date = $n_toDate(time)
 
     // 当前时间
-    const now = $n.toDate($n.timestamp())
+    const now = $n_toDate($n_timestamp())
 
     // 如果是自然化时间
     // 如果是今天, 则显示时分秒

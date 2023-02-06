@@ -1,19 +1,26 @@
 import { isRef } from 'vue'
 
+import $n_isNil from 'lodash/isNil'
+import $n_map from 'lodash/map'
+
+import $n_http from '@netang/utils/http'
+
+import { configs } from './config'
+
 /**
  * 获取公共数据
  */
-$n.getData = async function(url, pageStatus, emptyDescription, refValue) {
+export default async function getData(url, pageStatus, emptyDescription, refValue) {
 
-    const warn = $n.isNil(pageStatus) || ! isRef(pageStatus)
+    const warn = $n_isNil(pageStatus) || ! isRef(pageStatus)
 
     // 如果是数组, 说明需要同时请求多个地址
     // --------------------------------------------------
     if (Array.isArray(url)) {
 
-        const result = await $n.http($n.map(url, function (item) {
+        const result = await $n_http($n_map(url, function (item) {
             return {
-                url: $n.config('commonDataUrl') + item,
+                url: configs.commonDataUrl + item,
                 warn,
             }
         }))
@@ -25,7 +32,7 @@ $n.getData = async function(url, pageStatus, emptyDescription, refValue) {
                 if (! warn) {
                     pageStatus.value = false
                 }
-                if (! $n.isNil(emptyDescription) && isRef(emptyDescription)) {
+                if (! $n_isNil(emptyDescription) && isRef(emptyDescription)) {
                     emptyDescription.value = data.msg
                 }
                 return false
@@ -38,22 +45,22 @@ $n.getData = async function(url, pageStatus, emptyDescription, refValue) {
 
     // 单个请求
     // --------------------------------------------------
-    const { status, data } = await $n.http({
-        url: $n.config('commonDataUrl') + url,
+    const { status, data } = await $n_http({
+        url: configs.commonDataUrl + url,
         warn,
     })
     if (! status) {
         if (! warn) {
             pageStatus.value = false
         }
-        if (! $n.isNil(emptyDescription) && isRef(emptyDescription)) {
+        if (! $n_isNil(emptyDescription) && isRef(emptyDescription)) {
             emptyDescription.value = data.msg
         }
         return false
     }
 
     // 直接设置 value
-    if (! $n.isNil(refValue) && isRef(refValue)) {
+    if (! $n_isNil(refValue) && isRef(refValue)) {
         refValue.value = data
     }
 

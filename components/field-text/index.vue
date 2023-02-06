@@ -131,7 +131,7 @@ export default {
         const slotNames = computed(function() {
             const lists = []
 
-            $n.forIn(slots, function(val, key) {
+            $n_forIn(slots, function(val, key) {
                 if (key !== 'default') {
                     lists.push(key)
                 }
@@ -148,7 +148,7 @@ export default {
         function onCopy() {
             const val = props.copyText || props.value
             if (val) {
-                $n.copy(val, `复制【${props.label}】成功`)
+                $n_copy(val, `复制【${props.label}】成功`)
             }
         }
 

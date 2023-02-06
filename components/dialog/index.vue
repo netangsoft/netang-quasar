@@ -184,10 +184,10 @@ export default {
 
         function setWH(style, field, sign) {
             if (props[field]) {
-                if ($n.indexOf(props[field], '%') > -1) {
+                if ($n_indexOf(props[field], '%') > -1) {
                     style[field] = props[field].replace('%', sign)
                 } else {
-                    style[field] = $n.px(props[field])
+                    style[field] = $n_px(props[field])
                 }
             }
         }
@@ -231,10 +231,10 @@ export default {
             // 如果是路由路径
             if (props.route) {
                 // 获取路由组件
-                comp = $n.get(routers, `${$n.slash(props.route, 'start', false)}.component`)
+                comp = $n_get(routers, `${$n_slash(props.route, 'start', false)}.component`)
 
             // 如果有组件标识
-            } else if (props.name && $n.has(components, props.name)) {
+            } else if (props.name && $n_has(components, props.name)) {
                 // 获取自定义组件
                 comp = components[props.name]
             }
@@ -245,7 +245,7 @@ export default {
             }
 
             // 如果是方法, 则说明是异步组件
-            if ($n.isFunction(comp)) {
+            if ($n_isFunction(comp)) {
                 return defineAsyncComponent(comp)
             }
 
@@ -265,7 +265,7 @@ export default {
 
             return props.route ?
                 // 如果是路由路径, 则获取路由标题
-                $n.get(routers, `${$n.slash(props.route, 'start', false)}.meta.title`, '')
+                $n_get(routers, `${$n_slash(props.route, 'start', false)}.meta.title`, '')
                 : ''
         })
 
@@ -285,17 +285,17 @@ export default {
         async function onDialogConfirm() {
 
             // 如果有确定按钮
-            if ($n.isFunction(props.onConfirm)) {
+            if ($n_isFunction(props.onConfirm)) {
 
-                if (! $n.isFunction(compSubmit)) {
+                if (! $n_isFunction(compSubmit)) {
                     // 轻提示
-                    $n.toast({
+                    $n_toast({
                         message: '未调用 $dialog.submit 方法',
                     })
                     return
                 }
 
-                const res = await $n.runAsync(props.onConfirm)(await $n.runAsync(compSubmit)(), hide)
+                const res = await $n_runAsync(props.onConfirm)(await $n_runAsync(compSubmit)(), hide)
                 if (res === false) {
                     return
                 }

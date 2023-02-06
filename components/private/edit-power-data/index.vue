@@ -212,7 +212,7 @@
                     </div>
 
                     <!-- 请求成功参数 -->
-                    <!--<div class="col-xs-12 col-sm-6 col-md-3" v-if="$n.indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">-->
+                    <!--<div class="col-xs-12 col-sm-6 col-md-3" v-if="$n_indexOf(['closePush', 'closePushRefresh'], formData.requestSuccess.type) > -1">-->
 
                     <!--    &lt;!&ndash; 树 &ndash;&gt;-->
                     <!--    <n-field-tree-->
@@ -259,10 +259,10 @@
 
                                 <q-item-section side>
                                     <div class="text-grey-8 q-gutter-xs">
-                                        <q-btn icon="add" size="12px" flat dense round @click="$n.arr.add(formData.requestQuery.list, itemIndex, '')" />
-                                        <q-btn icon="remove" size="12px" flat dense round @click="$n.arr.delete(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
-                                        <q-btn icon="expand_less" size="12px" flat dense round @click="$n.arr.up(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
-                                        <q-btn icon="expand_more" size="12px" flat dense round @click="$n.arr.down(formData.requestQuery.list, itemIndex)" :disable="formData.requestQuery.list.length <= itemIndex + 1" />
+                                        <q-btn icon="add" size="12px" flat dense round @click="$n_arr.add(formData.requestQuery.list, itemIndex, '')" />
+                                        <q-btn icon="remove" size="12px" flat dense round @click="$n_arr.delete(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
+                                        <q-btn icon="expand_less" size="12px" flat dense round @click="$n_arr.up(formData.requestQuery.list, itemIndex)" :disable="itemIndex === 0" />
+                                        <q-btn icon="expand_more" size="12px" flat dense round @click="$n_arr.down(formData.requestQuery.list, itemIndex)" :disable="formData.requestQuery.list.length <= itemIndex + 1" />
                                     </div>
                                 </q-item-section>
                             </q-item>
@@ -293,10 +293,10 @@
 
                             <q-item-section side>
                                 <div class="text-grey-8 q-gutter-xs">
-                                    <q-btn icon="add" size="12px" flat dense round @click="$n.arr.add(formData.requestQuery.query, itemIndex, '')" />
-                                    <q-btn icon="remove" size="12px" flat dense round @click="$n.arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_less" size="12px" flat dense round @click="$n.arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
-                                    <q-btn icon="expand_more" size="12px" flat dense round @click="$n.arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
+                                    <q-btn icon="add" size="12px" flat dense round @click="$n_arr.add(formData.requestQuery.query, itemIndex, '')" />
+                                    <q-btn icon="remove" size="12px" flat dense round @click="$n_arr.delete(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_less" size="12px" flat dense round @click="$n_arr.up(formData.requestQuery.query, itemIndex)" :disable="itemIndex === 0" />
+                                    <q-btn icon="expand_more" size="12px" flat dense round @click="$n_arr.down(formData.requestQuery.query, itemIndex)" :disable="formData.requestQuery.query.length <= itemIndex + 1" />
                                 </div>
                             </q-item-section>
                         </q-item>
@@ -397,9 +397,9 @@ export default {
 
             let obj = {}
 
-            if ($n.isJson(props.modelValue)) {
-                const data = $n.json.parse(props.modelValue)
-                if ($n.isValidObject(data)) {
+            if ($n_isJson(props.modelValue)) {
+                const data = $n_json.parse(props.modelValue)
+                if ($n_isValidObject(data)) {
                     obj = data
                 }
             }
@@ -447,7 +447,7 @@ export default {
             const rawKeys = Object.keys(rawObj)
 
             // 删除数据中的无效键值
-            $n.forIn(obj, function (item, key) {
+            $n_forIn(obj, function (item, key) {
                 // 如果键值不在原始键值中
                 if (rawKeys.indexOf(key) === -1) {
                     // 则删除
@@ -456,12 +456,12 @@ export default {
             })
 
             // 判断 requestSuccess 值是否合法
-            if ($n.has(obj, 'requestSuccess') && ! $n.isValidObject(obj.requestSuccess)) {
+            if ($n_has(obj, 'requestSuccess') && ! $n_isValidObject(obj.requestSuccess)) {
                 delete(obj.requestSuccess)
             }
 
             // 判断 requestQuery 值是否合法
-            if ($n.has(obj, 'requestQuery') && ! $n.isValidObject(obj.requestQuery)) {
+            if ($n_has(obj, 'requestQuery') && ! $n_isValidObject(obj.requestQuery)) {
                 delete(obj.requestQuery)
             }
 
@@ -471,7 +471,7 @@ export default {
             obj = Object.assign(rawObj, obj)
 
             // 列表选择类型默认值为 single
-            if (! $n.isValidString(obj.selection)) {
+            if (! $n_isValidString(obj.selection)) {
                 obj.selection = 'single'
             }
 
@@ -483,12 +483,12 @@ export default {
             obj.confirmContent = ''
             if (obj.confirmPassword) {
                 confirm = 2
-                if ($n.isValidString(obj.confirmPassword)) {
+                if ($n_isValidString(obj.confirmPassword)) {
                     obj.confirmContent = obj.confirmPassword
                 }
             } else if (obj.confirm) {
                 confirm = 1
-                if ($n.isValidString(obj.confirm)) {
+                if ($n_isValidString(obj.confirm)) {
                     obj.confirmContent = obj.confirm
                 }
             }
@@ -497,36 +497,36 @@ export default {
 
             // 【格式化请求参数中的 list】
             // ------------------------------------------------------------
-            if ($n.isValidString(obj.requestQuery.list)) {
+            if ($n_isValidString(obj.requestQuery.list)) {
                 obj.requestQuery.list = [obj.requestQuery.list]
-            } else if (! $n.isValidArray(obj.requestQuery.list)) {
+            } else if (! $n_isValidArray(obj.requestQuery.list)) {
                 obj.requestQuery.list = ['']
             }
 
             // 【格式化请求参数中的 query】
             // ------------------------------------------------------------
-            if ($n.has(obj.requestQuery, 'query')) {
+            if ($n_has(obj.requestQuery, 'query')) {
 
                 // 如果是有效值
-                if ($n.isValidValue(obj.requestQuery.query)) {
+                if ($n_isValidValue(obj.requestQuery.query)) {
                     obj.requestQuery.query = [obj.requestQuery.query]
 
                 // 如果是有效对象
-                } else if ($n.isValidObject(obj.requestQuery.query)) {
-                    obj.requestQuery.query = [$n.json.stringify(obj.requestQuery.query)]
+                } else if ($n_isValidObject(obj.requestQuery.query)) {
+                    obj.requestQuery.query = [$n_json.stringify(obj.requestQuery.query)]
 
                 // 如果是有效数组
-                } else if ($n.isValidArray(obj.requestQuery.query)) {
+                } else if ($n_isValidArray(obj.requestQuery.query)) {
                     const query = []
-                    $n.forEach(obj.requestQuery.query, function(item, key) {
+                    $n_forEach(obj.requestQuery.query, function(item, key) {
 
                         // 如果是有效值
-                        if ($n.isValidValue(item)) {
+                        if ($n_isValidValue(item)) {
                             query.push(item)
 
                         // 如果是对象
-                        } else if ($n.isValidObject(item)) {
-                            query.push($n.json.stringify(item))
+                        } else if ($n_isValidObject(item)) {
+                            query.push($n_json.stringify(item))
                         }
                     })
                     obj.requestQuery.query = query.length ? query : ['']
@@ -543,15 +543,15 @@ export default {
 
             // 【格式化其他参数】
             // ------------------------------------------------------------
-            if (! $n.has(obj, 'params')) {
+            if (! $n_has(obj, 'params')) {
                 obj.params = ''
 
             // 如果不是字符串
-            } else if (! $n.isValidString(obj.params)) {
-                if ($n.isValidObject(obj.params)) {
-                    obj.params = $n.json.stringify(obj.params)
-                } else if ($n.isValidArray(obj.params)) {
-                    obj.params = $n.json.stringify(obj.params)
+            } else if (! $n_isValidString(obj.params)) {
+                if ($n_isValidObject(obj.params)) {
+                    obj.params = $n_json.stringify(obj.params)
+                } else if ($n_isValidArray(obj.params)) {
+                    obj.params = $n_json.stringify(obj.params)
                 } else {
                     obj.params = ''
                 }
@@ -580,20 +580,20 @@ export default {
                     // 请求表格参数
                     const lists = []
 
-                    $n.forEach(data.requestQuery[field], function(value) {
+                    $n_forEach(data.requestQuery[field], function(value) {
 
                         value = formatParams(value)
 
                         // 如果有值
-                        if ($n.isRequired(value)) {
+                        if ($n_isRequired(value)) {
 
                             // 如果为表格
                             if (field === 'list') {
 
-                                if (Array.isArray(value) || $n.isPlainObject(value)) {
+                                if (Array.isArray(value) || $n_isPlainObject(value)) {
 
                                     // 轻提示
-                                    $n.toast({
+                                    $n_toast({
                                         message: '请求列表参数格式不能是数组或对象',
                                     })
                                     return false
@@ -602,7 +602,7 @@ export default {
                             // 否则为参数
                             } else if (Array.isArray(value)) {
                                 // 轻提示
-                                $n.toast({
+                                $n_toast({
                                     message: '请求传参参数格式不能是数组',
                                 })
                                 return false
@@ -614,7 +614,7 @@ export default {
                     })
 
                     if (lists.length) {
-                        if (! $n.has(obj, 'requestQuery')) {
+                        if (! $n_has(obj, 'requestQuery')) {
                             obj.requestQuery = {}
                         }
                         obj.requestQuery[field] = lists.length === 1 ? lists[0] : lists
@@ -625,14 +625,14 @@ export default {
 
                 // 格式化其他参数
                 function formatParams(value) {
-                    value = $n.trimString(value)
+                    value = $n_trimString(value)
                     if (
                         (value.startsWith('[') || value.startsWith('{'))
-                        && $n.isJson(value)
+                        && $n_isJson(value)
                     ) {
-                        value = $n.json.parse(value)
+                        value = $n_json.parse(value)
 
-                        if (! Array.isArray(value) && ! $n.isPlainObject(value)) {
+                        if (! Array.isArray(value) && ! $n_isPlainObject(value)) {
                             return ''
                         }
                     }
@@ -644,7 +644,7 @@ export default {
                 if (props.dataType === dicts.POWER_DATA_TYPE__LIST) {
 
                     // 列表选择类型
-                    if ($n.indexOf(['none', 'multiple'], data.selection) > -1) {
+                    if ($n_indexOf(['none', 'multiple'], data.selection) > -1) {
                         obj.selection = data.selection
                     }
 
@@ -688,7 +688,7 @@ export default {
                             // 如果没有选择跳转页面
                             if (! data.toPage) {
                                 // 轻提示
-                                $n.toast({
+                                $n_toast({
                                     message: '请选择跳转页面',
                                 })
                                 return false
@@ -711,11 +711,11 @@ export default {
 
                             // 如果是(1:提交前确认)
                             if (data.confirm === 1) {
-                                obj.confirm = $n.isValidString(data.confirmContent) ? data.confirmContent : true
+                                obj.confirm = $n_isValidString(data.confirmContent) ? data.confirmContent : true
 
                                 // 否则是(2:提交前确认登录密码)
                             } else {
-                                obj.confirmPassword = $n.isValidString(data.confirmContent) ? data.confirmContent : true
+                                obj.confirmPassword = $n_isValidString(data.confirmContent) ? data.confirmContent : true
                             }
                         }
 
@@ -724,7 +724,7 @@ export default {
                             obj.requestSuccess = {
                                 type: data.requestSuccess.type
                             }
-                            // if ($n.indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
+                            // if ($n_indexOf(['closePush', 'closePushRefresh'], data.requestSuccess.type) > -1) {
                             //     if (data.requestSuccess.params) {
                             //         obj.requestSuccess.params = data.requestSuccess.params
                             //     } else {
@@ -737,13 +737,13 @@ export default {
 
                 // 自定义参数
                 const params = formatParams(data.params)
-                if ($n.isRequired(params)) {
+                if ($n_isRequired(params)) {
                     obj.params = params
                 }
             }
 
             // 转为 json
-            return $n.isValidObject(obj) ? $n.json.stringify(obj) : ''
+            return $n_isValidObject(obj) ? $n_json.stringify(obj) : ''
         }
 
         // ==========【返回】=============================================================================================

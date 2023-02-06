@@ -44,8 +44,8 @@
                     <div
                         class="n-uploader-query__button--square cursor-pointer"
                         :style="{
-                            width: $n.px(currentSize),
-                            height: $n.px(currentSize),
+                            width: $n_px(currentSize),
+                            height: $n_px(currentSize),
                         }"
                         @click="uploader.chooseUpload"
                         v-show="showSquareButton"
@@ -53,7 +53,7 @@
                     >
                         <q-icon
                             name="add"
-                            :size="$n.px(currentSize / 2)"
+                            :size="$n_px(currentSize / 2)"
                         />
                         <div class="n-uploader-query__button--square__text" v-if="buttonText">{{buttonText}}</div>
                     </div>
@@ -76,9 +76,9 @@
                 >
                     <q-img
                         :src="getImage(fileItem)"
-                        :spinner-size="$n.px(currentSize / 2)"
-                        :width="$n.px(currentSize)"
-                        :height="$n.px(currentSize)"
+                        :spinner-size="$n_px(currentSize / 2)"
+                        :width="$n_px(currentSize)"
+                        :height="$n_px(currentSize)"
                         fit="fill"
                     >
                         <!-- 内容 -->
@@ -99,7 +99,7 @@
                             <q-circular-progress
                                 indeterminate
                                 rounded
-                                :size="$n.px(currentSize / 1.5)"
+                                :size="$n_px(currentSize / 1.5)"
                                 :thickness="0.14"
                                 color="white"
                                 v-if="fileItem.status < UPLOAD_STATUS.uploading"
@@ -108,7 +108,7 @@
                             <!-- 上传中 -->
                             <q-circular-progress
                                 :value="fileItem.progress"
-                                :size="$n.px(currentSize / 1.5)"
+                                :size="$n_px(currentSize / 1.5)"
                                 :thickness="0.14"
                                 color="white"
                                 track-color="grey-5"
@@ -118,7 +118,7 @@
                                 <q-icon
                                     class="cursor-pointer"
                                     name="pause"
-                                    :size="$n.px(currentSize / 3)"
+                                    :size="$n_px(currentSize / 3)"
                                     @click="uploader.deleteFileItem(fileItem)"
                                 />
                             </q-circular-progress>
@@ -163,8 +163,8 @@
                     <div
                         class="n-uploader-query__button--square cursor-pointer"
                         :style="{
-                        width: $n.px(currentSize),
-                        height: $n.px(currentSize),
+                        width: $n_px(currentSize),
+                        height: $n_px(currentSize),
                     }"
                         @click="uploader.chooseUpload"
                         v-show="showSquareButton"
@@ -172,7 +172,7 @@
                     >
                         <q-icon
                             name="add"
-                            :size="$n.px(currentSize / 2)"
+                            :size="$n_px(currentSize / 2)"
                         />
                         <div class="n-uploader-query__button--square__text" v-if="buttonText">{{buttonText}}</div>
                     </div>
@@ -191,7 +191,7 @@
                         ghost: fileItemIndex === fromIndex,
                     }"
                     :style="{
-                        height: $n.px(currentSize),
+                        height: $n_px(currentSize),
                     }"
                     :draggable="currentDrag"
                     @mousedown.self="mousedown($event, fileItemIndex)"
@@ -204,8 +204,8 @@
                     <div
                         class="n-uploader-query__item__icon"
                         :style="{
-                            width: $n.px(currentSize),
-                            height: $n.px(currentSize),
+                            width: $n_px(currentSize),
+                            height: $n_px(currentSize),
                         }"
                     >
                         <!-- 上传中前 -->
@@ -213,7 +213,7 @@
                             class="n-uploader-query__item__icon__icon"
                             indeterminate
                             rounded
-                            :size="$n.px(currentSize / 1.8)"
+                            :size="$n_px(currentSize / 1.8)"
                             :thickness="0.18"
                             v-if="fileItem.status < UPLOAD_STATUS.uploading"
                         />
@@ -222,7 +222,7 @@
                         <q-circular-progress
                             class="n-uploader-query__item__icon__icon"
                             :value="fileItem.progress"
-                            :size="$n.px(currentSize / 1.8)"
+                            :size="$n_px(currentSize / 1.8)"
                             :thickness="0.18"
                             show-value
                             v-else-if="fileItem.status === UPLOAD_STATUS.uploading"
@@ -230,7 +230,7 @@
                             <q-icon
                                 class="cursor-pointer"
                                 name="pause"
-                                :size="$n.px(currentSize / 3)"
+                                :size="$n_px(currentSize / 3)"
                                 @click="uploader.deleteFileItem(fileItem)"
                             />
                         </q-circular-progress>
@@ -239,7 +239,7 @@
                         <q-icon
                             class="n-uploader-query__item__icon__icon"
                             name="description"
-                            :size="$n.px(currentSize / 1.5)"
+                            :size="$n_px(currentSize / 1.5)"
                             v-else-if="type === 'file'"
                         />
 
@@ -248,7 +248,7 @@
                             class="n-uploader-query__item__icon__icon cursor-pointer"
                             name="play_circle"
                             title="播放"
-                            :size="$n.px(currentSize / 1.5)"
+                            :size="$n_px(currentSize / 1.5)"
                             @click="uploader.play(fileItem)"
                             v-else
                         />
@@ -412,7 +412,7 @@ export default {
          */
         const currentDrag = computed(function() {
             return props.drag
-                && $n.isValidArray(query.value)
+                && $n_isValidArray(query.value)
                 && query.value.length > 1
         })
 
@@ -454,11 +454,11 @@ export default {
          * 获取图片地址
          */
         function getImage(fileItem) {
-            return $n.has(fileItem, '__img') ?
+            return $n_has(fileItem, '__img') ?
                 fileItem.__img
                 : (
-                    $n.isValidString(fileItem.hash) ?
-                        $n.getImage(fileItem.hash, { w: $q.platform.is.mobile ? currentSize.value * 2 : currentSize.value })
+                    $n_isValidString(fileItem.hash) ?
+                        $n_getImage(fileItem.hash, { w: $q.platform.is.mobile ? currentSize.value * 2 : currentSize.value })
                         : ''
                 )
         }
@@ -467,7 +467,7 @@ export default {
          * 获取文件名称
          */
         function getFileName(fileItem) {
-            return fileItem.title + ($n.get(fileItem, 'ext') ? '.' + fileItem.ext : '')
+            return fileItem.title + ($n_get(fileItem, 'ext') ? '.' + fileItem.ext : '')
         }
 
         // ==========【生命周期】=========================================================================================

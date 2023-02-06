@@ -1,22 +1,32 @@
-import configData from '@/configs/production.json'
+import $n_get from 'lodash/get'
+import $n_merge from 'lodash/merge'
 
-// 【开发模式】
-// --------------------------------------------------
-// #if IS_DEBUG && IS_DEV
-import configDataDev from '@/configs/development.json'
-$n.merge(configData, configDataDev)
-// #endif
+// 配置
+export const configs = {
+    // 用户配置
+    userConfig: {},
+    // 用户字典
+    userDict: {},
+    // 请求公共数据地址
+    commonDataUrl: '',
+    // 上传器
+    uploader: {
+        upload: {},
+        limit: {},
+    },
+}
 
-// 【测试模式】
-// --------------------------------------------------
-// #if IS_DEBUG && IS_TEST
-import configDataTest from '@/configs/testing.json'
-$n.merge(configData, configDataTest)
-// #endif
+/**
+ * 配置处理器
+ * @param options
+ */
+export function configHandler(options) {
+    $n_merge(configs, options)
+}
 
 /**
  * 获取配置
  */
-$n.config = function(key = '', defaultValue = '') {
-    return key ? $n.get(configData, key, defaultValue) : configData
+export default function config(key = '', defaultValue = '') {
+    return key ? $n_get(configs.userConfig, key, defaultValue) : configs.userConfig
 }

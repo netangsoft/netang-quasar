@@ -1,3 +1,43 @@
+import $n_has from 'lodash/has'
+import $n_get from 'lodash/get'
+import $n_merge from 'lodash/merge'
+import $n_filter from 'lodash/filter'
+import $n_toLower from 'lodash/toLower'
+import $n_isNumber from 'lodash/isNumber'
+import $n_cloneDeep from 'lodash/cloneDeep'
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_isRequired from '@netang/utils/isRequired'
+import $n_isNumeric from '@netang/utils/isNumeric'
+import $n_forEach from '@netang/utils/forEach'
+import $n_forIn from '@netang/utils/forIn'
+import $n_slash from '@netang/utils/slash'
+import $n_json from '@netang/utils/json'
+import $n_join from '@netang/utils/join'
+import $n_fail from '@netang/utils/fail'
+import $n_success from '@netang/utils/success'
+import $n_split from '@netang/utils/split'
+import $n_trimString from '@netang/utils/trimString'
+import $n_numberDeep from '@netang/utils/numberDeep'
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_runAsync from '@netang/utils/runAsync'
+import $n_run from '@netang/utils/run'
+
+import $n_config from './config'
+import $n_getData from './getData'
+import $n_toast from './toast'
+import $n_confirm from './confirm'
+import $n_bus from './bus'
+import $n_http from './http'
+
+// ~~~~~
+// $n_router
+// dicts
+// http
+
 import { provide, inject, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 
@@ -49,14 +89,14 @@ function create(params) {
     const hasRender = !! $render
     if (hasRender) {
         // 如果有权限传参, 则合并参数
-        const powerProps = $n.get($render, 'props.powerProps')
-        if ($n.isValidObject(powerProps)) {
-            $n.merge(o, powerProps)
+        const powerProps = $n_get($render, 'props.powerProps')
+        if ($n_isValidObject(powerProps)) {
+            $n_merge(o, powerProps)
         }
     }
 
     // 获取当前路由
-    const $currentRoute = $n.router.getRoute()
+    const $currentRoute = $n_router.getRoute()
 
     // 权限路由
     let $route
@@ -68,20 +108,20 @@ function create(params) {
         $route = {
             fullPath: '',
             path: '',
-            query: $n.isValidObject(o.query) ? o.query : {},
+            query: $n_isValidObject(o.query) ? o.query : {},
         }
 
     // 如果有自定义路径
-    } else if ($n.isValidString(o.path)) {
+    } else if ($n_isValidString(o.path)) {
 
         // 获取自定义路由
-        $route = $n.router.resolve({
+        $route = $n_router.resolve({
             path: o.path,
-            query: $n.isValidObject(o.query) ? o.query : {},
+            query: $n_isValidObject(o.query) ? o.query : {},
         })
 
     // 如果在渲染组件内 && 该渲染组件有自定义路由
-    } else if (hasRender && $n.has($render, '$route')) {
+    } else if (hasRender && $n_has($render, '$route')) {
 
         // 设为渲染组件的路由
         $route = $render.$route
@@ -206,13 +246,13 @@ function create(params) {
                     // 如果显示工具栏权限按钮
                     o.showToolbarPowerBtns
                     // 有权限按钮数据
-                    && $n.isValidArray(data.powerBtns.value)
+                    && $n_isValidArray(data.powerBtns.value)
                 ) {
 
-                    const lists = $n.filter(formatBtns(data.powerBtns.value), e => e.type > 2)
+                    const lists = $n_filter(formatBtns(data.powerBtns.value), e => e.type > 2)
 
                     // 格式化权限按钮列表
-                    $n.forEach(lists, function(item) {
+                    $n_forEach(lists, function(item) {
 
                         if (! item.hidden) {
 
@@ -226,7 +266,7 @@ function create(params) {
                                 item.show = false
 
                                 // 如果有表格选中数据
-                                if ($n.isValidArray(data.tableSelected.value)) {
+                                if ($n_isValidArray(data.tableSelected.value)) {
                                     // 如果是单个显示
                                     if (isSingle) {
                                         item.show = data.tableSelected.value.length === 1
@@ -313,7 +353,7 @@ function create(params) {
 function setData(data) {
 
     // 如果没有角色数据
-    if (! $n.isValidObject(data)) {
+    if (! $n_isValidObject(data)) {
         return
     }
 
@@ -322,7 +362,7 @@ function setData(data) {
         v,
     } = data
 
-    if (! $n.isValidArray(rows) || ! v) {
+    if (! $n_isValidArray(rows) || ! v) {
         return
     }
 
@@ -340,9 +380,9 @@ function setData(data) {
         // 【格式化 start】
         // --------------------------------------------------
         if (item.data) {
-            item.data = $n.json.parse(item.data)
+            item.data = $n_json.parse(item.data)
         }
-        item.data = $n.isValidObject(item.data) ? $n.numberDeep(item.data) : {}
+        item.data = $n_isValidObject(item.data) ? $n_numberDeep(item.data) : {}
 
         // 设置数据类型
         item.data.type = item.data_type
@@ -352,10 +392,10 @@ function setData(data) {
         item.name = ''
 
         // 如果有 url
-        if ($n.isValidString(item.url)) {
+        if ($n_isValidString(item.url)) {
 
             // url 首位加上反斜杠
-            item.url = $n.slash($n.toLower($n.trimString(item.url)), 'start', true)
+            item.url = $n_slash($n_toLower($n_trimString(item.url)), 'start', true)
             if (item.url) {
 
                 item.data.url = item.url
@@ -437,22 +477,22 @@ function setData(data) {
     for (const item of rows) {
 
         // 如果有跳转页面
-        if ($n.has(item.data, 'toPage')) {
+        if ($n_has(item.data, 'toPage')) {
             // 设置跳转页面地址
-            item.data.toPage = $n.has(all, item.data.toPage) ? all[item.data.toPage].data.url : null
+            item.data.toPage = $n_has(all, item.data.toPage) ? all[item.data.toPage].data.url : null
         }
 
         // 如果有请求成功执行类型
-        // else if ($n.has(item.data, 'requestSuccess.type')) {
+        // else if ($n_has(item.data, 'requestSuccess.type')) {
         //     // 如果请求成功执行类型是关闭窗口、跳转并刷新页面
         //     if (item.data.requestSuccess.type === 'closePushRefresh') {
         //         // 设置刷新页面地址
         //         item.data.requestSuccess.params =
         //             (
         //                 // 如果有刷新页面的参数 id
-        //                 $n.has(item.data.requestSuccess, 'params')
+        //                 $n_has(item.data.requestSuccess, 'params')
         //                 // 如果有页面数据
-        //                 && $n.has(all, item.data.requestSuccess.params)
+        //                 && $n_has(all, item.data.requestSuccess.params)
         //             ) ? all[item.data.requestSuccess.params].data.url : null
         //     }
         // }
@@ -461,10 +501,10 @@ function setData(data) {
             // 数据/按钮
             item.type > 1
             // 有父级数据
-            && $n.has(all, item.pid)
+            && $n_has(all, item.pid)
         ) {
             const pItem = all[item.pid]
-            if ($n.has(btns, pItem.url)) {
+            if ($n_has(btns, pItem.url)) {
                 btns[pItem.url].push(item)
             } else {
                 btns[pItem.url] = [item]
@@ -496,7 +536,7 @@ async function getData() {
     if (! statePower.value.v) {
 
         // 获取权限数据
-        const res = await $n.getData($n.config('powerName'))
+        const res = await $n_getData($n_config('powerName'))
         if (res === false) {
             statePower.value = {
                 // 权限版本
@@ -510,16 +550,16 @@ async function getData() {
                 // 菜单
                 menus: [],
             }
-            return $n.fail()
+            return $n_fail()
         }
     }
 
     // 如果有权限状态数据, 则直接返回
     if (statePower.value.v) {
-        return $n.success($n.cloneDeep(statePower.value))
+        return $n_success($n_cloneDeep(statePower.value))
     }
 
-    return $n.fail()
+    return $n_fail()
 }
 
 /**
@@ -528,42 +568,42 @@ async function getData() {
 function parseQuery(data, settings) {
 
     // 如果配置是字符串
-    if ($n.isValidString(settings)) {
+    if ($n_isValidString(settings)) {
 
         // 如果返回所有传参
         if (settings === 'all') {
-            return $n.isValidObject(data) ? data : {}
+            return $n_isValidObject(data) ? data : {}
         }
 
         // 将字符串放到数组中
         settings = [settings]
 
     // 如果配置是对象
-    } else if ($n.isValidObject(settings)) {
+    } else if ($n_isValidObject(settings)) {
         settings = [settings]
     }
 
     const query = {}
 
     // 如果配置是数组
-    if ($n.isValidArray(settings)) {
+    if ($n_isValidArray(settings)) {
 
         // 别名
         const alias = {}
 
         for (let item of settings) {
             // 如果是需要的字段
-            if ($n.isValidString(item)) {
+            if ($n_isValidString(item)) {
 
                 // 将字段转小写
-                item = $n.toLower($n.trimString(item))
+                item = $n_toLower($n_trimString(item))
 
                 // 判断字段是否有 as 别名
-                const arr = $n.split(item, ' as ')
+                const arr = $n_split(item, ' as ')
 
                 // 如果有别名
                 if (arr.length === 2) {
-                    alias[$n.trimString(arr[0])] = $n.trimString(arr[1])
+                    alias[$n_trimString(arr[0])] = $n_trimString(arr[1])
 
                 // 否则别名就是当前字段本身
                 } else {
@@ -571,21 +611,21 @@ function parseQuery(data, settings) {
                 }
 
             // 否则如果是自定义传参
-            } else if ($n.isValidObject(item)) {
+            } else if ($n_isValidObject(item)) {
                 Object.assign(query, item)
             }
         }
 
         if (
             // 如果有参数数据
-            $n.isValidObject(data)
+            $n_isValidObject(data)
             // 如果有定义别名
-            && $n.isValidObject(alias)
+            && $n_isValidObject(alias)
         ) {
-            $n.forIn(data, function(value, key) {
+            $n_forIn(data, function(value, key) {
 
                 // 如果当前字段在别名中
-                if ($n.has(alias, key)) {
+                if ($n_has(alias, key)) {
                     query[alias[key]] = value
                 }
             })
@@ -602,7 +642,7 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
 
     const newLists = []
 
-    $n.forEach(powerBtns, function(item) {
+    $n_forEach(powerBtns, function(item) {
 
         const {
             name,
@@ -613,9 +653,9 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
             // 图标
             icon: icon || undefined,
             // 隐藏按钮
-            hidden: $n.get(item, 'hidden') === true,
+            hidden: $n_get(item, 'hidden') === true,
             // 显示按钮类型
-            show: $n.has(item, 'data.show') ? item.data.show : true,
+            show: $n_has(item, 'data.show') ? item.data.show : true,
         })
 
         // 是否固定按钮
@@ -623,22 +663,22 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
             // 非隐藏按钮
             ! newItem.hidden
             // 固定列
-            && $n.get(newItem, 'data.fixed') === true
+            && $n_get(newItem, 'data.fixed') === true
             // 单个按钮
             && newItem.show === 'single'
             // 按钮有图标
             && !! newItem.icon
 
         // 如果是对象
-        if ($n.isValidObject(filterBtns)) {
-            if ($n.has(filterBtns, name)) {
-                newLists.push($n.merge(newItem, filterBtns[name]))
+        if ($n_isValidObject(filterBtns)) {
+            if ($n_has(filterBtns, name)) {
+                newLists.push($n_merge(newItem, filterBtns[name]))
             }
 
         // 如果是数组
-        } else if ($n.isValidArray(filterBtns)) {
-            if ($n.indexOf(filterBtns, name) > -1) {
-                newLists.push($n.merge(newItem, filterBtns[name]))
+        } else if ($n_isValidArray(filterBtns)) {
+            if ($n_indexOf(filterBtns, name) > -1) {
+                newLists.push($n_merge(newItem, filterBtns[name]))
             }
 
         } else {
@@ -667,9 +707,9 @@ function getRequestQuery(o) {
     const query = {}
 
     // 如果有请求传参的传参设置
-    if ($n.has(o.data, 'requestQuery.query')) {
+    if ($n_has(o.data, 'requestQuery.query')) {
         const resQuery = parseQuery(o.query, o.data.requestQuery.query)
-        if ($n.isValidObject(resQuery)) {
+        if ($n_isValidObject(resQuery)) {
             Object.assign(query, resQuery)
         }
     }
@@ -677,13 +717,13 @@ function getRequestQuery(o) {
     // 获取列表数据
     if (
         // 如果按钮参数有显示类型
-        $n.has(o.data, 'show')
+        $n_has(o.data, 'show')
         // 按钮参数的显示类型必须是单选或多选
-        && $n.indexOf(['single', 'multiple'], o.data.show) > -1
+        && $n_indexOf(['single', 'multiple'], o.data.show) > -1
         // 如果有请求传参的列表设置
-        && $n.has(o.data, 'requestQuery.list')
+        && $n_has(o.data, 'requestQuery.list')
         // 如果有表格数据
-        && $n.isValidArray(o.tableSelected)
+        && $n_isValidArray(o.tableSelected)
     ) {
         let newQuery = {}
 
@@ -696,8 +736,8 @@ function getRequestQuery(o) {
         } else {
             // 合并表格选中的每一条数据
             for (const item of o.tableSelected) {
-                $n.forIn(item, function(value, key) {
-                    if ($n.has(newQuery, key)) {
+                $n_forIn(item, function(value, key) {
+                    if ($n_has(newQuery, key)) {
                         newQuery[key].push(value)
                     } else {
                         newQuery[key] = [value]
@@ -707,12 +747,12 @@ function getRequestQuery(o) {
         }
 
         const resTable = parseQuery(newQuery, o.data.requestQuery.list)
-        if ($n.isValidObject(resTable)) {
+        if ($n_isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
     }
 
-    return $n.cloneDeep($n.numberDeep(query))
+    return $n_cloneDeep($n_numberDeep(query))
 }
 
 /**
@@ -723,32 +763,32 @@ function formatQuery(query, isJoinArr) {
     const newQuery = {}
 
     // 格式化参数
-    $n.forIn(query, function(value, key) {
+    $n_forIn(query, function(value, key) {
 
         // 如果是数字
-        if ($n.isNumeric(value)) {
-            newQuery[key] = $n.isNumber(value) ? value : Number(value)
+        if ($n_isNumeric(value)) {
+            newQuery[key] = $n_isNumber(value) ? value : Number(value)
 
         // 如果是字符串
-        } else if ($n.isValidString(value)) {
-            newQuery[key] = $n.trimString(value)
+        } else if ($n_isValidString(value)) {
+            newQuery[key] = $n_trimString(value)
 
         // 如果是数组
-        } else if ($n.isValidArray(value)) {
+        } else if ($n_isValidArray(value)) {
 
             const arr = []
             for (const val of value) {
 
                 // 如果为有效值
-                if ($n.isRequired(val)) {
+                if ($n_isRequired(val)) {
 
                     // 如果是数字
-                    if ($n.isNumeric(val)) {
-                        arr.push($n.isNumber(val) ? val : Number(val))
+                    if ($n_isNumeric(val)) {
+                        arr.push($n_isNumber(val) ? val : Number(val))
 
                     // 如果是字符串
-                    } else if ($n.isValidString(val)) {
-                        arr.push($n.trimString(val))
+                    } else if ($n_isValidString(val)) {
+                        arr.push($n_trimString(val))
 
                     // 否则为数组或对象
                     } else {
@@ -757,7 +797,7 @@ function formatQuery(query, isJoinArr) {
                 }
             }
             if (arr.length) {
-                newQuery[key] = isJoinArr ? $n.join(arr, ',') : arr
+                newQuery[key] = isJoinArr ? $n_join(arr, ',') : arr
             }
         }
     })
@@ -798,7 +838,7 @@ async function request(params) {
     o.query = $route.query
 
     // 判断类型
-    if (! $n.get(o.data, 'type')) {
+    if (! $n_get(o.data, 'type')) {
 
         // 【调试模式】
         // --------------------------------------------------
@@ -811,17 +851,17 @@ async function request(params) {
     }
 
     // 克隆 data
-    o.data = $n.cloneDeep(o.data)
+    o.data = $n_cloneDeep(o.data)
 
     // 判断 url
-    o.data.url = $n.toLower($n.trimString(o.data.url))
+    o.data.url = $n_toLower($n_trimString(o.data.url))
     if (! o.data.url) {
 
         if (
             // 如果没有跳转页面地址
-            ! $n.has(o.data, 'toPage')
+            ! $n_has(o.data, 'toPage')
             // 或跳转页面地址为空
-            || ! $n.isValidString(o.data.toPage)
+            || ! $n_isValidString(o.data.toPage)
         ) {
             // 【调试模式】
             // --------------------------------------------------
@@ -849,13 +889,13 @@ async function request(params) {
         query = formatQuery(query, true)
 
         // 如果有增加来源页面参数
-        if ($n.get(o.data, 'addFromPageQuery') === true) {
+        if ($n_get(o.data, 'addFromPageQuery') === true) {
             // 来源页面是当前路由的完整路径
             query.n_frompage = encodeURIComponent($currentRoute.fullPath)
         }
 
         // 请求前执行
-        const resBefore = await $n.runAsync(o.requestBefore)({ params: o, requestData: query })
+        const resBefore = await $n_runAsync(o.requestBefore)({ params: o, requestData: query })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
@@ -863,7 +903,7 @@ async function request(params) {
             query = resBefore
         }
 
-        $n.router.push({
+        $n_router.push({
             path: o.data.url,
             query,
         })
@@ -878,14 +918,14 @@ async function request(params) {
     if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
-        o.$form = $n.has(params, '$form') ? params.$form : inject(NFormKey)
+        o.$form = $n_has(params, '$form') ? params.$form : inject(NFormKey)
 
         if (! o.$form) {
             throw new Error('没有创建表单实例')
         }
 
         // 如果验证表单
-        if ($n.get(o.data, 'validate') !== false) {
+        if ($n_get(o.data, 'validate') !== false) {
 
             if (! o.$form.formRef) {
                 throw new Error('没有绑定 fromRef')
@@ -898,47 +938,47 @@ async function request(params) {
         }
 
         // 验证表单数据
-        if (! $n.isValidObject(o.$form.formData.value)) {
+        if (! $n_isValidObject(o.$form.formData.value)) {
             throw new Error('没有获取到表单数据')
         }
 
         // 检查是否正在上传文件
-        if ($n.isFunction(o.checkUploading) && o.checkUploading()) {
+        if ($n_isFunction(o.checkUploading) && o.checkUploading()) {
             // 轻提示
-            $n.toast({
+            $n_toast({
                 message: '文件上传中，请耐心等待',
             })
             return
         }
 
         // 获取请求数据
-        requestData = $n.merge({}, formatQuery(query, false), o.$form.formData.value)
+        requestData = $n_merge({}, formatQuery(query, false), o.$form.formData.value)
 
     // 如果是请求数据
     // --------------------------------------------------
     } else {
         // 获取表格注入
-        o.$table = $n.has(params, '$table') ? params.$table : inject(NTableKey)
+        o.$table = $n_has(params, '$table') ? params.$table : inject(NTableKey)
 
         // 获取请求数据
         requestData = formatQuery(query, false)
     }
 
     // 判断是否有确认框
-    const isConfirm = $n.get(o.data, 'confirm')
+    const isConfirm = $n_get(o.data, 'confirm')
     if (
         // 如果有确认框
         isConfirm
         // 如果有密码确认框
-        || $n.get(o.data, 'confirmPassword')
+        || $n_get(o.data, 'confirmPassword')
     ) {
         // 如果需要先弹出确认框
         if (isConfirm) {
 
             // 确认框
-            $n.confirm({
+            $n_confirm({
                 // 重要操作，请输入登录密码并确认后操作
-                message: $n.isValidString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
+                message: $n_isValidString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
             })
                 // 点击确认执行
                 .onOk(onRequest)
@@ -956,7 +996,7 @@ async function request(params) {
     async function onRequest() {
 
         // 请求前执行
-        const resBefore = await $n.runAsync(o.requestBefore)({ params: o, requestData })
+        const resBefore = await $n_runAsync(o.requestBefore)({ params: o, requestData })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
@@ -965,7 +1005,7 @@ async function request(params) {
         }
 
         // 请求
-        const res = await $n.http({
+        const res = await $n_http({
             // 请求地址
             url: o.data.url,
             // 请求数据
@@ -981,7 +1021,7 @@ async function request(params) {
         }, res)
 
         // 请求后执行
-        if (await $n.runAsync(o.requestAfter)(resultData) === false) {
+        if (await $n_runAsync(o.requestAfter)(resultData) === false) {
             return
         }
 
@@ -993,14 +1033,14 @@ async function request(params) {
 
                 // 轻提示
                 if (isNotify) {
-                    $n.toast({
+                    $n_toast({
                         type: 'positive',
                         message: '恭喜您，操作成功',
                     })
                 }
 
                 // 判断是否有请求成功后的操作动作
-                if ($n.has(o.data, 'requestSuccess.type')) {
+                if ($n_has(o.data, 'requestSuccess.type')) {
                     switch (o.data.requestSuccess.type) {
 
                         // 关闭当前页面
@@ -1012,7 +1052,7 @@ async function request(params) {
 
                             // 如果是渲染页面
                             // 说明该页面在 <table-splitter> 组件内部被渲染, 则不需要关闭当前窗口
-                            if ($n.has($route.query, 'n_renderpage') && $route.query.n_renderpage === 1) {
+                            if ($n_has($route.query, 'n_renderpage') && $route.query.n_renderpage === 1) {
                                 // 则无任何操作
                                 return
                             }
@@ -1025,8 +1065,8 @@ async function request(params) {
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
                                 o.data.requestSuccess.type !== 'close'
                                 // 如果有来源页面
-                                && $n.has($route.query, 'n_frompage')
-                                && $n.isValidString($route.query.n_frompage)
+                                && $n_has($route.query, 'n_frompage')
+                                && $n_isValidString($route.query.n_frompage)
                             ) {
                                 Object.assign(opts, {
                                     // 跳转页面地址
@@ -1036,30 +1076,30 @@ async function request(params) {
                                 })
 
                                 // 否则如果定义了跳转页面
-                                // else if ($n.has(o.data, 'requestSuccess.params') && $n.isValidString(o.data.requestSuccess.params)) {
+                                // else if ($n_has(o.data, 'requestSuccess.params') && $n_isValidString(o.data.requestSuccess.params)) {
                                 //     pushPage = o.data.requestSuccess.params
                                 // }
                             }
 
                             // 关闭当前标签页
-                            $n.bus.emit('main', opts)
+                            $n_bus.emit('main', opts)
                             break
 
                         // 重置表单
                         case 'resetForm':
-                            $n.run(o.$form?.resetForm)()
+                            $n_run(o.$form?.resetForm)()
                             break
 
                         // 刷新列表
                         case 'refreshList':
-                            $n.run(o.$table?.tableRefresh)()
+                            $n_run(o.$table?.tableRefresh)()
                             break
                     }
                 }
             }
 
             // 请求成功执行
-            if (await $n.runAsync(o.requestSuccess)(Object.assign({ next }, resultData)) === false) {
+            if (await $n_runAsync(o.requestSuccess)(Object.assign({ next }, resultData)) === false) {
                 return
             }
 
@@ -1068,7 +1108,7 @@ async function request(params) {
 
         } else {
             // 请求失败执行
-            $n.run(o.requestFail)(resultData)
+            $n_run(o.requestFail)(resultData)
         }
     }
 }
@@ -1079,34 +1119,34 @@ async function request(params) {
 function getPageData($route) {
 
     if (! $route) {
-        $route = $n.router.getRoute()
+        $route = $n_router.getRoute()
     }
 
-    const path = $n.get($route, 'path')
+    const path = $n_get($route, 'path')
     if (! path) {
-        return $n.fail('路由参数错误')
+        return $n_fail('路由参数错误')
     }
 
     if (! statePower.value.v) {
-        return $n.fail('没有获取到权限数据')
+        return $n_fail('没有获取到权限数据')
     }
 
     // 获取角色数据
-    const { urls, btns } = $n.cloneDeep(statePower.value)
-    if (! $n.has(urls, path)) {
-        return $n.fail('该页面没有权限')
+    const { urls, btns } = $n_cloneDeep(statePower.value)
+    if (! $n_has(urls, path)) {
+        return $n_fail('该页面没有权限')
     }
 
-    return $n.success({
+    return $n_success({
         page: urls[path],
-        btns: $n.has(btns, path) ? btns[path] : [],
+        btns: $n_has(btns, path) ? btns[path] : [],
     })
 }
 
 /**
  * 权限业务
  */
-$n.power = {
+const power = {
     // 创建
     create,
     // 设置权限数据
@@ -1120,3 +1160,5 @@ $n.power = {
     // 请求
     request,
 }
+
+export default power

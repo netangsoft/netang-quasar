@@ -217,19 +217,19 @@ export default {
             default: ',',
         },
 
-        // 表格请求路径
+        // 请求路径
         path: String,
-        // 表格请求参数
+        // 请求参数
         query: Object,
         // 附加请求数据
         data: Object,
         // 初始不加载已选数据
-        noFirstLoadSelected: Boolean,
+        noDefaultLoadSelected: Boolean,
         // 更新值时不加载已选数据
         noUpdateLoadSelected: Boolean,
         // 格式化显示标签
         formatLabel: Function,
-        // 快捷表格显示的字段数组(空为:[值字段, 标签字段])
+        // 下拉表格显示的字段数组(空为:[值字段, 标签字段])
         showKeys: Array,
         // 隐藏搜索字段数组
         hideSearchKeys: Array,
@@ -251,7 +251,7 @@ export default {
         rows: Array,
         // 是否多选
         multiple: Boolean,
-        // 多选模式下是否折叠 Tag
+        // 多选模式下是否折叠标签
         collapseTags: Boolean,
         // 占位符
         placeholder: String,
@@ -287,7 +287,7 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return $n.isValidObject(slots) ? Object.keys(slots) : []
+            return $n_isValidObject(slots) ? Object.keys(slots) : []
         })
 
         /**
@@ -301,7 +301,7 @@ export default {
          * 当前显示字段
          */
         const currentShowKeys = computed(function() {
-            return $n.uniq($n.isValidArray(props.showKeys)
+            return $n_uniq($n_isValidArray(props.showKeys)
                 ? props.showKeys
                 : [ props.valueKey, currentlabelKey.value ])
         })
@@ -319,7 +319,7 @@ export default {
         const showValue = computed(function () {
 
             // 如果有已选数据
-            return $n.isValidArray(selected.value)
+            return $n_isValidArray(selected.value)
                 // 取已选数据第一条
                 ? currentFormatLabel(selected.value[0])
                 : ''
@@ -329,9 +329,9 @@ export default {
 
 
         // 创建权限实例
-        const $power = $n.power.create({
+        const $power = $n_power.create({
             // 路由路径
-            path: $n.isValidString(props.path) ? props.path : false,
+            path: $n_isValidString(props.path) ? props.path : false,
             // 路由参数
             query: props.query,
             // 关闭权限页面
@@ -344,7 +344,7 @@ export default {
         } = $power
 
         // 创建表格实例
-        const $table = $n.table.create({
+        const $table = $n_table.create({
             // 权限实例
             $power,
             // 附加请求数据
@@ -372,7 +372,7 @@ export default {
         })
 
         // 创建睡眠实例
-        const sleep = $n.sleep()
+        const sleep = $n_sleep()
 
         // 输入框节点
         const inputRef = ref(null)
@@ -502,7 +502,7 @@ export default {
             await sleep(props.inputDebounce)
 
             // 是否有值
-            const hasValue = $n.isValidValue(val)
+            const hasValue = $n_isValidValue(val)
 
             const n_search = {}
             n_search[currentFilterKey.value] = [
@@ -544,7 +544,7 @@ export default {
                 // 如果值类型不是数组对象
                 props.valueType !== 'objectArray'
                 // 如果初始加载已选数据
-                && ! props.noFirstLoadSelected
+                && ! props.noDefaultLoadSelected
                 // 如果有请求路由路径
                 && routePath
             ) {
@@ -605,14 +605,14 @@ export default {
         function currentFormatLabel(item) {
 
             // 如果有格式化显示标签方法
-            if ($n.isFunction(props.formatLabel)) {
+            if ($n_isFunction(props.formatLabel)) {
                 // 执行格式化显示标签方法
                 return props.formatLabel(item)
             }
 
             // 否则显示该值的标签字段
             const val = item[currentlabelKey.value]
-            return $n.isValidValue(val) ? val : item[props.valueKey]
+            return $n_isValidValue(val) ? val : item[props.valueKey]
         }
 
         /**
@@ -634,13 +634,13 @@ export default {
             if (props.valueType === 'objectArray') {
 
                 // 如果是有效数组
-                if ($n.isValidArray(val)) {
+                if ($n_isValidArray(val)) {
                     for (const item of val) {
                         if (
                             // 如果元素不是有效对象
-                            ! $n.isValidObject(item)
+                            ! $n_isValidObject(item)
                             // 如果元素没有值字段
-                            || ! $n.has(item, props.valueKey)
+                            || ! $n_has(item, props.valueKey)
                         ) {
                             return []
                         }
@@ -655,16 +655,16 @@ export default {
                 // 非初始化
                 ! isFirst
                 // 或初始不加载已选数据
-                || props.noFirstLoadSelected
+                || props.noDefaultLoadSelected
                 // 或没有路由路径
                 || ! routePath
             ) {
                 // 将值转为数组
-                val = props.valueType === 'string' ? $n.split(val, props.valueSeparator) : val
+                val = props.valueType === 'string' ? $n_split(val, props.valueSeparator) : val
 
                 // 如果是有效数组
-                if ($n.isValidArray(val)) {
-                    val = val.filter(e => $n.isValidValue(e))
+                if ($n_isValidArray(val)) {
+                    val = val.filter(e => $n_isValidValue(e))
                     return toSelected ? val.map(e => setSelectedItem(e)) : val
                 }
             }
@@ -705,7 +705,7 @@ export default {
             }
 
             // 返回转为分隔符隔开的字符串
-            return $n.numberDeep($n.join(values, props.valueSeparator))
+            return $n_numberDeep($n_join(values, props.valueSeparator))
         }
 
         /**
@@ -714,7 +714,7 @@ export default {
         async function onRequestSelected(value) {
 
             // 请求数据
-            const { status, data } = await $n.http({
+            const { status, data } = await $n_http({
                 url: $table.routePath,
                 data: Object.assign(
                     // 获取表格请求数据
@@ -743,7 +743,7 @@ export default {
                 ),
             })
 
-            return status && $n.isValidArray($n.get(data, 'rows')) ? data.rows : []
+            return status && $n_isValidArray($n_get(data, 'rows')) ? data.rows : []
         }
 
         /**
@@ -754,24 +754,24 @@ export default {
             let columns
 
             // 如果有声明路由表格列数据
-            if ($n.isValidArray(props.columns)) {
-                columns = $n.cloneDeep(props.columns)
+            if ($n_isValidArray(props.columns)) {
+                columns = $n_cloneDeep(props.columns)
 
             // 如果有路由路径
             } else if (routePath) {
                 // 否则如果有路由表格列数据
-                const rawTableColumns = $n.table.config(routePath, 'columns')
-                if ($n.isValidArray(rawTableColumns)) {
-                    columns = $n.cloneDeep(rawTableColumns)
+                const rawTableColumns = $n_table.config(routePath, 'columns')
+                if ($n_isValidArray(rawTableColumns)) {
+                    columns = $n_cloneDeep(rawTableColumns)
                 }
             }
 
-            if ($n.isValidArray(columns)) {
-                if ($n.isValidArray(props.hideSearchKeys)) {
+            if ($n_isValidArray(columns)) {
+                if ($n_isValidArray(props.hideSearchKeys)) {
                     for (const item of columns) {
                         if (
                             props.hideSearchKeys.indexOf(item.name) > -1
-                            && $n.has(item, 'search')
+                            && $n_has(item, 'search')
                         ) {
                             item.search.hide = true
                         }
@@ -791,21 +791,21 @@ export default {
             const columns = []
 
             // 如果有原始表格列数据
-            if ($n.isValidArray($table.tableColumns)) {
+            if ($n_isValidArray($table.tableColumns)) {
 
                 // 克隆原始表格列数据
-                const rawTableColumns = $n.cloneDeep($table.tableColumns)
+                const rawTableColumns = $n_cloneDeep($table.tableColumns)
 
                 // 快捷表格显示的属性名称数组
-                $n.forEach(currentShowKeys.value, function (key) {
+                $n_forEach(currentShowKeys.value, function (key) {
                     for (const item of rawTableColumns) {
                         if (item.name === key) {
                             // 删除搜索字段
-                            if ($n.has(item, 'search')) {
+                            if ($n_has(item, 'search')) {
                                 delete item.search
                             }
                             // 删除可见字段
-                            if ($n.has(item, 'visible')) {
+                            if ($n_has(item, 'visible')) {
                                 delete item.visible
                             }
                             columns.push(item)
@@ -982,7 +982,7 @@ export default {
                 opt[props.valueKey] = row[props.valueKey]
 
                 // 获取当前数据索引
-                const itemIndex = $n.findIndex(_selected, opt)
+                const itemIndex = $n_findIndex(_selected, opt)
 
                 // 如果不存在
                 if (itemIndex === -1) {
@@ -1049,7 +1049,7 @@ export default {
         onUpdated(function () {
             if (
                 popupRef.value
-                && $n.has(popupRef.value, 'currentComponent.ref.updatePosition')
+                && $n_has(popupRef.value, 'currentComponent.ref.updatePosition')
             ) {
                 popupRef.value.currentComponent.ref.updatePosition()
             }

@@ -1,17 +1,17 @@
+import validator from '@netang/utils/validator'
+
+const {
+    validate: $n_validate
+} = validator
+
 /**
- * 验证规则(用于表单验证)
+ * 单个验证规则(用于表单验证)
  */
-$n.rule = function (rule) {
+export default function rule(rule) {
     return function(value) {
-        const res = $n.validate(value, 'data', rule, '', '该值')
+        const res = $n_validate(value, 'data', rule, '', '该值')
         if (res) {
             return res
         }
-    }
-}
-
-$n.ruleValid = function (rule) {
-    return function(value) {
-        return ! $n.validate(value, 'data', rule, '', '该值')
     }
 }

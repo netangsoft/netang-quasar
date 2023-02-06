@@ -1,9 +1,9 @@
 <template>
     <q-img
         :src="currentSrc"
-        :spinner-size="$n.px(size / 2)"
-        :width="$n.px(size)"
-        :height="$n.px(size)"
+        :spinner-size="$n_px(size / 2)"
+        :width="$n_px(size)"
+        :height="$n_px(size)"
         fit="fill"
         v-if="currentSrc"
     >
@@ -11,7 +11,7 @@
         <div
             class="absolute-full transparent cursor-pointer"
             @click.prevent.stop="onPreview"
-            @dblclick.prevent.stop="$n.noop"
+            @dblclick.prevent.stop="$n_noop"
             v-if="preview"
         ></div>
     </q-img>
@@ -60,7 +60,7 @@ export default {
          * 当前图片地址
          */
         const currentSrc = computed(function () {
-            const res = $n.getImage(props.src, { w: $q.platform.is.mobile ? props.size * 2 : props.size })
+            const res = $n_getImage(props.src, { w: $q.platform.is.mobile ? props.size * 2 : props.size })
             if (res) {
                 return res
             }
@@ -73,7 +73,7 @@ export default {
          */
         function onPreview() {
             // 预览图片
-            $n.previewImage(props.src)
+            $n_previewImage(props.src)
         }
 
         return {

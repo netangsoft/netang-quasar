@@ -1,3 +1,13 @@
+import $n_has from 'lodash/has'
+import $n_isString from 'lodash/isString'
+import $n_findIndex from 'lodash/findIndex'
+
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidString from '@netang/utils/isValidString'
+
+import $n_http from '../http'
+import $n_toast from '../toast'
+
 import {
     // 文件请求地址
     REQUEST_URL,
@@ -10,7 +20,7 @@ import {
 async function getQiniuToken(bucket = 'public') {
 
     // 请求数据
-    const { status, data } = await $n.http({
+    const { status, data } = await $n_http({
         url: REQUEST_URL + 'get_qiniu_token',
         data: {
             bucket,
@@ -46,7 +56,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         for (const fileItem of waitUploadFileLists) {
             setFileFail(fileItem, '上传失败')
         }
-        $n.toast({
+        $n_toast({
             message: '获取上传参数失败',
         })
         return
@@ -68,7 +78,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         fileItem.status = UPLOAD_STATUS.uploading
 
         // 请求上传文件到七牛云
-        const { status, data: resUpload } = await $n.http({
+        const { status, data: resUpload } = await $n_http({
             // 上传地址
             url: 'https://upload.qiniup.com/',
             // 数据
@@ -92,7 +102,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
             onCancel(cancel) {
                 // 设置中断上传
                 fileItem.abort = function(msg) {
-                    cancel($n.isValidString(msg) ? msg : '已取消')
+                    cancel($n_isValidString(msg) ? msg : '已取消')
                 }
             },
             // 监听上传进度
@@ -116,7 +126,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         }
 
         // 请求 - 上传文件至 cdn
-        const { status: statusCallback, data: resCallback } = await $n.http({
+        const { status: statusCallback, data: resCallback } = await $n_http({
             url: REQUEST_URL + 'upload_cdn_callback',
             data: query,
             // 关闭错误提示
@@ -140,7 +150,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
     function checkQiniuCallback(res, fileItem) {
 
         // 如果文件被删除
-        if ($n.findIndex(uploadFileLists.value, { hash: fileItem.hash }) === -1) {
+        if ($n_findIndex(uploadFileLists.value, { hash: fileItem.hash }) === -1) {
             // 设置文件上传失败
             setFileFail(fileItem, '上传失败')
             return false
@@ -215,7 +225,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
                 d: vduration,
             })
 
-            if ($n.has(rotates, vrotate)) {
+            if ($n_has(rotates, vrotate)) {
                 json.o = rotates[vrotate]
             }
 
@@ -263,9 +273,9 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
                     // 【8】旋转 270 度(宽高反转)
                     'left-bottom': 8,
                 }
-                if (orientation && $n.isString(orientation)) {
-                    const key = $n.trim(orientation).toLowerCase()
-                    if ($n.has(orientations, key)) {
+                if (orientation && $n_isString(orientation)) {
+                    const key = $n_trim(orientation).toLowerCase()
+                    if ($n_has(orientations, key)) {
                         json.o = orientations[key]
                     }
                 }
@@ -305,7 +315,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         Object.assign(fileItem, query)
 
         return Object.assign({}, query, {
-            json: $n.isValidObject(json) ? JSON.stringify(json) : ''
+            json: $n_isValidObject(json) ? JSON.stringify(json) : ''
         })
     }
 }

@@ -126,7 +126,7 @@ export default {
         }
 
         // 创建睡眠实例
-        const sleep = $n.sleep()
+        const sleep = $n_sleep()
 
         // 缓存名
         let cacheName = ''
@@ -138,10 +138,10 @@ export default {
         if ($q.platform.is.mobile) {
 
             // 获取手机端百分比值
-            let res = $n.percentValue(props.mobileWidth, true)
+            let res = $n_percentValue(props.mobileWidth, true)
 
             // 如果是百分比值
-            if (! $n.isNil(res)) {
+            if (! $n_isNil(res)) {
                 // 原始尺寸 = 屏幕宽度 * 百分比
                 if (res) {
                     originalWidth = $q.screen.width * res
@@ -149,7 +149,7 @@ export default {
 
             } else {
                 // 原始尺寸 = 屏幕宽度像素
-                res = $n.pxValue(props.mobileWidth)
+                res = $n_pxValue(props.mobileWidth)
                 if (res) {
                     originalWidth = res
                 }
@@ -159,10 +159,10 @@ export default {
         } else if (props.drag && props.cache) {
 
             // 设置缓存名
-            cacheName = `drawer:${props.side}:${props.cache === true ? ($power && $power.routePath ? $power.routePath : $n.router.getRoute('path')) : props.cache}`
+            cacheName = `drawer:${props.side}:${props.cache === true ? ($power && $power.routePath ? $power.routePath : $n_router.getRoute('path')) : props.cache}`
 
             // 从缓存获取宽度
-            const cache = $n.storage.get(cacheName)
+            const cache = $n_storage.get(cacheName)
             if (cache) {
                 originalWidth = cache
             }
@@ -247,7 +247,7 @@ export default {
                 sleep(500)
                     .then(function () {
                         // 设置缓存(永久缓存)
-                        $n.storage.set(cacheName, newWidth, 0)
+                        $n_storage.set(cacheName, newWidth, 0)
                     })
             }
         }

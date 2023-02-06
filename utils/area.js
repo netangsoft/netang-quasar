@@ -1,3 +1,11 @@
+import $n_cloneDeep from 'lodash/cloneDeep'
+import $n_get from 'lodash/get'
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_indexOf from '@netang/utils/indexOf'
+import $n_toTree from '@netang/utils/toTree'
+import $n_trimString from '@netang/utils/trimString'
+import $n_replaceAll from '@netang/utils/replaceAll'
+
 // 地址数据缓存
 let _areaData = null
 
@@ -5,7 +13,7 @@ let _areaData = null
  * 获取数据
  */
 function getData(level = 3, params) {
-    return _getData(() => import('@/configs/area3'), level, params)
+    return _getData(() => import('../configs/area3'), level, params)
 }
 function _getData(areaData, level, params) {
     return new Promise(function(resolve) {
@@ -19,14 +27,14 @@ function _getData(areaData, level, params) {
             }, params)
 
             // 克隆树数据
-            const treeData = $n.cloneDeep(_areaData)
+            const treeData = $n_cloneDeep(_areaData)
             const all = {}
             const rows = []
 
             // 是否有忽略省市区 id
-            const isIgnore = $n.isValidArray(para.ignore)
+            const isIgnore = $n_isValidArray(para.ignore)
             function checkIgnore(id) {
-                return isIgnore && $n.indexOf(para.ignore, id) > -1
+                return isIgnore && $n_indexOf(para.ignore, id) > -1
             }
 
             // 省
@@ -45,7 +53,7 @@ function _getData(areaData, level, params) {
                 }
 
                 // 市
-                if (level > 1 && $n.isValidArray(item1[2])) {
+                if (level > 1 && $n_isValidArray(item1[2])) {
 
                     for (let index2 = 0, len2 = item1[2].length; index2 < len2; index2++) {
                         const item2 = item1[2][index2]
@@ -64,7 +72,7 @@ function _getData(areaData, level, params) {
                         item1[2][index2] = all[item2[1]]
 
                         // 区
-                        if (level > 2 && $n.isValidArray(item2[2])) {
+                        if (level > 2 && $n_isValidArray(item2[2])) {
                             for (let index3 = 0, len3 = item2[2].length; index3 < len3; index3++) {
                                 const item3 = item2[2][index3]
 
@@ -90,7 +98,7 @@ function _getData(areaData, level, params) {
                 rows.push(all[key])
             }
 
-            resolve($n.toTree({
+            resolve($n_toTree({
                 data: rows,
             }))
         }
@@ -112,7 +120,7 @@ function _getData(areaData, level, params) {
  * 替换地址
  */
 function replaceArea(val) {
-    val = $n.trimString(val)
+    val = $n_trimString(val)
     return val.replace(/直辖市/g, '')
         .replace(/市/g, '')
         .replace(/区/g, '')
@@ -166,7 +174,7 @@ async function getInfo(params) {
     const { attrs, nodes, tree } = areaData
 
     // 先通过地区编码来查找
-    let data = $n.get(nodes, code)
+    let data = $n_get(nodes, code)
 
     // 如果没有找到, 则通过文字来查找
     if (! data) {
@@ -184,19 +192,19 @@ async function getInfo(params) {
                         children: children1,
                     } = item1
 
-                    const _text1 = $n.replaceAll(text1, '省', '')
+                    const _text1 = $n_replaceAll(text1, '省', '')
 
                     if (
                         isAreaText ?
                             (
                                 provinceText === text1
-                                || $n.replaceAll(provinceText, '省', '') === _text1
+                                || $n_replaceAll(provinceText, '省', '') === _text1
                             )
                             : regionText.indexOf(_text1) > -1
                     ) {
 
                        // 获取市 start --------------------------------------------------
-                       if ($n.isValidArray(children1)) {
+                       if ($n_isValidArray(children1)) {
 
                             for (const item2 of children1) {
 
@@ -216,7 +224,7 @@ async function getInfo(params) {
                                         : regionText.indexOf(_text2) > -1
                                 ) {
                                     // 获取区 start --------------------------------------------------
-                                    if ($n.isValidArray(children2)) {
+                                    if ($n_isValidArray(children2)) {
 
                                         if (areaText || regionText) {
 
@@ -379,9 +387,14 @@ async function getInfo(params) {
     return res
 }
 
-$n.area = {
+/**
+ * 地区
+ */
+const area = {
     // 获取数据
     getData,
     // 获取详情
     getInfo,
 }
+
+export default area

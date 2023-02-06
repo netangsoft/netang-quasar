@@ -1,14 +1,16 @@
+import $n_isFunction from 'lodash/isFunction'
+
 /*
  * 操作数组
  */
-$n.arr = {
+const arr = {
 
     /**
      * 增加
      */
     add(children, index, newItem) {
         if (Array.isArray(children)) {
-            children.splice(index + 1, 0, $n.isFunction(newItem) ? newItem() : newItem)
+            children.splice(index + 1, 0, $n_isFunction(newItem) ? newItem() : newItem)
         }
     },
 
@@ -45,3 +47,5 @@ $n.arr = {
         }
     },
 }
+
+export default arr

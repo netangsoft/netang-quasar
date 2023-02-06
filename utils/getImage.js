@@ -1,27 +1,38 @@
+import $n_has from 'lodash/has'
+import $n_isString from 'lodash/isString'
+
+import $n_isValidArray from '@netang/utils/isValidArray'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_isNumeric from '@netang/utils/isNumeric'
+import $n_slash from '@netang/utils/slash'
+
+import $n_config from './config'
+
 /**
  * 获取图片
  */
-$n.getImage = function(src, params) {
+export default function getImage(src, params) {
 
     if (src) {
 
         // 如果为数组, 则获取第一个
-        if ($n.isValidArray(src)) {
+        if ($n_isValidArray(src)) {
             src = src[0]
 
         // 如果为对象
-        } else if ($n.isValidObject(src)) {
+        } else if ($n_isValidObject(src)) {
 
-            if ($n.has(src, 'params')) {
+            if ($n_has(src, 'params')) {
                 params = src.params
             }
 
-            if ($n.has(src, 'img')) {
+            if ($n_has(src, 'img')) {
                 src = src.img
             }
         }
 
-        if ($n.isValidString(src)) {
+        if ($n_isValidString(src)) {
 
             // http(s):// 或 data: 或 blob: 开头的地址
             if (/^(http(s)?:\/\/|data:|blob:)/i.test(src)) {
@@ -29,12 +40,12 @@ $n.getImage = function(src, params) {
             }
 
             // 如果为对象定义的规格
-            if ($n.isValidObject(params)) {
+            if ($n_isValidObject(params)) {
 
                 // 【自动缩放】
                 // 如果没有定义 w
                 // --------------------------------------------------
-                if (! $n.has(params, 'w')) {
+                if (! $n_has(params, 'w')) {
 
                     const {
                         width,
@@ -46,11 +57,11 @@ $n.getImage = function(src, params) {
 
                         let w = width
 
-                        if (! $n.isNumeric(w) && $n.isString(w)) {
+                        if (! $n_isNumeric(w) && $n_isString(w)) {
                             w = w.replace('px', '')
                         }
 
-                        if ($n.isNumeric(w)) {
+                        if ($n_isNumeric(w)) {
                             w = Number(w)
                             if (w > 0) {
 
@@ -75,7 +86,7 @@ $n.getImage = function(src, params) {
                 // --------------------------------------------------
             }
 
-            const uploaderConfig = $n.config('uploader.upload')
+            const uploaderConfig = $n_config('uploader.upload')
             switch (uploaderConfig.type) {
                 // 七牛云
                 case 'qiniu':
@@ -127,7 +138,7 @@ $n.getImage = function(src, params) {
                         src += '/format/' + format
                     }
 
-                    return $n.slash(uploaderConfig.domain, 'end', true) + src
+                    return $n_slash(uploaderConfig.domain, 'end', true) + src
             }
         }
     }

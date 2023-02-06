@@ -151,7 +151,7 @@ export default {
          */
         const slotNames = computed(function() {
 
-            if ($n.isValidObject(slots)) {
+            if ($n_isValidObject(slots)) {
 
                 // 忽略插槽
                 const ignoreKeys = []
@@ -167,7 +167,7 @@ export default {
                 const keys = Object.keys(slots)
 
                 if (ignoreKeys.length) {
-                    return $n.filter(keys, e => ignoreKeys.indexOf(e) === -1)
+                    return $n_filter(keys, e => ignoreKeys.indexOf(e) === -1)
                 }
 
                 return keys

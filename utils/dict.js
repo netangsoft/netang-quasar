@@ -1,21 +1,16 @@
-import dictData from '@/configs/dict.json'
+import $n_has from 'lodash/has'
 
-/**
- * 数据字典
- */
-
-// 设置字典数据
-$n.dictData = dictData
+import { configs } from './config'
 
 /**
  * 获取字典值对应的文字
  */
-$n.dict = function(key, value, defaultValue = '') {
+export default function dict(key, value, defaultValue = '') {
     if (
         key
-        && $n.has(dictData, key)
+        && $n_has(configs.userDict, key)
     ) {
-        for (const item of dictData[key]) {
+        for (const item of configs.userDict[key]) {
             if (item[1] === value) {
                 return item[0]
             }
@@ -23,22 +18,4 @@ $n.dict = function(key, value, defaultValue = '') {
     }
 
     return defaultValue
-}
-
-$n.dictOptions = function(key, textKey = 'label', valueKey = 'value') {
-
-    const lists = []
-
-    const dictItem = $n.get(dictData, key, [])
-
-    for (const item of dictItem) {
-
-        const val = {}
-        val[textKey] = item[0]
-        val[valueKey] = item[1]
-
-        lists.push(val)
-    }
-
-    return lists
 }
