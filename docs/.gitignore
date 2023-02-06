@@ -23,5 +23,4 @@ package-lock.json
 *.patch
 
 /node_modules
-/dist
 /test
