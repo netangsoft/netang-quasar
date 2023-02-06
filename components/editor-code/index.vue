@@ -87,8 +87,8 @@ export default {
         // 停止值观察
         let stopValueWatcher = false
 
-        // 创建防抖睡眠方法
-        const sleep = $n.debounceSleep()
+        // 创建睡眠实例
+        const sleep = $n.sleep()
 
         // ==========【监听数据】=========================================================================================
 
