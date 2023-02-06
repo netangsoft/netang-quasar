@@ -278,7 +278,7 @@ function create(params) {
                 }
 
                 // 创建对话框
-                $n.$dialog.create({
+                $n.dialog.create({
                     // 标题
                     title: `移动至节点的${o.type === 'moveUp' ? '上方' : (o.type === 'moveDown' ? '下方' : '内部')}`,
                     // 宽度
@@ -676,7 +676,7 @@ function create(params) {
 /**
  * 树业务
  */
-$n.$tree = {
+$n.tree = {
     // 创建树实例
     create,
 }

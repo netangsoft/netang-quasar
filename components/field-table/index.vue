@@ -329,7 +329,7 @@ export default {
 
 
         // 创建权限实例
-        const $power = $n.$power.create({
+        const $power = $n.power.create({
             // 路由路径
             path: $n.isValidString(props.path) ? props.path : false,
             // 路由参数
@@ -344,7 +344,7 @@ export default {
         } = $power
 
         // 创建表格实例
-        const $table = $n.$table.create({
+        const $table = $n.table.create({
             // 权限实例
             $power,
             // 附加请求数据
@@ -760,7 +760,7 @@ export default {
             // 如果有路由路径
             } else if (routePath) {
                 // 否则如果有路由表格列数据
-                const rawTableColumns = $n.$table.config(routePath, 'columns')
+                const rawTableColumns = $n.table.config(routePath, 'columns')
                 if ($n.isValidArray(rawTableColumns)) {
                     columns = $n.cloneDeep(rawTableColumns)
                 }

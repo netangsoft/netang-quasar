@@ -95,8 +95,8 @@ $n.http = createHttp({
             if (para.token) {
 
                 // 如果已登录
-                if ($n.$auth.isLogin()) {
-                    const { token } = $n.$auth.getAdminUserInfo()
+                if ($n.auth.isLogin()) {
+                    const { token } = $n.auth.getAdminUserInfo()
 
                     // 头部添加鉴权认证
                     options.headers.Authorization = token
@@ -109,7 +109,7 @@ $n.http = createHttp({
 
                 // 否则未登录 && 如果开启强制登录, 则跳转登录页面
                 } else if (para.login) {
-                    $n.$auth.pushLogin()
+                    $n.auth.pushLogin()
                     return false
                 }
             }
@@ -127,7 +127,7 @@ $n.http = createHttp({
         // 如果请求成功
         if (res.status && para.checkCode && para.token) {
             // 设置权限数据
-            $n.$power.setData($n.get(res, 'response.data.power'))
+            $n.power.setData($n.get(res, 'response.data.power'))
         }
 
         return res
@@ -240,10 +240,10 @@ $n.http = createHttp({
             })
 
             // 退出登录
-            $n.$auth.logout()
+            $n.auth.logout()
 
             // 跳转登录页面
-            $n.$auth.pushLogin()
+            $n.auth.pushLogin()
 
             return false
         }

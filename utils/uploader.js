@@ -1023,7 +1023,7 @@ function create(params) {
 /**
  * 上传器
  */
-$n.$uploader = {
+$n.uploader = {
     // 创建对话框
     create,
 }

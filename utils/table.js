@@ -254,7 +254,7 @@ function create(params) {
         // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
         firstTableSearchValue,
         // 表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
-    } = $n.$search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
+    } = $n.search.getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
 
     // 表格搜索数据值
     const tableSearchValue = ref($route.fullPath ? firstTableSearchValue : [])
@@ -275,7 +275,7 @@ function create(params) {
         const lists = []
 
         // 先格式化权限按钮列表
-        $n.forEach($n.$power.formatBtns($power.powerBtns.value), function(item) {
+        $n.forEach($n.power.formatBtns($power.powerBtns.value), function(item) {
 
             // 如果是固定按钮
             if (item.fixed) {
@@ -641,7 +641,7 @@ function create(params) {
         })
 
         // 获取搜索值
-        const search = $n.$search.formatValue(rawSearchOptions, tableSearchValue.value)
+        const search = $n.search.formatValue(rawSearchOptions, tableSearchValue.value)
         if ($n.isValidArray(search)) {
             data.n_search = $n.has(data, 'n_search') ? $n.concat(data.n_search, search) : search
         }
@@ -841,14 +841,14 @@ function create(params) {
      * 设置表格搜索参数
      */
     async function setTableSearchOptions(format) {
-        tableSearchOptions.value = await $n.$search.getOptions(rawSearchOptions, format)
+        tableSearchOptions.value = await $n.search.getOptions(rawSearchOptions, format)
     }
 
     /**
      * 是否有表格搜索值
      */
     function hasTableSearchValue() {
-        return !! $n.$search.formatValue(rawSearchOptions, tableSearchValue.value).length
+        return !! $n.search.formatValue(rawSearchOptions, tableSearchValue.value).length
     }
 
     // 如果开启搜索
@@ -957,7 +957,7 @@ function config(routePath, path, defaultValue) {
 /**
  * 业务表格
  */
-$n.$table = {
+$n.table = {
     // 创建表格
     create,
     // 获取表格配置

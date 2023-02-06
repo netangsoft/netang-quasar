@@ -379,7 +379,7 @@ async function getInfo(params) {
     return res
 }
 
-$n.$area = {
+$n.area = {
     // 获取数据
     getData,
     // 获取详情

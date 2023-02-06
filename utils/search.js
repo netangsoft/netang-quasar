@@ -338,7 +338,7 @@ async function getOptions(rawSearchOptions, format) {
                     newItem.tree.nodes = await $n.runAsync(newItem.tree.nodes)()
                 }
 
-            // 如果有表格选项(调用的是 <n-field-table> 组件)
+            // 如果有表格选项(调用的是 <n-field-table.md> 组件)
             } else if ($n.has(newItem, 'table')) {
                 newItem.searchType = 'table'
                 newItem.table = Object.assign({
@@ -469,7 +469,7 @@ function formatValue(rawSearchOptions, searchValue) {
 /**
  * 搜素业务
  */
-$n.$search = {
+$n.search = {
     // 获取原始值
     getRawData,
     // 获取参数

@@ -90,7 +90,7 @@ export default {
         const uploadFileLists = ref([])
 
         // 创建上传器
-        const uploader = $n.$uploader.create({
+        const uploader = $n.uploader.create({
             type: props.type,
             // 声明属性
             props,

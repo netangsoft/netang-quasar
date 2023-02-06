@@ -1106,7 +1106,7 @@ function getPageData($route) {
 /**
  * 权限业务
  */
-$n.$power = {
+$n.power = {
     // 创建
     create,
     // 设置权限数据

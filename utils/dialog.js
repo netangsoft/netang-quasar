@@ -35,7 +35,7 @@ function onInject() {
 /**
  * 对话框业务
  */
-$n.$dialog = {
+$n.dialog = {
     // 创建对话框
     create,
     // 获取对话框注入数据

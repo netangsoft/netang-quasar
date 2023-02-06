@@ -48,7 +48,7 @@ export default {
             submit,
             // 父级声明属性
             props,
-        } = $n.$dialog.inject()
+        } = $n.dialog.inject()
 
         const {
             // 树节点列表

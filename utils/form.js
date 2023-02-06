@@ -46,7 +46,7 @@ function create(params) {
 /**
  * 业务表单
  */
-$n.$form = {
+$n.form = {
     // 创建表单
     create,
 }

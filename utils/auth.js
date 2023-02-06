@@ -117,7 +117,7 @@ function logout() {
 /**
  * 鉴权业务
  */
-$n.$auth = {
+$n.auth = {
     // 是否登录
     isLogin,
     // 登录后更新数据
