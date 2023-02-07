@@ -34,10 +34,10 @@ export const configs = {
 }
 
 /**
- * 配置处理器
+ * 配置设置
  * @param options
  */
-export function configHandler(options) {
+export function settings(options) {
     $n_merge(configs, options)
 }
 

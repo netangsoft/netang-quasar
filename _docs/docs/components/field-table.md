@@ -1,7 +1,15 @@
 # FieldTable 下拉表格
 
+::: tip
 继承 `<q-field>` 所有特性
 [中文文档](http://www.quasarchs.com/vue-components/field) [英文文档](https://quasar.dev/vue-components/field)
+:::
+
+123
+
+<test />
+
+456
 
 ## FieldTable API
 

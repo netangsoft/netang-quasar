@@ -1,6 +1,6 @@
 {
   "name": "@netang/quasar",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "description": "netang-quasar",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,14 +17,5 @@
   "bugs": {
     "url": "https://github.com/netangsoft/netang-quasar/issues"
   },
-  "homepage": "https://github.com/netangsoft/netang-quasar#readme",
-  "devDependencies": {
-    "@netang/node-utils": "^0.2.61",
-    "@netang/utils": "^0.4.2",
-    "@netang/vue-utils": "^3.0.23",
-    "lodash": "^4.17.21",
-    "quasar": "^2.11.5",
-    "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
-  }
+  "homepage": "https://github.com/netangsoft/netang-quasar#readme"
 }
