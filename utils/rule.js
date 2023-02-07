@@ -1,4 +1,4 @@
-import { validate as $n_validate } from '@netang/utils/validator'
+import $n_validate from '@netang/utils/validate'
 
 /**
  * 单个验证规则(用于表单验证)

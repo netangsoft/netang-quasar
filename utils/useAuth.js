@@ -1,9 +1,5 @@
-import validator from '@netang/utils/validator'
+import $n_validator from '@netang/utils/validator'
 import $n_cookie from '@netang/utils/cookie'
-
-const {
-    validator: $n_validator,
-} = validator
 
 /**
  * 初始化鉴权状态
