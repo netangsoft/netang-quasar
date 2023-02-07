@@ -2,7 +2,7 @@ import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_slash from '@netang/utils/slash'
 
-import { configs } from './config'
+import $n_config from './config'
 
 /**
  * 获取文件
@@ -23,11 +23,15 @@ export default function getFile(src) {
                 return src
             }
 
-            const uploaderConfig = configs.uploader.upload
-            switch (uploaderConfig.type) {
+            const {
+                type,
+                domain,
+            } = $n_config('uploader.upload')
+
+            switch (type) {
                 // 七牛云
                 case 'qiniu':
-                    return $n_slash(uploaderConfig.domain, 'end', true) + src
+                    return $n_slash(domain, 'end', true) + src
             }
         }
     }

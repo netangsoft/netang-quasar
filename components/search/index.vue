@@ -171,11 +171,7 @@ import NFieldTable from '../field-table'
 
 import $n_isValidArray from '@netang/utils/isValidArray'
 
-import { configs } from '../../utils/config'
-
-const {
-    priceCentToYuan,
-} = configs
+import $n_config from '../../utils/config'
 
 export default {
 
@@ -215,7 +211,7 @@ export default {
     setup() {
         return {
             // 如果金额为分
-            centToYuan: priceCentToYuan,
+            centToYuan: $n_config('priceCentToYuan') === true,
 
             isValidArray: $n_isValidArray,
         }

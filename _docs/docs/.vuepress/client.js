@@ -9,8 +9,6 @@ import "quasar/dist/quasar.sass";
 lang.date.firstDayOfWeek = 1
 lang.table.recordsPerPage = ''
 
-import MyComponent from './components/test.vue'
-
 export default defineClientConfig({
     enhance({ app }) {
 
@@ -32,8 +30,5 @@ export default defineClientConfig({
             // 语言
             lang,
         })
-
-
-        app.component('test', MyComponent)
     },
 })

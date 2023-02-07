@@ -86,8 +86,14 @@ export default function getImage(src, params) {
                 // --------------------------------------------------
             }
 
-            const uploaderConfig = $n_config('uploader.upload')
-            switch (uploaderConfig.type) {
+
+            const {
+                type,
+                domain,
+            } = $n_config('uploader.upload')
+
+            switch (type) {
+
                 // 七牛云
                 case 'qiniu':
 
@@ -138,7 +144,7 @@ export default function getImage(src, params) {
                         src += '/format/' + format
                     }
 
-                    return $n_slash(uploaderConfig.domain, 'end', true) + src
+                    return $n_slash(domain, 'end', true) + src
             }
         }
     }

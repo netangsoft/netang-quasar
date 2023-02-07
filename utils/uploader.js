@@ -20,10 +20,11 @@ import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_copy from '@netang/utils/copy'
 import $n_http from '@netang/utils/http'
 
-import $n_config from './config'
 import $n_toast from './toast'
 import $n_confirm from './confirm'
 import $n_alert from './alert'
+
+import $n_config from './config'
 
 import { configs } from './config'
 
@@ -106,7 +107,7 @@ function create(params) {
     const configLimit = Object.assign({
         maxSize: 100,
         exts: [],
-    }, $n_config('uploader.limit.' + props.type))
+    },  $n_config('uploader.limit.' + props.type))
 
     // 如果有单个文件的最大大小
     if (props.maxSize) {

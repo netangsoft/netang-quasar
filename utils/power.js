@@ -35,11 +35,12 @@ import $n_http from '@netang/utils/http'
 import { statePower } from '../store'
 import { NRenderKey, NPowerKey, NFormKey, NTableKey } from './symbols'
 
-import $n_config from './config'
 import $n_getData from './getData'
 import $n_toast from './toast'
 import $n_confirm from './confirm'
 import $n_bus from './bus'
+
+import $n_config from './config'
 
 import { configs } from './config'
 
@@ -540,7 +541,7 @@ async function getData() {
     if (! statePower.value.v) {
 
         // 获取权限数据
-        const res = await $n_getData($n_config('powerName'))
+        const res = await $n_getData($n_config('apiDataPowerName'))
         if (res === false) {
             statePower.value = {
                 // 权限版本
