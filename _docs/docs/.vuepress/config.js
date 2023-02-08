@@ -1,5 +1,4 @@
 import path from 'path'
-import { webpackBundler } from '@vuepress/bundler-webpack'
 import { defineUserConfig } from '@vuepress/cli'
 import { defaultTheme } from '@vuepress/theme-default'
 import { searchPlugin } from '@vuepress/plugin-search'
@@ -38,8 +37,4 @@ export default defineUserConfig({
             },
         }),
     ],
-    bundler: webpackBundler({
-        postcss: {},
-        vue: {},
-    }),
 })

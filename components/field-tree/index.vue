@@ -149,12 +149,12 @@ export default {
         expanded: Array, // v-model:expanded
         // 节点数组
         nodes: Array,
-        // 唯一的节点 id
+        // 唯一的节点键值
         nodeKey: {
             type: String,
             default: 'id',
         },
-        // label 字段
+        // 标签字段
         labelKey: {
             type: String,
             default: 'label',
@@ -165,15 +165,14 @@ export default {
         multiple: Boolean,
         // 手风琴模式
         accordion: Boolean,
-        // 输入框中是否显示选中值的完整路径
+        // 是否显示选中值的完整路径
         showAllLevels: {
             type: Boolean,
             default: true,
         },
-
         // 是否开启筛选
         filter: Boolean,
-        // 多选模式下是否折叠 Tag
+        // 是否折叠标签(多选模式有效)
         collapseTags: Boolean,
         // 占位符
         placeholder: String,
@@ -501,7 +500,7 @@ export default {
             // 设置输入框焦点
             setInputFocus()
 
-            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
+            // window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
         }
 
         /**

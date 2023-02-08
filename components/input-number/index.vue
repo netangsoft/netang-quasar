@@ -72,6 +72,8 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
+import BigNumber from 'bignumber.js'
+
 import $n_filter from 'lodash/filter'
 
 import $n_isValidObject from '@netang/utils/isValidObject'

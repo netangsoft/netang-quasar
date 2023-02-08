@@ -169,8 +169,6 @@ export default {
         },
         // 结束值
         end: [String, Number],
-        // 占位符
-        placeholder: String,
         // 类型, 可选值 year month day time datetime daterange datetimerange
         type: {
             type: String,
@@ -188,6 +186,8 @@ export default {
             type: String,
             default: 'X',
         },
+        // 占位符
+        placeholder: String,
         // 是否只读
         readonly: Boolean,
     },
@@ -316,6 +316,7 @@ export default {
         watch([()=>props.modelValue, ()=>props.end, ()=>props.type], function() {
             dateValue.value = formatDateValue()
             Object.assign(timeValue, formatTimeValue())
+
             showValue.value = updateValue(dateValue.value, timeValue, false)
         })
 
@@ -344,6 +345,14 @@ export default {
                         hh: '',
                         ii: '',
                     })
+
+                    // 如果是这种格式 06:59 的时间
+                    if (
+                        ! $n_isDate(val)
+                        && $n_indexOf(val, ':') > -1
+                    ) {
+                        val = quasarDate.formatDate(Date.now(), `YYYY-MM-DD ${val}`)
+                    }
 
                     if ($n_isDate(val)) {
 
@@ -493,17 +502,16 @@ export default {
 
                 // 如果是选择时间
                 if (props.type === 'time') {
-                    if (
-                        ! $n_isValidValue(dateValue.hh)
-                        || ! $n_isValidValue(dateValue.ii)
-                        || (props.showSecond && ! $n_isValidValue(dateValue.ss))) {
+
+                    if (! $n_isValidValue(dateValue.hh) && ! $n_isValidValue(dateValue.ii)) {
                         return ''
                     }
+
                     format = 'HH:mm'
                     if (props.showSecond) {
                         format += ':ss'
                     }
-                    val = quasarDate.formatDate(Date.now(), `YYYY-MM-DD ${dateValue.hh}:${dateValue.ii}${props.showSecond ? dateValue.ss : (props.endDate ? ':59' : ':00')}`)
+                    val = quasarDate.formatDate(Date.now(), `YYYY-MM-DD ${dateValue.hh !== '' ? dateValue.hh : '00'}:${dateValue.ii !== '' ? dateValue.ii : '00'}${props.showSecond && dateValue.ss !== '' ? dateValue.ss : (props.endDate ? ':59' : ':00')}`)
 
                 // 否则是选择年月
                 } else {
@@ -671,6 +679,7 @@ export default {
             // 更新值
             const newValue = {}
             newValue[type] = value
+
             updateValue(Object.assign({}, dateValue.value, newValue), timeValue)
 
             // 如是类型是年

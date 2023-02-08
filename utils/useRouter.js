@@ -1,3 +1,4 @@
+import $n_isNil from 'lodash/isNil'
 import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
 
@@ -6,19 +7,18 @@ import $n_slash from '@netang/utils/slash'
 
 import { configs } from './config'
 
-const {
-    // 自定义路由
-    routers,
-} = configs
-
 /**
  * 获取路由
  */
-export function getRouters(mainRouter, errorRouter) {
+export function getRouters(mainRouter, errorRouter, routers = null) {
 
     const routes = [
-        mainRouter
+        mainRouter,
     ]
+
+    if ($n_isNil(routers)) {
+        routers = $n_get(configs, 'routers')
+    }
 
     $n_forIn(routers, function(item, key) {
 

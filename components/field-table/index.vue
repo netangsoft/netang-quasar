@@ -863,7 +863,7 @@ export default {
             // 设置输入框焦点
             setInputFocus()
 
-            window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
+            // window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
         }
 
         /**
