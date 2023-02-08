@@ -3,6 +3,7 @@ export const sidebarZh = {
         {
             text: 'Components 组件',
             children: [
+                '/components/field-date',
                 '/components/field-table',
                 '/components/field-tree',
             ],
