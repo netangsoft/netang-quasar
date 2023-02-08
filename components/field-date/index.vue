@@ -174,8 +174,8 @@ export default {
             type: String,
             default: 'day',
         },
-        // 是否截止时间
-        endDate: Boolean,
+        // 是否截止日期
+        isEndDate: Boolean,
         // 是否显示秒
         showSecond: Boolean,
         // 显示在输入框中的格式
@@ -470,7 +470,7 @@ export default {
                 }
 
             // 如果不是范围日期 && 是结束日期
-            } else if (! isRange.value && props.endDate) {
+            } else if (! isRange.value && props.isEndDate) {
                 obj.from = props.showSecond ? '23:59:59' : '23:59'
             } else {
                 obj.from = props.showSecond ? '00:00:00' : '00:00'
@@ -511,7 +511,7 @@ export default {
                     if (props.showSecond) {
                         format += ':ss'
                     }
-                    val = quasarDate.formatDate(Date.now(), `YYYY-MM-DD ${dateValue.hh !== '' ? dateValue.hh : '00'}:${dateValue.ii !== '' ? dateValue.ii : '00'}${props.showSecond && dateValue.ss !== '' ? dateValue.ss : (props.endDate ? ':59' : ':00')}`)
+                    val = quasarDate.formatDate(Date.now(), `YYYY-MM-DD ${dateValue.hh !== '' ? dateValue.hh : '00'}:${dateValue.ii !== '' ? dateValue.ii : '00'}${props.showSecond && dateValue.ss !== '' ? dateValue.ss : (props.isEndDate ? ':59' : ':00')}`)
 
                 // 否则是选择年月
                 } else {
@@ -526,11 +526,11 @@ export default {
                         }
 
                         format = 'YYYY-MM'
-                        val = quasarDate[props.endDate ? 'endOfDate' : 'startOfDate'](new Date(`${dateValue.y}-${dateValue.mm}`), 'month')
+                        val = quasarDate[props.isEndDate ? 'endOfDate' : 'startOfDate'](new Date(`${dateValue.y}-${dateValue.mm}`), 'month')
 
                     } else {
                         format = 'YYYY'
-                        val = quasarDate[props.endDate ? 'endOfDate' : 'startOfDate'](new Date(`${dateValue.y}-01`), 'year')
+                        val = quasarDate[props.isEndDate ? 'endOfDate' : 'startOfDate'](new Date(`${dateValue.y}-01`), 'year')
                     }
                 }
 
@@ -609,12 +609,12 @@ export default {
                 if (props.showSecond) {
                     format += ':ss'
                 } else {
-                    from += (props.endDate ? ':59' : ':00')
+                    from += (props.isEndDate ? ':59' : ':00')
                 }
             } else {
-                from += (props.endDate ? '23:59' : '00:00')
+                from += (props.isEndDate ? '23:59' : '00:00')
                 if (! props.showSecond) {
-                    from += (props.endDate ? ':59' : ':00')
+                    from += (props.isEndDate ? ':59' : ':00')
                 }
             }
             if (props.format) {

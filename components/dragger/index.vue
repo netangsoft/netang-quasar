@@ -30,7 +30,7 @@ export default {
      * 声明属性
      */
     props: {
-        // 值
+        // 值 v-model
         modelValue: Array,
         // 是否开启拖拽
         drag: {

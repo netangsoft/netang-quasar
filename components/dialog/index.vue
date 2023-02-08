@@ -96,20 +96,20 @@ export default {
         props: Object,
         // 标题
         title: String,
-        // 显示关闭按钮
+        // 是否显示关闭按钮
         close: {
             type: Boolean,
             default: true,
         },
-        // 显示取消按钮
+        // 是否显示取消按钮
         cancel: Boolean,
-        // 确定按钮
-        onConfirm: Function,
-        // 显示底部
+        // 是否显示底部
         bottom: {
             type: Boolean,
             default: true,
         },
+        // 点击确定方法
+        onConfirm: Function,
         // 宽度
         width: {
             type: [String, Number],
@@ -127,7 +127,7 @@ export default {
         },
         // 是否全屏
         fullscreen: Boolean,
-        // 页面容器
+        // 是否是页面容器
         pageContainer: {
             type: Boolean,
             default: true,

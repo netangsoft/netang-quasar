@@ -33,7 +33,7 @@
                                     v-model="modelValue[itemIndex][index].value"
                                     :type="modelValue[itemIndex][0].dateType"
                                     dense
-                                    :end-date="index === 1"
+                                    :is-end-date="index === 1"
                                     outlined
                                     clearable
                                 />

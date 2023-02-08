@@ -36,9 +36,9 @@ export default {
             required: true,
         },
         // 修改前值
-        before: [ Function, Object, Boolean ],
+        before: Function,
         // 修改后值
-        after: [ Function, Object, Boolean ],
+        after: Function,
         // 不自动触发更新
         noEmit: Boolean,
     },

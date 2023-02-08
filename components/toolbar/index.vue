@@ -91,10 +91,8 @@ export default {
      * 声明属性
      */
     props: {
-        // 是否头部
+        // 是否头部工具栏
         header: Boolean,
-        // 紧凑模式
-        dense: Boolean,
     },
 
     /**

@@ -107,16 +107,10 @@ export default {
         step: [Number, String],
         // 小数位数(默认为 0, centToYuan开启后默认为 2)
         decimalLength: [Number, String],
-        // 是否禁用
-        disable: Boolean,
-        // 是否只读
-        readonly: Boolean,
         // 是否禁用减少按钮
         disableMinus: Boolean,
         // 是否禁用增加按钮
         disablePlus: Boolean,
-        // 是否禁用输入框
-        disableInput: Boolean,
         // 是否使用控制按钮
         controls: Boolean,
         // 居中显示
@@ -132,6 +126,10 @@ export default {
             type: Number,
             default: BigNumber.ROUND_DOWN,
         },
+        // 是否禁用
+        disable: Boolean,
+        // 是否只读
+        readonly: Boolean,
     },
 
     /**

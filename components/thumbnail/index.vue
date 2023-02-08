@@ -45,7 +45,7 @@ export default {
             type: Number,
             default: 40,
         },
-        // 点击预览
+        // 是否点击放大预览
         preview: Boolean,
     },
 

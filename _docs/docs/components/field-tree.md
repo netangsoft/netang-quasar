@@ -7,11 +7,11 @@
 
 | 属性名                         | 说明                                    | 类型        | 可选值 | 默认值   |
 |-----------------------------|---------------------------------------|-----------|-----|-------|
-| value / v-model             | 绑定值(必填)                               | -         | -   | -     |
+| value / v-model             | 绑定值（必填）                               | -         | -   | -     |
 | expanded / v-model:expanded | 树展开节点                                 | `Array`   | -   | -     |
 | nodes                       | 节点数组                                  | `String`  | -   | -     |
-| nodeKey                     | 唯一的节点键值(必填)                           | `String`  | -   | id    |
-| labelKey                    | 标签字段                                  | `String`  | -   | label |
+| node-key                    | 唯一的节点键值（必填）                           | `String`  | -   | id    |
+| label-key                   | 标签字段                                  | `String`  | -   | label |
 | strict                      | 是否可选任意一级(true:可选任意一级, false: 仅能选叶子节点) | `Boolean` | -   | false |
 | multiple                    | 是否多选                                  | `Boolean` | -   | false |
 | accordion                   | 手风琴模式                                 | `Boolean` | -   | false |

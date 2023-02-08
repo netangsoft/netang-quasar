@@ -7,9 +7,9 @@
 
 | 属性名               | 说明         | 类型                  | 可选值                                                                            | 默认值   |
 |-------------------|------------|---------------------|--------------------------------------------------------------------------------|-------|
-| value / v-model   | 绑定值(必填)    | -                   | -                                                                              | -     |
+| value / v-model   | 绑定值（必填）    | -                   | -                                                                              | -     |
 | end / v-model:end | 结束值        | `String` / `Number` | `year` / `month` / `day` / `time` / `datetime` / `daterange` / `datetimerange` | day   |
-| end-date          | 是否截止时间     | `Boolean`           | -                                                                              | false |
+| is-end-date       | 是否截止日期     | `Boolean`           | -                                                                              | false |
 | show-second       | 是否显示秒      | `Boolean`           | -                                                                              | false |
 | format            | 显示在输入框中的格式 | `String`            | -                                                                              | label |
 | value-format      | 绑定值的格式     | `String`            | -                                                                              | X     |

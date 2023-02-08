@@ -242,14 +242,14 @@ export default {
         },
         // 树节点点击
         treeNodeClick: Function,
-        // 选中第一个树节点
+        // 是否选中第一个树节点
         treeSelectFirstNode: {
             type: Boolean,
             default: true,
         },
         // 显示树筛选
         treeFilter: Boolean,
-        // 树位置
+        // 树位置, 可选值: left / right
         treeSide: {
             type: String,
             default: 'left',

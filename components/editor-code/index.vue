@@ -45,7 +45,7 @@ export default {
         language: String,
         // 是否只读
         readonly: Boolean,
-        // 代码视图
+        // 是否显示代码视图
         minimap: Boolean,
         // tab 长度
         tabSize: {

@@ -123,9 +123,13 @@ export default {
             type: Number,
             default: 50,
         },
+        // 反转插槽
         reverse: Boolean,
+        // 模型的 CSS 单位
         unit: String,
+        // 两个值的数组，表示两个面板的最小和最大分割大小
         limits: Array,
+        // 是否水平拆分
         horizontal: Boolean,
 
         // 显示后置插槽 v-model:after
