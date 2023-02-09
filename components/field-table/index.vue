@@ -194,8 +194,8 @@ import $n_numberDeep from '@netang/utils/numberDeep'
 import $n_sleep from '@netang/utils/sleep'
 import $n_http from '@netang/utils/http'
 
-import $n_power from '../../utils/power'
-import $n_table from '../../utils/table'
+import $n_$power from '../../utils/$power'
+import $n_$table from '../../utils/$table'
 
 import { configs } from '../../utils/config'
 
@@ -357,7 +357,7 @@ export default {
 
 
         // 创建权限实例
-        const $power = $n_power.create({
+        const $power = $n_$power.create({
             // 路由路径
             path: $n_isValidString(props.path) ? props.path : false,
             // 路由参数
@@ -372,7 +372,7 @@ export default {
         } = $power
 
         // 创建表格实例
-        const $table = $n_table.create({
+        const $table = $n_$table.create({
             // 权限实例
             $power,
             // 附加请求数据
@@ -788,7 +788,7 @@ export default {
             // 如果有路由路径
             } else if (routePath) {
                 // 否则如果有路由表格列数据
-                const rawTableColumns = $n_table.config(routePath, 'columns')
+                const rawTableColumns = $n_$table.config(routePath, 'columns')
                 if ($n_isValidArray(rawTableColumns)) {
                     columns = $n_cloneDeep(rawTableColumns)
                 }

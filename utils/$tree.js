@@ -697,9 +697,9 @@ function create(params) {
 /**
  * 树业务
  */
-const tree = {
+const $tree = {
     // 创建树实例
     create,
 }
 
-export default tree
+export default $tree

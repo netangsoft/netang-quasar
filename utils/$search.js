@@ -498,7 +498,7 @@ function formatValue(rawSearchOptions, searchValue) {
 /**
  * 搜素业务
  */
-const search = {
+const $search = {
     // 获取原始值
     getRawData,
     // 获取参数
@@ -507,4 +507,4 @@ const search = {
     formatValue,
 }
 
-export default search
+export default $search

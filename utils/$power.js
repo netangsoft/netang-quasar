@@ -1151,7 +1151,7 @@ function getPageData($route) {
 /**
  * 权限业务
  */
-const power = {
+const $power = {
     // 创建
     create,
     // 设置权限数据
@@ -1166,4 +1166,4 @@ const power = {
     request,
 }
 
-export default power
+export default $power

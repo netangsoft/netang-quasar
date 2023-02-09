@@ -120,7 +120,7 @@ function logout() {
 /**
  * 鉴权业务
  */
-const auth = {
+const $auth = {
     // 是否登录
     isLogin,
     // 登录后更新数据
@@ -137,4 +137,4 @@ const auth = {
     logout,
 }
 
-export default auth
+export default $auth

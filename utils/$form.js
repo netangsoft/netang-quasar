@@ -48,9 +48,9 @@ function create(params) {
 /**
  * 业务表单
  */
-const form = {
+const $form = {
     // 创建表单
     create,
 }
 
-export default form
+export default $form
