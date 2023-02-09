@@ -821,7 +821,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/sass/var.scss";
+@import "@/assets/sass/variables.scss";
 
 .date {
 

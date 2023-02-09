@@ -534,7 +534,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/sass/var.scss";
+@import "@/assets/sass/variables.scss";
 
 // 上传器队列
 .n-uploader-query {
