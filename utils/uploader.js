@@ -5,6 +5,8 @@ import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
 import $n_toLower from 'lodash/toLower'
 import $n_findIndex from 'lodash/findIndex'
+import $n_uniq from 'lodash/uniq'
+import $n_find from 'lodash/find'
 
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
@@ -19,19 +21,15 @@ import $n_run from '@netang/utils/run'
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_copy from '@netang/utils/copy'
 import $n_http from '@netang/utils/http'
+import $n_getThrowMessage from '@netang/utils/getThrowMessage'
 
 import $n_toast from './toast'
 import $n_confirm from './confirm'
 import $n_alert from './alert'
-
+import $n_previewImage from './previewImage'
+import $n_getImage from './getImage'
+import $n_getFile from './getFile'
 import $n_config from './config'
-
-import { configs } from './config'
-
-const {
-    // api 文件请求地址
-    apiFileUrl,
-} = configs
 
 import {
     // 文件类型映射
@@ -198,7 +196,7 @@ function create(params) {
 
                 // 请求 - 获取文件
                 const { status, data: resExisted } = await $n_http({
-                    url: apiFileUrl + 'get_file',
+                    url: $n_config('apiFileUrl') + 'get_file',
                     data: {
                         hashs,
                     },
@@ -654,7 +652,7 @@ function create(params) {
 
         // 请求 - 检查文件是否存在 hash
         const { status, data: resExisted } = await $n_http({
-            url: apiFileUrl + 'check_exist',
+            url: $n_config('apiFileUrl') + 'check_exist',
             data: {
                 hashs: $n_uniq(checkHashs),
             },
@@ -974,7 +972,7 @@ function create(params) {
 
             // 请求 - 修改文件名
             const { status } = await $n_http({
-                url: apiFileUrl + 'edit_file_title',
+                url: $n_config('apiFileUrl') + 'edit_file_title',
                 data: {
                     hash,
                     title: newTitle,
