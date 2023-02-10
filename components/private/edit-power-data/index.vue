@@ -16,7 +16,7 @@
                 <!-- 树 -->
                 <n-field-tree
                     class="n-field-fieldset"
-                    :label="routeType === 0 ? '跳转页面' : '重定向 URL'"
+                    :label="dataType === dicts.POWER_DATA_TYPE__OPEN ? '跳转页面' : '重定向 URL'"
                     outlined
                     clearable
                     stack-label
@@ -779,7 +779,7 @@ export default {
                     if ($n_isValidValue(props.url)) {
                         // 轻提示
                         $n_toast({
-                            message: `如果定义了【${props.routeType === 0 ? '跳转页面' : '重定向 URL'}】，则 URL 必须为空`,
+                            message: `如果定义了【${props.dataType === dicts.POWER_DATA_TYPE__OPEN ? '跳转页面' : '重定向 URL'}】，则 URL 必须为空`,
                         })
                         return false
                     }
