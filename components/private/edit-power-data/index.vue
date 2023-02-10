@@ -10,6 +10,26 @@
 
         <template v-if="dataType">
 
+            <!-- 设置重定向 URL -->
+            <div class="col-xs-12 col-sm-6 col-md-3" v-if="! url">
+
+                <!-- 树 -->
+                <n-field-tree
+                    class="n-field-fieldset"
+                    :label="routeType === 0 ? '跳转页面' : '重定向 URL'"
+                    outlined
+                    clearable
+                    stack-label
+                    dense
+
+                    v-model="formData.toPage"
+                    :nodes="treeNodes"
+                    :expanded="treeExpanded"
+                    strict
+                    accordion
+                />
+            </div>
+
             <!-- 列表有效 -->
             <template v-if="dataType === dicts.POWER_DATA_TYPE__LIST">
 
@@ -35,30 +55,11 @@
 
             </template>
 
+            <!-- 非列表有效 -->
             <template v-else>
 
                 <!-- 新窗口有效 -->
                 <template v-if="dataType === dicts.POWER_DATA_TYPE__OPEN">
-
-                    <!-- 设置跳转页面(没有路由类型) -->
-                    <div class="col-xs-12 col-sm-6 col-md-3" v-if="routeType === 0">
-
-                        <!-- 树 -->
-                        <n-field-tree
-                            class="n-field-fieldset"
-                            label="跳转页面"
-                            outlined
-                            clearable
-                            stack-label
-                            dense
-
-                            v-model="formData.toPage"
-                            :nodes="treeNodes"
-                            :expanded="treeExpanded"
-                            strict
-                            accordion
-                        />
-                    </div>
 
                     <!-- 是否记录来源页面 -->
                     <div class="col-xs-12 col-sm-6 col-md-3">
@@ -365,6 +366,8 @@ export default {
     props: {
         // 值
         modelValue: String,
+        // URL
+        url: String,
         // 数据类型
         dataType: Number,
         // 路由类型
@@ -449,7 +452,7 @@ export default {
                 show: '',
                 // 是否增加来源页面参数
                 addFromPageQuery: false,
-                // 跳转页面 id
+                // 页面 ID (跳转页面 / 重定向 URL)
                 toPage: '',
                 // 是否固定列
                 fixed: false,
@@ -730,9 +733,6 @@ export default {
                                 })
                                 return false
                             }
-
-                            // 设置跳转页面 id
-                            obj.toPage = data.toPage
                         }
 
                         // 如果增加来源页面参数
@@ -770,6 +770,22 @@ export default {
                             // }
                         }
                     }
+                }
+
+                // 如果有 跳转页面 / 重定向 URL
+                if ($n_isValidValue(data.toPage)) {
+
+                    // 如果定义了 url
+                    if ($n_isValidValue(props.url)) {
+                        // 轻提示
+                        $n_toast({
+                            message: `如果定义了【${props.routeType === 0 ? '跳转页面' : '重定向 URL'}】，则 URL 必须为空`,
+                        })
+                        return false
+                    }
+
+                    // 设置跳转页面 id
+                    obj.toPage = data.toPage
                 }
 
                 // 自定义参数
