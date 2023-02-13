@@ -22,7 +22,7 @@
 
 <script>
 import { computed, defineAsyncComponent, provide } from 'vue'
-import $n_router from '@netang/vue-utils/router'
+import $n_router from '@netang/utils/vue/router'
 
 import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'

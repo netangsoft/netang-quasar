@@ -11,7 +11,7 @@ import $n_uniq from 'lodash/uniq'
 import $n_concat from 'lodash/concat'
 import $n_isNil from 'lodash/isNil'
 
-import $n_router from '@netang/vue-utils/router'
+import $n_router from '@netang/utils/vue/router'
 
 import $n_forEach from '@netang/utils/forEach'
 import $n_isValidArray from '@netang/utils/isValidArray'

@@ -1,4 +1,4 @@
-import $n_router from '@netang/vue-utils/router'
+import $n_router from '@netang/utils/vue/router'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_cookie from '@netang/utils/cookie'

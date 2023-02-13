@@ -10,7 +10,7 @@ import $n_isNumber from 'lodash/isNumber'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_isFunction from 'lodash/isFunction'
 
-import $n_router from '@netang/vue-utils/router'
+import $n_router from '@netang/utils/vue/router'
 
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'

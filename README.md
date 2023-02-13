@@ -6,7 +6,7 @@ npm install @netang/quasar --save-dev
 
 Install mandatory peer dependencies
 ```bash
-npm install @netang/utils @netang/vue-utils @netang/node-utils quasar @quasar/extras lodash axios bignumber.js spark-md5 xregexp --save-dev
+npm install @netang/utils quasar @quasar/extras lodash axios bignumber.js spark-md5 xregexp --save-dev
 ```
 
 ## License

@@ -26,7 +26,7 @@
 import { computed, ref, watch, inject } from 'vue'
 import { useQuasar } from 'quasar'
 
-import $n_router from '@netang/vue-utils/router'
+import $n_router from '@netang/utils/vue/router'
 
 import $n_storage from '@netang/utils/storage'
 import $n_sleep from '@netang/utils/sleep'
