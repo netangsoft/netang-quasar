@@ -1,6 +1,6 @@
 {
   "name": "@netang/quasar",
-  "version": "0.0.65",
+  "version": "0.0.67",
   "description": "netang-quasar",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,7 +25,6 @@
     "@vue/cli-service": "^5.0.8",
     "axios": "^1.3.2",
     "core-js": "^3.27.2",
-    "qiniu": "^7.8.0",
     "quasar": "^2.11.5",
     "sass": "^1.58.0",
     "sass-loader": "^13.2.0",
