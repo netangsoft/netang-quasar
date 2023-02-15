@@ -9,8 +9,9 @@ export function initAuthStore() {
     const cache = $n_cookie.get('_tk')
     return checkUserInfo(cache) ? cache : {
         id: 0,
-        isLogin: false,
+        token: '',
         info: {},
+        isLogin: false,
     }
 }
 
