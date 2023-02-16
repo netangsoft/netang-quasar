@@ -25,21 +25,6 @@
             v-if="preview"
         ></div>
     </q-img>
-
-    <!-- 错误图标 -->
-    <div
-        class="flex flex-center bg-grey-5 text-white no-padding"
-        :style="{
-            width: toPx(size),
-            height: toPx(size),
-        }"
-        v-else
-    >
-        <q-icon
-            :size="errorIconSize"
-            :name="errorIcon"
-        />
-    </div>
 </template>
 
 <script>
@@ -109,6 +94,7 @@ export default {
             if (res) {
                 return res
             }
+            return 'error'
         })
 
         // ==========【方法】=============================================================================================
