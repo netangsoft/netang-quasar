@@ -9,7 +9,10 @@
         />
 
         <!-- 描述文字 -->
-        <div class="text-subtitle1 text-grey-7" v-if="description">{{description}}</div>
+        <div
+            :class="descriptionClass"
+            v-if="description"
+        >{{description}}</div>
     </div>
 </template>
 
@@ -36,6 +39,11 @@ export default {
         iconSize: {
             type: [ String, Number ],
             default: 70,
+        },
+        // 描述类名
+        descriptionClass: {
+            type: String,
+            default: 'text-subtitle1 text-grey-7',
         },
         // 描述文字
         description: String,

@@ -5,8 +5,18 @@
         :width="toPx(size)"
         :height="toPx(size)"
         fit="fill"
+        v-bind="$attrs"
         v-if="currentSrc"
     >
+        <template v-slot:error>
+            <div class="absolute-full flex flex-center bg-grey-5 text-white no-padding">
+                <q-icon
+                    :size="errorIconSize"
+                    :name="errorIcon"
+                />
+            </div>
+        </template>
+
         <!-- 预览点击 -->
         <div
             class="absolute-full transparent cursor-pointer"
@@ -15,6 +25,21 @@
             v-if="preview"
         ></div>
     </q-img>
+
+    <!-- 错误图标 -->
+    <div
+        class="flex flex-center bg-grey-5 text-white no-padding"
+        :style="{
+            width: toPx(size),
+            height: toPx(size),
+        }"
+        v-else
+    >
+        <q-icon
+            :size="errorIconSize"
+            :name="errorIcon"
+        />
+    </div>
 </template>
 
 <script>
@@ -24,8 +49,8 @@ import { useQuasar } from 'quasar'
 import $n_px from '@netang/utils/px'
 import $n_noop from '@netang/utils/noop'
 
-import $n_previewImage from '../../utils/previewImage'
 import $n_getImage from '../../utils/getImage'
+import $n_previewImage from '../../utils/previewImage'
 
 export default {
 
@@ -33,6 +58,11 @@ export default {
      * 标识
      */
     name: 'NThumbnail',
+
+    /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
 
     /**
      * 声明属性
@@ -44,6 +74,16 @@ export default {
         size: {
             type: Number,
             default: 40,
+        },
+        // 错误图标大小
+        errorIconSize: {
+            type: String,
+            default: 'sm',
+        },
+        // 错误图标
+        errorIcon: {
+            type: String,
+            default: 'image',
         },
         // 是否点击放大预览
         preview: Boolean,
@@ -86,7 +126,6 @@ export default {
             currentSrc,
             // 预览
             onPreview,
-
             // 转像素
             toPx: $n_px,
             // 点击空方法
