@@ -39,6 +39,16 @@ body {
     --n-bg-grey-10: rgba(var(--n-reverse-color-rgb), 0.86);
 }
 
+// 自动显示横向滚动条
+.n-overflow-auto-x {
+    overflow-x: auto;
+}
+
+// 自动显示竖向滚动条
+.n-overflow-auto-y {
+    overflow-y: auto;
+}
+
 // 字体大小 12 像素
 .n-font-size-12 {
     font-size: 12px;

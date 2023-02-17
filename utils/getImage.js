@@ -42,20 +42,22 @@ export default function getImage(src, params) {
             // 如果为对象定义的规格
             if ($n_isValidObject(params)) {
 
-                // 【自动缩放】
-                // 如果没有定义 w
+                // 是否自动缩放
                 // --------------------------------------------------
-                if (! $n_has(params, 'w')) {
+                // 如果有定义 w
+                if ($n_has(params, 'w')) {
 
-                    const {
-                        width,
+                    let {
+                        w,
+                        maxWidth,
                         zoom,
                     } = params
 
-                    // 如果自动缩放
-                    if (zoom && width) {
+                    // 先设为 0
+                    params.w = 0
 
-                        let w = width
+                    // 如果开启缩放 && 有宽度
+                    if (zoom && w) {
 
                         if (! $n_isNumeric(w) && $n_isString(w)) {
                             w = w.replace('px', '')
@@ -74,77 +76,75 @@ export default function getImage(src, params) {
                                 /* #endif */
 
                                 if (w > 10) {
-                                    w = parseInt(String(w / 10)) * 10
+                                    w = Math.floor(w / 10) * 10
                                 } else {
-                                    w = parseInt(String(w))
+                                    w = Math.floor(w)
                                 }
-                                params = Object.assign({}, params, { w })
+
+                                // 如果有最大宽度
+                                if (maxWidth && maxWidth > w) {
+                                    w = maxWidth
+                                }
+
+                                params.w = w
                             }
                         }
                     }
                 }
                 // --------------------------------------------------
-            }
 
+                const {
+                    type,
+                    domain,
+                } = $n_config('uploader.upload')
 
-            const {
-                type,
-                domain,
-            } = $n_config('uploader.upload')
+                // 判断图片上传方式
+                switch (type) {
 
-            switch (type) {
+                    // 七牛云
+                    case 'qiniu':
 
-                // 七牛云
-                case 'qiniu':
+                        const {
+                            w,
+                            h,
+                            q,
+                            format,
+                        } = Object.assign({
+                            // 宽
+                            w: 0,
+                            // 高
+                            h: 0,
+                            // 质量
+                            q: 75,
+                            // 格式
+                            format: 'webp',
+                        }, params)
 
-                    const {
-                        w,
-                        h,
-                        q,
-                        // local,
-                        format,
-                    } = Object.assign({
-                        // 宽
-                        w: 0,
-                        // 高
-                        h: 0,
+                        // 裁剪图片方式
+                        src += '?imageView2/2'
+
                         // 质量
-                        q: 75,
-                        // // 是否本地
-                        // local: false,
+                        if (q) {
+                            src += '/q/' + q
+                        }
+
+                        // 宽
+                        if (w) {
+                            src += '/w/' + w
+                        }
+
+                        // 高
+                        if (h) {
+                            src += '/h/' + h
+                        }
+
                         // 格式
-                        format: 'webp',
-                    }, params)
+                        if (format) {
+                            src += '/format/' + format
+                        }
 
-                    // 如果是本地路径
-                    // if (local) {
-                    //     return src
-                    // }
-
-                    // 裁剪图片方式
-                    src += '?imageView2/2'
-
-                    // 质量
-                    if (q) {
-                        src += '/q/' + q
-                    }
-
-                    // 宽
-                    if (w) {
-                        src += '/w/' + w
-                    }
-
-                    // 高
-                    if (h) {
-                        src += '/h/' + h
-                    }
-
-                    // 格式
-                    if (format) {
-                        src += '/format/' + format
-                    }
-
-                    return $n_slash(domain, 'end', true) + src
+                        return $n_slash(domain, 'end', true) + src
+                }
             }
         }
     }

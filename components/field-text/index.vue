@@ -73,7 +73,7 @@
 <script>
 import { computed } from 'vue'
 
-import $n_forIn from '@netang/utils/forIn'
+import $n_omit from 'lodash/omit'
 
 import $n_copy from '../../utils/copy'
 
@@ -133,15 +133,7 @@ export default {
          * 插槽标识数组
          */
         const slotNames = computed(function() {
-            const lists = []
-
-            $n_forIn(slots, function(val, key) {
-                if (key !== 'default') {
-                    lists.push(key)
-                }
-            })
-
-            return lists
+            return $n_isValidObject(slots) ? Object.keys($n_omit(slots, [ 'default' ])) : []
         })
 
         // ==========【方法】=============================================================================================
