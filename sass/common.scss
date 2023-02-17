@@ -41,12 +41,12 @@ body {
 
 // 自动显示横向滚动条
 .n-overflow-auto-x {
-    overflow-x: auto;
+    overflow-x: auto !important;
 }
 
 // 自动显示竖向滚动条
 .n-overflow-auto-y {
-    overflow-y: auto;
+    overflow-y: auto !important;
 }
 
 // 字体大小 12 像素
