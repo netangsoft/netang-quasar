@@ -66,10 +66,12 @@
 <script>
 import { watch } from 'vue'
 
+import $n_isArray from 'lodash/isArray'
 import $n_cloneDeep from 'lodash/cloneDeep'
 
 import $n_split from '@netang/utils/split'
 import $n_indexOf from '@netang/utils/indexOf'
+import $n_numberDeep from '@netang/utils/numberDeep'
 
 import { configs } from '../../utils/config'
 
@@ -112,20 +114,62 @@ export default {
         /**
          * 监听值的比较类型
          */
-        watch(()=>props.modelValue[0].compare, function(val) {
-            // 如果类型不为 in / not in, 为单选
-            if ($n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], val) === -1) {
-                const arr = $n_split(props.modelValue[0].value, ',')
-                if (arr.length !== 1) {
-                    // 克隆值
-                    const _modelValue = $n_cloneDeep(props.modelValue)
+        watch(()=>props.modelValue[0].compare, function(compare) {
 
-                    // 更新值
-                    _modelValue[0].value = arr.length > 1 ? arr[0] : ''
-                    emit('update:modelValue', _modelValue)
+            // 获取当前值
+            const value = props.modelValue[0].value
+
+            // 如果类型为 in / not in, 则为多选
+            // --------------------------------------------------
+            if ($n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], compare) > -1) {
+
+                // 如果当前值不为数组
+                if (! $n_isArray(value)) {
+
+                    // 则将值转为数组
+                    // 触发更新值
+                    emitModelValue($n_split(value, ','))
+                }
+
+            // 否则为单选 && 如果值为: 数组
+            // --------------------------------------------------
+            } else if ($n_isArray(value)) {
+
+                // 触发更新值
+                emitModelValue(value.length ? $n_numberDeep(value[0]) : '')
+
+            // 否则为单选 && 值为: 字符串 / 数字
+            // --------------------------------------------------
+            } else {
+
+                // 将值转为数组
+                const arr = $n_split(value, ',')
+
+                // 如果数组长度不为 1, 则说明有多个值 || 无值
+                if (arr.length !== 1) {
+
+                    // 触发更新值
+                    emitModelValue(arr.length > 1 ? arr[0] : '')
                 }
             }
         })
+
+        // ==========【方法】=============================================================================================
+
+        /**
+         * 触发更新值
+         */
+        function emitModelValue(value) {
+
+            // 克隆值
+            const _modelValue = $n_cloneDeep(props.modelValue)
+
+            // 更新值
+            _modelValue[0].value = value
+
+            // 更新值
+            emit('update:modelValue', _modelValue)
+        }
 
         // ==========【返回】=============================================================================================
 

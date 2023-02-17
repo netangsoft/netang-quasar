@@ -8,6 +8,7 @@
                     v-for="(item, itemIndex) in options"
                 >
                     <template v-if="! item.hide">
+
                         <!-- 如果有 name 插槽 -->
                         <slot
                             :name="`name-${item.name}`"
@@ -121,6 +122,7 @@
                                 v-model="modelValue[itemIndex][index].value"
                                 dense
                                 outlined
+                                :value-type="multiple ? 'stringArray' : 'string'"
                                 :multiple="multiple"
                                 v-bind="item.table"
                                 v-else-if="item.searchType === 'table'"
