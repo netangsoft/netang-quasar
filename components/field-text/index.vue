@@ -75,6 +75,8 @@ import { computed } from 'vue'
 
 import $n_omit from 'lodash/omit'
 
+import $n_isValidObject from '@netang/utils/isValidObject'
+
 import $n_copy from '../../utils/copy'
 
 export default {
