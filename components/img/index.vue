@@ -1,5 +1,10 @@
 <template>
     <q-img
+        class="n-img"
+        :class="{
+            'rounded-borders': rounded,
+            'n-img--round': round,
+        }"
         :src="currentSrc"
         :width="imageProps.width"
         :height="imageProps.height"
@@ -33,7 +38,11 @@
 
     <!-- 如果没有图片 -->
     <div
-        class="q-img"
+        class="q-img n-img"
+        :class="{
+            'rounded-borders': rounded,
+            'n-img--round': round,
+        }"
         v-bind="imageProps"
         v-else
     >
@@ -81,6 +90,10 @@ export default {
         width: [ String, Number ],
         // 高
         height: [ String, Number ],
+        // 是否为圆形
+        round: Boolean,
+        // 是否为圆角
+        rounded: Boolean,
         // 加载旋转器尺寸
         spinnerSize: [ String, Number ],
         // 错误尺寸
@@ -91,7 +104,7 @@ export default {
         // 错误图标大小
         errorIconSize: {
             type: String,
-            default: 'sm',
+            default: 'md',
         },
         // 错误图标
         errorIcon: {
@@ -177,3 +190,13 @@ export default {
     }
 }
 </script>
+
+<style lang="scss">
+.n-img {
+    // 圆形
+    &--round {
+        border-radius: 50%;
+    }
+}
+</style>
+
