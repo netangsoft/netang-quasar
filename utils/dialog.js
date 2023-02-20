@@ -12,7 +12,7 @@ import { NDialogKey } from './symbols'
 function create(params) {
     if (
         // 如果是路由组件
-        $n_has(params, 'route')
+        $n_has(params, 'path')
         // 或自定义组件
         || $n_has(params, 'name')
     ) {

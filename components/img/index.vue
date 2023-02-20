@@ -43,7 +43,8 @@
             'rounded-borders': rounded,
             'n-img--round': round,
         }"
-        v-bind="imageProps"
+        :style="imageProps"
+        v-bind="$attrs"
         v-else
     >
         <div class="q-img__content absolute-full q-anchor--skip">
@@ -156,14 +157,8 @@ export default {
             }
 
             return {
-                class: $n_get(attrs, 'class'),
-                style: [
-                    {
-                        width,
-                        height,
-                    },
-                    $n_get(attrs, 'style'),
-                ],
+                width,
+                height,
             }
         })
 

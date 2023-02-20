@@ -9,7 +9,7 @@
         <q-card class="flex column" :style="customStyle">
 
             <!-- 头部 -->
-            <q-toolbar>
+            <q-toolbar class="n-line--bottom">
                 <!-- 标题 -->
                 <q-toolbar-title>{{currentTitle}}</q-toolbar-title>
                 <!-- 关闭按钮 -->
@@ -38,7 +38,7 @@
             </q-card-section>
 
             <!-- 底部 -->
-            <q-card-actions align="right" v-if="bottom">
+            <q-card-actions class="n-line--top" align="right" v-if="bottom">
                 <!-- 取消按钮 -->
                 <q-btn label="取消" color="primary" @click="onDialogCancel" flat v-close-popup v-if="cancel" />
                 <!-- 确定按钮 -->
@@ -91,7 +91,9 @@ export default {
         // 组件标识
         name: String,
         // 路由组件路径
-        route: String,
+        path: String,
+        // 路由组件参数
+        query: Object,
         // 组件传参
         props: Object,
         // 标题
@@ -197,15 +199,38 @@ export default {
 
         // ==========【计算属性】=========================================================================================
 
-        function setWH(style, field, sign) {
-            if (props[field]) {
-                if ($n_indexOf(props[field], '%') > -1) {
-                    style[field] = props[field].replace('%', sign)
-                } else {
-                    style[field] = $n_px(props[field])
-                }
+        /**
+         * 获取当前组件
+         */
+        const comp = computed(function () {
+
+            // 组件
+            let comp
+
+            // 如果是路由路径
+            if (props.path) {
+                // 获取路由组件
+                comp = $n_get(routers, `${$n_slash(props.path, 'start', false)}.component`)
+
+            // 如果有组件标识
+            } else if (props.name && $n_has(components, props.name)) {
+                // 获取自定义组件
+                comp = components[props.name]
             }
-        }
+
+            // 如果没有组件
+            if (! comp) {
+                return
+            }
+
+            // 如果是方法, 则说明是异步组件
+            if ($n_isFunction(comp)) {
+                return defineAsyncComponent(comp)
+            }
+
+            // 返回组件
+            return comp
+        })
 
         /**
          * 自定义样式
@@ -236,39 +261,6 @@ export default {
         })
 
         /**
-         * 获取当前组件
-         */
-        const comp = computed(function () {
-
-            // 组件
-            let comp
-
-            // 如果是路由路径
-            if (props.route) {
-                // 获取路由组件
-                comp = $n_get(routers, `${$n_slash(props.route, 'start', false)}.component`)
-
-            // 如果有组件标识
-            } else if (props.name && $n_has(components, props.name)) {
-                // 获取自定义组件
-                comp = components[props.name]
-            }
-
-            // 如果没有组件
-            if (! comp) {
-                return
-            }
-
-            // 如果是方法, 则说明是异步组件
-            if ($n_isFunction(comp)) {
-                return defineAsyncComponent(comp)
-            }
-
-            // 返回组件
-            return comp
-        })
-
-        /**
          * 当前标题
          */
         const currentTitle = computed(function () {
@@ -278,13 +270,23 @@ export default {
                 return props.title
             }
 
-            return props.route ?
-                // 如果是路由路径, 则获取路由标题
-                $n_get(routers, `${$n_slash(props.route, 'start', false)}.meta.title`, '')
-                : ''
+            return ''
         })
 
         // ==========【方法】=============================================================================================
+
+        /**
+         * 设置宽高
+         */
+        function setWH(style, field, sign) {
+            if (props[field]) {
+                if ($n_indexOf(props[field], '%') > -1) {
+                    style[field] = props[field].replace('%', sign)
+                } else {
+                    style[field] = $n_px(props[field])
+                }
+            }
+        }
 
         /**
          * 隐藏对话框

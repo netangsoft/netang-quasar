@@ -75,11 +75,10 @@ body {
     color: var(--n-placeholder-color);
 }
 
+// 不可点击
 .n-pointer-none {
     pointer-events: none;
 }
-
-
 
 //.n-color-primary,
 //.n-color-main {

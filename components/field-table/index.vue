@@ -96,7 +96,7 @@
             @focus="onFieldBlur"
             @show="onPopupShow"
             @before-hide="showPopup = false"
-            v-if="! readonly"
+            v-if="! readonly && ! disable"
         >
             <!-- 快捷表格 -->
             <q-table

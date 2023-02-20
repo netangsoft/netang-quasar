@@ -122,10 +122,12 @@ function create(params) {
         rowDblClick: null,
     }, params)
 
+    // 获取权限注入
+    const $power = $n_has(params, '$power') ? params.$power : inject(NPowerKey)
+    const hasPowr = !! $power
+
     // 获取渲染注入
     const $render = inject(NRenderKey)
-
-    // 如果有渲染注入
     if (!! $render) {
         // 如果有表格传参, 则合并参数
         const tableProps = $n_get($render, 'props.tableProps')
@@ -133,10 +135,6 @@ function create(params) {
             $n_merge(o, tableProps)
         }
     }
-
-    // 获取权限注入
-    const $power = $n_has(params, '$power') ? params.$power : inject(NPowerKey)
-    const hasPowr = !! $power
 
     // 获取选择类型(默认 single)
     if (! $n_has(o, 'selection') || ! $n_isValidString(o.selection)) {

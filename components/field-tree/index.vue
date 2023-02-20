@@ -2,6 +2,7 @@
     <q-field
         class="n-field-tree"
         :model-value="showValue"
+        :disable="disable"
         :readonly="readonly"
         :clearable="clearable"
         @focus="onFieldFocus"
@@ -37,7 +38,7 @@
                             :key="`item-${index}`"
                             :label="item.label"
                             dense
-                            removable
+                            :removable="! readonly && ! disable"
                             @remove="onRemoveItem(index)"
                         />
                     </template>
@@ -84,7 +85,7 @@
             @focus="onFieldFocus"
             @show="onPopupShow"
             @before-hide="showPopup = false"
-            v-if="! readonly"
+            v-if="! readonly && ! disable"
         >
             <q-card>
                 <!-- 树 -->
@@ -178,6 +179,8 @@ export default {
         placeholder: String,
         // 是否可清除
         clearable: Boolean,
+        // 是否禁用
+        disable: Boolean,
         // 是否只读
         readonly: Boolean,
     },

@@ -4,6 +4,7 @@
         <!-- 上传按钮 -->
         <slot
             name="button"
+            :disable="disable || readonly"
             :size="currentSize"
             v-if="$slots.button"
         />
@@ -17,6 +18,7 @@
                 @click="uploader.chooseUpload"
                 color="primary"
                 outline
+                :disable="disable || readonly"
                 unelevated
                 v-bind="buttonProps"
             />
@@ -34,7 +36,7 @@
             <template v-if="type === 'image'">
 
                 <!-- 左边方块按钮 -->
-                <template v-if="! rightSquareButton">
+                <template v-if="! disable && ! readonly && ! rightSquareButton">
                     <slot
                         name="square-button"
                         :size="currentSize"
@@ -146,14 +148,14 @@
                                 size="xs"
                                 title="删除"
                                 @click="uploader.deleteFileItem(fileItem)"
-                                v-if="! noDelete"
+                                v-if="! noDelete && ! disable && ! readonly"
                             />
                         </div>
                     </q-img>
                 </div>
 
                 <!-- 右边方块按钮 -->
-                <template v-if="rightSquareButton">
+                <template v-if="! disable && ! readonly && rightSquareButton">
                     <slot
                         name="square-button"
                         :size="currentSize"
@@ -285,7 +287,7 @@
                                 size="xs"
                                 title="修改"
                                 @click="uploader.previewImage(fileItem)"
-                                v-if="! noEdit"
+                                v-if="! noEdit && ! disable && ! readonly"
                             >
                                 <q-popup-edit
                                     :model-value="fileItem.title"
@@ -318,7 +320,7 @@
                             size="xs"
                             title="删除"
                             @click="uploader.deleteFileItem(fileItem)"
-                            v-if="! noDelete"
+                            v-if="! noDelete && ! disable && ! readonly"
                         />
                     </div>
                 </div>
@@ -383,6 +385,10 @@ export default {
             type: Boolean,
             default: true,
         },
+        // 是否禁用
+        disable: Boolean,
+        // 是否只读
+        readonly: Boolean,
         // 是否隐藏按钮
         noButton: Boolean,
         // 是否隐藏预览按钮
@@ -433,6 +439,8 @@ export default {
             return props.drag
                 && $n_isValidArray(query.value)
                 && query.value.length > 1
+                && ! props.readonly
+                && ! props.disable
         })
 
         /**

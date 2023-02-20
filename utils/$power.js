@@ -9,6 +9,7 @@ import $n_toLower from 'lodash/toLower'
 import $n_isNumber from 'lodash/isNumber'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_isFunction from 'lodash/isFunction'
+import $n_pick from 'lodash/pick'
 
 import $n_router from '@netang/utils/vue/router'
 
@@ -33,7 +34,7 @@ import $n_run from '@netang/utils/run'
 import $n_http from '@netang/utils/http'
 
 import { statePower } from '../store'
-import { NRenderKey, NPowerKey, NFormKey, NTableKey } from './symbols'
+import { NRenderKey, NPowerKey, NDialogKey, NFormKey, NTableKey } from './symbols'
 
 import $n_getData from './getData'
 import $n_toast from './toast'
@@ -87,11 +88,30 @@ function create(params) {
         requestAfter: null,
     }, params)
 
+    // 获取对话框渲染注入
+    const $dialog = inject(NDialogKey)
+    const hasDialog = !! $dialog
+
     // 获取渲染注入
     const $render = inject(NRenderKey)
+    const hasRender = !! $render
+
+    // 如果有对话框注入
+    if (hasDialog) {
+        const {
+            dialogProps,
+        } = $dialog
+
+        // 合并权限参数
+        Object.assign(o, $n_pick(dialogProps, [ 'path', 'query' ]))
+
+        // 合并权限参数
+        if ($n_has($dialog, 'props.powerProps') && $n_isValidObject($dialog.props.powerProps)) {
+            $n_merge(o, $dialog.props.powerProps)
+        }
+    }
 
     // 如果有渲染注入
-    const hasRender = !! $render
     if (hasRender) {
         // 如果有权限传参, 则合并参数
         const powerProps = $n_get($render, 'props.powerProps')
