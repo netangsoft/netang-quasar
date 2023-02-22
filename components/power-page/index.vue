@@ -3,6 +3,7 @@
         <!-- 空数据 -->
         <n-empty
             :description="emptyDescription"
+            fit
             v-if="pageStatus === false"
         />
         <!-- 插槽 -->
@@ -19,6 +20,7 @@
         <!-- 空数据 -->
         <n-empty
             :description="emptyDescription"
+            fit
             v-if="pageStatus === false"
         />
         <!-- 插槽 -->

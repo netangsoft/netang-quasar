@@ -69,6 +69,7 @@
             <!-- 空状态 -->
             <n-empty
                 :description="renderDescription"
+                fit
                 v-else
             />
 

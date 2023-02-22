@@ -1,6 +1,10 @@
 <template>
-    <div class="q-pa-lg column flex-center absolute-full q-gutter-sm">
-
+    <div
+        class="q-pa-lg column flex-center q-gutter-sm"
+        :class="{
+            'absolute-full': fit,
+        }"
+    >
         <!-- 图标 -->
         <q-icon
             :name="icon"
@@ -47,6 +51,8 @@ export default {
         },
         // 描述文字
         description: String,
+        // 撑满全屏
+        fit: Boolean,
     },
 
     /**
