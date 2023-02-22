@@ -928,8 +928,8 @@ async function request(params) {
 
         query = formatQuery(query, true)
 
-        // 如果有增加来源页面参数
-        if ($n_get(o.data, 'addFromPageQuery') === true) {
+        // 如果不是禁止添加来源页面参数
+        if ($n_get(o.data, 'noFromPageQuery') !== true) {
             // 来源页面是当前路由的完整路径
             query.n_from_page = encodeURIComponent($currentRoute.fullPath)
         }

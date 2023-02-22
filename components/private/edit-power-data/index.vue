@@ -65,11 +65,11 @@
                     <div class="col-xs-12 col-sm-6 col-md-3">
                         <q-select
                             class="n-field-fieldset"
-                            label="是否增加来源页面参数"
-                            v-model="formData.addFromPageQuery"
+                            label="来源页面参数"
+                            v-model="formData.noFromPageQuery"
                             :options="[
-                                { label: '否', value: false },
-                                { label: '是', value: true },
+                                { label: '自动添加', value: false },
+                                { label: '禁止添加', value: true },
                             ]"
                             map-options
                             emit-value
@@ -450,8 +450,8 @@ export default {
                 selection: '',
                 // 显示类型, 可选 single / multiple / 空(默认显示)
                 show: '',
-                // 是否增加来源页面参数
-                addFromPageQuery: false,
+                // 禁止添加来源页面参数
+                noFromPageQuery: false,
                 // 页面 ID (跳转页面 / 重定向 URL)
                 toPage: '',
                 // 是否固定列
@@ -735,9 +735,9 @@ export default {
                             }
                         }
 
-                        // 如果增加来源页面参数
-                        if (data.addFromPageQuery) {
-                            obj.addFromPageQuery = true
+                        // 如果禁止添加来源页面参数
+                        if (data.noFromPageQuery) {
+                            obj.noFromPageQuery = true
                         }
 
                     // 否则为其他
