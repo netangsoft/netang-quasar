@@ -931,7 +931,7 @@ async function request(params) {
         // 如果有增加来源页面参数
         if ($n_get(o.data, 'addFromPageQuery') === true) {
             // 来源页面是当前路由的完整路径
-            query.n_frompage = encodeURIComponent($currentRoute.fullPath)
+            query.n_from_page = encodeURIComponent($currentRoute.fullPath)
         }
 
         // 请求前执行
@@ -1105,12 +1105,12 @@ async function request(params) {
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
                                 o.data.requestSuccess.type !== 'close'
                                 // 如果有来源页面
-                                && $n_has($route.query, 'n_frompage')
-                                && $n_isValidString($route.query.n_frompage)
+                                && $n_has($route.query, 'n_from_page')
+                                && $n_isValidString($route.query.n_from_page)
                             ) {
                                 Object.assign(opts, {
                                     // 跳转页面地址
-                                    pushPage: decodeURIComponent($route.query.n_frompage),
+                                    pushPage: decodeURIComponent($route.query.n_from_page),
                                     // 是否跳转并刷新页面
                                     isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
                                 })
