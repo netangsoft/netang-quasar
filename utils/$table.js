@@ -304,7 +304,6 @@ function create(params) {
 
         // 先格式化权限按钮列表
         $n_forEach($n_$power.formatBtns($power.powerBtns.value), function(item) {
-
             // 如果是固定按钮
             if (item.fixed) {
                 lists.push(item)

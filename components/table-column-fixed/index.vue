@@ -1,8 +1,8 @@
 <template>
     <q-td :props="props">
-        <div class="q-gutter-sm" v-if="tableFixedPowerBtns.length">
+        <div class="q-gutter-sm" v-if="currentTableFixedPowerBtns.length">
             <q-btn
-                v-for="item in tableFixedPowerBtns"
+                v-for="item in currentTableFixedPowerBtns"
                 :key="`btn-item-${item.id}`"
                 class="n-button-icon"
                 :icon="item.icon"
@@ -19,7 +19,12 @@
 </template>
 
 <script>
-import { inject } from 'vue'
+import { inject, computed } from 'vue'
+
+import $n_cloneDeep from 'lodash/cloneDeep'
+import $n_isFunction from 'lodash/isFunction'
+
+import $n_forEach from '@netang/utils/forEach'
 
 import { NPowerKey, NTableKey } from '../../utils/symbols'
 
@@ -49,6 +54,8 @@ export default {
         const {
             // 权限按钮点击
             powerBtnClick,
+            // 格式化权限按钮
+            formatPowerBtns,
         } = inject(NPowerKey)
 
         // 获取表格注入
@@ -56,6 +63,30 @@ export default {
             // 固定在右边的权限按钮列表
             tableFixedPowerBtns,
         } = inject(NTableKey)
+
+        // ==========【计算属性】=========================================================================================
+
+        /**
+         * 当前表格固定权限按钮
+         */
+        const currentTableFixedPowerBtns = computed(function () {
+
+            const lists = []
+
+            $n_forEach(tableFixedPowerBtns.value, function (item) {
+
+                item = $n_cloneDeep(item)
+
+                // 格式化权限按钮
+                if (formatPowerBtns(item, true, [ props.props.row ]) === false) {
+                    return
+                }
+
+                lists.push(item)
+            })
+
+            return lists
+        })
 
         // ==========【方法】=============================================================================================
 
@@ -71,6 +102,8 @@ export default {
         return {
             // 固定在右边的权限按钮列表
             tableFixedPowerBtns,
+            // 当前表格固定权限按钮
+            currentTableFixedPowerBtns: $n_isFunction(formatPowerBtns) ? currentTableFixedPowerBtns : tableFixedPowerBtns,
             // 权限按钮点击
             onClick,
         }

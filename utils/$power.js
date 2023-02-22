@@ -73,6 +73,8 @@ function create(params) {
         showPowerBtns: true,
         // 是否显示工具栏权限按钮
         showToolbarPowerBtns: true,
+        // 格式化权限按钮
+        formatPowerBtns: null,
         // 左边侧滑菜单图标
         leftDrawerIcon: 'format_list_bulleted',
         // 右边侧滑菜单图标
@@ -206,6 +208,8 @@ function create(params) {
         getRoute() {
             return $route
         },
+        // 格式化权限按钮
+        formatPowerBtns: o.formatPowerBtns,
 
         // 左边侧滑菜单数据
         leftDrawer: {
@@ -273,11 +277,10 @@ function create(params) {
                     // 有权限按钮数据
                     && $n_isValidArray(data.powerBtns.value)
                 ) {
-
-                    const lists = $n_filter(formatBtns(data.powerBtns.value), e => e.type > 2)
+                    const lists = []
 
                     // 格式化权限按钮列表
-                    $n_forEach(lists, function(item) {
+                    $n_forEach($n_filter(formatBtns(data.powerBtns.value), e => e.type > 2), function(item) {
 
                         if (! item.hidden) {
 
@@ -308,6 +311,16 @@ function create(params) {
                                 item.icon = undefined
                             }
                         }
+
+                        if (
+                            // 如果有格式化权限按钮方法
+                            $n_isFunction(o.formatPowerBtns)
+                            && o.formatPowerBtns(item, false, tableSelected.value) === false
+                        ) {
+                            return
+                        }
+
+                        lists.push(item)
                     })
 
                     return lists
@@ -669,12 +682,14 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
 
     $n_forEach(powerBtns, function(item) {
 
+        item = $n_cloneDeep(item)
+
         const {
             name,
             icon,
         } = item
 
-        const newItem = Object.assign({}, item, {
+        Object.assign(item, {
             // 图标
             icon: icon || undefined,
             // 隐藏按钮
@@ -684,30 +699,30 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
         })
 
         // 是否固定按钮
-        newItem.fixed =
+        item.fixed =
             // 非隐藏按钮
-            ! newItem.hidden
+            ! item.hidden
             // 固定列
-            && $n_get(newItem, 'data.fixed') === true
+            && $n_get(item, 'data.fixed') === true
             // 单个按钮
-            && newItem.show === 'single'
+            && item.show === 'single'
             // 按钮有图标
-            && !! newItem.icon
+            && !! item.icon
 
         // 如果是对象
         if ($n_isValidObject(filterBtns)) {
             if ($n_has(filterBtns, name)) {
-                newLists.push($n_merge(newItem, filterBtns[name]))
+                newLists.push($n_merge(item, filterBtns[name]))
             }
 
         // 如果是数组
         } else if ($n_isValidArray(filterBtns)) {
             if ($n_indexOf(filterBtns, name) > -1) {
-                newLists.push($n_merge(newItem, filterBtns[name]))
+                newLists.push($n_merge(item, filterBtns[name]))
             }
 
         } else {
-            newLists.push(newItem)
+            newLists.push(item)
         }
     })
 
