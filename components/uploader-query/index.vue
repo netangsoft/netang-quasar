@@ -76,7 +76,7 @@
                     @dragenter="dragEnter($event, fileItemIndex)"
                     @dragend="dragEnd"
                 >
-                    <q-img
+                    <n-img
                         :src="getImage(fileItem)"
                         :spinner-size="toPx(currentSize / 2)"
                         :width="toPx(currentSize)"
@@ -138,7 +138,7 @@
                                 size="xs"
                                 title="预览"
                                 @click="uploader.previewImage(fileItem)"
-                                v-if="! noPreview"
+                                v-if="! noPreview && getImage(fileItem)"
                             />
 
                             <!-- 删除 -->
@@ -151,7 +151,7 @@
                                 v-if="! noDelete && ! disable && ! readonly"
                             />
                         </div>
-                    </q-img>
+                    </n-img>
                 </div>
 
                 <!-- 右边方块按钮 -->

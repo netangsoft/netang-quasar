@@ -3,12 +3,13 @@
         v-model="currentModelValue"
         :options="currentOptions"
         :option-label="optionLabel"
+        :multiple="multiple"
         :use-input="filter"
         @filter="onFilter"
         v-bind="$attrs"
     >
         <!-- 占位符 -->
-        <template v-slot:selected v-if="! currentModelValue && placeholder">
+        <template v-slot:selected v-if="! showValue && placeholder">
             <div class="n-placeholder q-mr-xs">{{placeholder}}</div>
         </template>
 
@@ -36,6 +37,7 @@
 <script>
 import { ref, computed, watch } from 'vue'
 
+import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_collection from '@netang/utils/collection'
 
@@ -63,6 +65,8 @@ export default {
             type: String,
             default: 'label',
         },
+        // 是否多选
+        multiple: Boolean,
         // 占位符
         placeholder: String,
         // 筛选
@@ -81,15 +85,6 @@ export default {
      */
     setup(props, { emit, slots }) {
 
-        // ==========【计算属性】=========================================================================================
-
-        /**
-         * 插槽标识
-         */
-        const slotNames = computed(function() {
-            return $n_isValidObject(slots) ? Object.keys(slots) : []
-        })
-
         // ==========【当前值】===========================================================================================
 
         // 当前值
@@ -100,6 +95,29 @@ export default {
 
         // 当前选项
         const currentOptions = ref(rawOptions)
+
+        // ==========【计算属性】=========================================================================================
+
+        /**
+         * 插槽标识
+         */
+        const slotNames = computed(function() {
+            return $n_isValidObject(slots) ? Object.keys(slots) : []
+        })
+
+        /**
+         * 显示值
+         */
+        const showValue = computed(function() {
+
+            // 如果是多选
+            if (props.multiple) {
+                return $n_isValidArray(currentModelValue.value) ? '1' : ''
+            }
+
+            return currentModelValue.value
+        })
+
 
         // ==========【监听数据】=========================================================================================
 
@@ -148,6 +166,8 @@ export default {
             currentModelValue,
             // 当前选项
             currentOptions,
+            // 显示值
+            showValue,
 
             // 筛选
             onFilter,

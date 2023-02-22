@@ -21,6 +21,9 @@
                         :name="errorIcon"
                     />
                 </div>
+
+                <!-- 默认插槽 -->
+                <slot />
             </slot>
         </template>
 
@@ -55,6 +58,9 @@
                         :name="errorIcon"
                     />
                 </div>
+
+                <!-- 默认插槽 -->
+                <slot />
             </slot>
         </div>
     </div>
