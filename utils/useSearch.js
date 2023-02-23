@@ -188,7 +188,7 @@ function formatItemValueCompare(value, { compareOptions1 }) {
 /**
  * 从表格列获取原始值
  */
-function getRawData(tableColumns, query, searchFromQuery = true) {
+export function getRawData(tableColumns, query, searchFromQuery = true) {
 
     // 原始参数
     const rawQuery = {}
@@ -313,7 +313,7 @@ function getRawData(tableColumns, query, searchFromQuery = true) {
 /**
  * 获取参数
  */
-async function getOptions(rawSearchOptions, format) {
+export async function getOptions(rawSearchOptions, format) {
 
     const lists = []
 
@@ -395,7 +395,7 @@ async function getOptions(rawSearchOptions, format) {
 /**
  * 格式化值
  */
-function formatValue(rawSearchOptions, searchValue) {
+export function formatValue(rawSearchOptions, searchValue) {
 
     const lists = []
 
@@ -494,17 +494,3 @@ function formatValue(rawSearchOptions, searchValue) {
 
     return lists
 }
-
-/**
- * 搜素业务
- */
-const $search = {
-    // 获取原始值
-    getRawData,
-    // 获取参数
-    getOptions,
-    // 格式化值
-    formatValue,
-}
-
-export default $search

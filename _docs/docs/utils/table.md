@@ -21,16 +21,16 @@ $table.create(options: Object): Object
 | 参数名                  | 说明          | 类型         | 可选值                                         | 默认值                                 | 示例  |
 |----------------------|-------------|------------|---------------------------------------------|-------------------------------------|-----|
 | path                 | 路由路径        | `String`   | -                                           | -                                   | -   | 
-| query                | 路由参数        | `Object`   | -                                           | {}                                  | -   | 
-| data                 | 附加请求数据      | `Object`   | -                                           | {}                                  | -   | 
+| query                | 路由参数        | `Object`   | -                                           | { }                                 | -   | 
+| data                 | 附加请求数据      | `Object`   | -                                           | { }                                 | -   | 
 | rowKey               | 表格行唯一键值     | `String`   | -                                           | id                                  | -   | 
 | selection            | 选择类型        | `String`   | `none` / `single` / `multiple`              | single                              | -   | 
 | separator            | 分隔栏         | `String`   | `horizontal` / `vertical` / `cell` / `none` | cell                                | -   | 
-| selected             | 初始已选数据      | `Array`    | -                                           | []                                  | -   | 
+| selected             | 初始已选数据      | `Array`    | -                                           | [ ]                                 | -   | 
 | loading              | 初始表格加载状态    | `Boolean`  | -                                           | false                               | -   | 
-| columns              | 表格列数据(对象数组) | `Array`    | -                                           | []                                  | -   | 
-| visibleColumns       | 初始可见列       | `Array`    | -                                           | []                                  | -   | 
-| rows                 | 表格行数据       | `Array`    | -                                           | []                                  | -   | 
+| columns              | 表格列数据(对象数组) | `Array`    | -                                           | [ ]                                 | -   | 
+| visibleColumns       | 初始可见列       | `Array`    | -                                           | [ ]                                 | -   | 
+| rows                 | 表格行数据       | `Array`    | -                                           | [ ]                                 | -   | 
 | pagination           | 表格翻页参数      | `Object`   | -                                           | -                                   | -   | 
 | rowsPerPageOptions   | 每页显示行数选项    | `Array`    | -                                           | [ 30, 40, 50, 100, 200, 500, 1000 ] | -   | 
 | request              | 自定义请求方法     | `Function` | -                                           | -                                   | -   | 
@@ -134,167 +134,41 @@ const $table = $n.$table.create({
 })
 ```
 
-
 ### 返回数据
 
-| 参数名              | 说明          | 类型             | 示例  |
-|------------------|-------------|----------------|-----|
-| pageLoading      | 是否加载页面      | `ref(Boolean)` | -   |
-| pageStatus       | 页面状态        | `ref(Boolean)` | -   |
-| emptyDescription | 空状态描述       | `ref(String)`  | -   |
-| routeFullPath    | 当前路由全路径     | `String`       | -   |
-| routePath        | 当前路由路径      | `String`       | -   |
-| routeQuery       | 当前路由参数      | `Object`       | -   |
-| getRoute         | 获取当前路由      | `Function`     | -   |
-| formatPowerBtns  | 格式化表格按钮     | `Function`     | -   |
-| leftDrawer       | 左边侧滑菜单数据    | `Object`       | -   |
-| rightDrawer      | 右边侧滑菜单数据    | `Object`       | -   |
-| tableSelected    | 表格已选数据      | `ref(Array)`   | -   |
-| uploader         | 上传器         | `Array`        | -   |
-| checkUploading   | 检查是否上传中     | `Function`     | -   |
-| powerPage        | 当前页面表格      | `Object`       | -   |
-| powerBtns        | 当前页面表格按钮    | `ref(Array)`   | -   |
-| toolbarPowerBtns | 当前页面工具栏表格按钮 | `ref(Array)`   | -   |
-| powerBtnClick    | 表格按钮点击      | `Function`     | -   |
-| update           | 更新数据        | `Function`     | -   |
+返回的数据可提供给 `<q-table>` 使用
 
-#### powerBtns
-
-单个表格按钮参数
-
-| 参数名    | 说明                                | 类型        | 可选值                                                                   | 示例                     |
-|--------|-----------------------------------|-----------|-----------------------------------------------------------------------|------------------------|
-| id     | 按钮 ID                             | `Number`  | -                                                                     | -                      |
-| pid    | 按钮上级 ID                           | `Number`  | -                                                                     | -                      |
-| title  | 按钮名称                              | `String`  | -                                                                     | 保存                     |
-| url    | 按钮链接                              | `String`  | -                                                                     | /goods/goods/edit_save |
-| name   | 按钮标识(取 url 最后一级，相当于 PHP 控制器中的方法名) | `String`  | -                                                                     | edit_save              |
-| type   | 按钮类型                              | `Number`  | `11` / `12` / `13` / `14` / `15` / `16` / `20`                        | -                      |
-| color  | 按钮颜色                              | `String`  | `default` / `primary` / `secondary` / `info` / `warning` / `negative` | primary                |
-| icon   | 按钮图标                              | `String`  | -                                                                     | save                   |
-| is_log | 是否记录日志                            | `Number`  | `0` / `1`                                                             | -                      |
-| hidden | 是否隐藏按钮                            | `Boolean` | -                                                                     | -                      |
-| data   | 按钮参数                              | `Object`  | -                                                                     | -                      |
-
-- data 按钮参数
-
-| 参数名             | 说明                       | 类型                   | 可选值                               | 默认值    | 示例  |
-|-----------------|--------------------------|----------------------|-----------------------------------|--------|-----|
-| selection       | 列表选择类型                   | `String`             | `none` / `single` / `multiple`    | single | -   |
-| show            | 显示类型                     | `String`             | `single` / `multiple` / `空(默认显示)` | -      | -   |
-| noFromPageQuery | 禁止添加来源页面参数               | `Boolean`            | -                                 | false  | -   |
-| toPage          | 跳转页面 / 重定向 URL           | `String`             | -                                 | -      | -   |
-| fixed           | 是否固定列                    | `Boolean`            | -                                 | false  | -   |
-| dbclick         | 是否双击                     | `Boolean`            | -                                 | false  | -   |
-| confirm         | 是否确认（如果传字符串，则为确认提示的内容）   | `Boolean` / `String` | -                                 | false  | -   |
-| confirmPassword | 是否确认密码（如果传字符串，则为确认提示的内容） | `Boolean` / `String` | -                                 | false  | -   |
-| requestQuery    | 请求参数                     | `Object`             | -                                 | -      | -   |
-| requestSuccess  | 请求成功执行                   | `Object`             | -                                 | -      | -   |
-| params          | 自定义参数, 任意类型              | `Any`                | -                                 | -      | -   |
-
-- requestQuery
-
-请求参数
-
-| 参数名  | 说明  | 类型                | 示例 |
-|------  |-----|--------------------|--|
-| list | 列表  | `String` / `Array` | [ "id", "sku_id AS sku" ] |
-| query | 参数  | `String` / `Array` | [ "id", "sku_id AS sku", { "type": 1, "name": "age" } ] |
-
-
-- requestSuccess
-
-请求成功执行
-
-| 参数名  | 说明  | 类型                | 可选值 |
-|------  |-----|--------------------|--|
-| type | 类型  | `String` | `close` / `closePush` / `closePushRefresh` / `resetForm` / `refreshList` |
-| params | 参数  | `Any` | - |
-
-
-## $table.setData
-
-设置表格数据
-
-- 类型
-
-```javascript
-$table.setData(options: Object): void
-```
-
-### options 参数
-
-| 参数名  | 说明    | 类型       |
-|------|-------|----------|
-| rows | 路由路径  | `Array`  |
-| v    | 表格版本号 | `Number` |
-
-
-## $table.getData
-
-获取表格数据
-
-- 类型
-
-```javascript
-await $table.getData(): Object
-```
-
-### 返回数据
-
-| 参数名  | 说明 | 类型       | 默认值  |
-|------|--|----------|------|
-| v    | 表格版本号 | `Number` | null |
-| all | 以 id 为索引的表格数据对象 | `Object`  |      |
-| urls | 以 url 为索引的表格数据对象 | `Object`  |      |
-| btns | 以 url 为索引的表格按钮对象 | `Object`  |      |
-| menus | 所有表格菜单数组 | `Array`  |      |
-
-
-## $table.getPageData
-
-获取表格数据
-
-- 类型
-
-```javascript
-$table.getPageData($route): Object
-```
-
-### 返回数据
-
-| 参数名  | 说明 | 类型       |
-|------|--|----------|
-| page    | 页面表格 | `Number` |
-| btns | 页面表格按钮数组 | `Array`  |
-
-
-## $table.formatBtns
-
-格式化表格按钮
-
-- 类型
-
-```javascript
-$table.formatBtns(powerBtns, filterBtns, toObject = false): Array
-```
-
-## $table.request
-
-表格请求
-
-- 类型
-
-```javascript
-await $table.request(powerBtns, filterBtns, toObject = false): void
-```
-
-| 参数名  | 说明 | 类型       |
-|------|--|-----|
-| powerBtn    | 表格按钮数据 | `Object` |
-| tableSelected | 表格选中数据 | `Array`  |
-| checkUploading | 检查是否正在上传文件 | `Function`  |
-| [requestBefore](#requestbefore)     | 请求前执行       | `Function` |
-| [requestSuccess](#requestsuccess)   | 请求成功执行      | `Function` |
-| [requestFail](#requestfail)         | 请求失败执行      | `Function` |
-| [requestAfter](#requestafter)       | 请求后执行       | `Function` |
+| 参数名                     | 说明               | 类型             | 可在 `<q-table>` 组件中使用                             |
+|-------------------------|------------------|----------------|--------------------------------------------------|
+| routeFullPath           | 当前路由全路径          | `String`       | -                                                |
+| routePath               | 当前路由路径           | `String`       | -                                                |
+| routeQuery              | 当前路由参数           | `Object`       | -                                                |
+| getRoute                | 获取当前路由           | `Function`     | -                                                |
+| tableLoading            | 表格加载状态           | `ref(Boolean)` | :loading="tableLoading"                          |
+| tableRowKey             | 表格行唯一键值          | `String`       | :row-key="tableRowKey"                           |
+| tableSelection          | 表格选择类型           | `ref(String)`  | :selection="tableSelection"                      |
+| tableSeparator          | 表格分隔栏            | `ref(String)`  | :separator="tableSeparator"                      |
+| tableRowsPerPageOptions | 表格每页显示行数选项       | `Array`        | :rows-per-page-options="tableRowsPerPageOptions" |
+| tableColumns            | 表格列数据(对象数组)      | `Array`        | :columns="tableColumns"                          |
+| tableVisibleColumns     | 表格可见列            | `ref(Array)`   | :visible-columns="tableVisibleColumns"           |
+| tableRows               | 表格行数据            | `ref(Array)`   | :rows="tableRows"                                |
+| tablePagination         | 表格翻页参数           | `ref(Object)`  | v-model:pagination="tablePagination"             |
+| tableSelected           | 表格已选数据           | `ref(Array)`   | v-model:selected="tableSelected"                 |
+| tableFixedPowerBtns     | 固定在右边的权限按钮列表     | `computed`     | -                                                |
+| showTableFixed          | 是否显示固定在右边的权限按钮列表 | `computed`     | -                                                |
+| tableImgNames           | 表格图片标识           | `ref(Array)`   | 可在插槽中使用                                          |
+| tableGrid               | 表格宫格             | `ref(Boolean)` | :grid="tableGrid"                                |
+| tableSummary            | 表格合计             | `ref(Object)`  | 可在插槽中使用                                          |
+| tableSearchValue        | 表格搜索数据           | `ref(Array)`   | -                                                |
+| tableSearchOptions      | 表格搜索参数           | `ref(Array)`   | -                                                |
+| setQuery                | 设置表格传参           | `Function`     | -                                                |
+| isTableLoaded           | 表格是否已加载          | `Function`     | -                                                |
+| tableLoad               | 表格加载(只加载一次)      | `Function`     | -                                                |
+| tableReload             | 表格重新加载           | `Function`     | -                                                |
+| tableRefresh            | 表格刷新             | `Function`     | -                                                |
+| tableSearchReset        | 表格搜索重置           | `Function`     | -                                                |
+| getTableRequestData     | 获取表格请求数据         | `Function`     | -                                                |
+| tableRequest            | 表格请求数据           | `Function`     | @request="tableRequest"                          |
+| tableRowClick           | 表格单击表格行          | `Function`     | @row-click="tableRowClick"                       |
+| tableRowDblclick        | 表格双击表格行          | `Function`     | @row-dblclick="currentTableRowDblclick"          |
+| setTableSearchOptions   | 设置表格搜索参数         | `Function`     | -                                                |

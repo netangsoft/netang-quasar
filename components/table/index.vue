@@ -91,7 +91,7 @@
                     flat
                     virtual-scroll
                     :dense="dense"
-                    v-bind="tableProps"
+                    v-bind="$attrs"
                 >
                     <!-- 图片 -->
                     <template
@@ -226,8 +226,6 @@ export default {
     props: {
         // 表格请求地址
         url: String,
-        // 表格声明属性
-        tableProps: Object,
         // 树声明属性
         treeProps: Object,
         // 树节点唯一键值

@@ -83,11 +83,11 @@ const $power = $n.$power.create({
 })
 ```
 
-| 参数名              | 说明        | 类型        | 示例  |
-|------------------|-------------|----------------|-----|
-| powerBtn         | 单个权限按钮数据  | `Object`  | -    |
-| isFixed          | 是否固定在表格列中 | `Boolean` | -    |
-| tableSelected      | 表格选中数据    | `Array`   | -    |
+| 参数名           | 说明        | 类型        | 示例  |
+|---------------|-----------|-----------|-----|
+| powerBtn      | 单个权限按钮数据  | `Object`  | -   |
+| isFixed       | 是否固定在表格列中 | `Boolean` | -   |
+| tableSelected | 表格选中数据    | `Array`   | -   |
 
 #### requestBefore
 

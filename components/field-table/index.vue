@@ -208,14 +208,14 @@ const {
 export default {
 
     /**
-     * 关闭组件 attribute 透传行为
-     */
-    inheritAttrs: false,
-
-    /**
      * 标识
      */
     name: 'NFieldTable',
+
+    /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
 
     /**
      * 声明属性

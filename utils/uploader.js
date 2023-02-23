@@ -48,7 +48,7 @@ let _fileNum = 0
 /**
  * 创建上传器
  */
-function create(params) {
+function create(options) {
 
     // ==========【数据】=========================================================================================
 
@@ -65,7 +65,7 @@ function create(params) {
         onUpdateModelValue: null,
         // 更新方法
         onUpdate: null,
-    }, params)
+    }, options)
 
     // 声明属性
     const props = Object.assign({
@@ -88,10 +88,10 @@ function create(params) {
         loadInfo: false,
         // 单文件上传提示
         confirm: false,
-    }, $n_get(params, 'props'))
+    }, $n_get(options, 'props'))
 
     // 上传文件列表
-    const uploadFileLists = $n_has(params, 'uploadFileLists') && isRef(params.uploadFileLists) ? params.uploadFileLists : ref([])
+    const uploadFileLists = $n_has(options, 'uploadFileLists') && isRef(options.uploadFileLists) ? options.uploadFileLists : ref([])
 
     /**
      * 上传配置

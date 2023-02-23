@@ -3,7 +3,6 @@ import $form from './$form'
 import $power from './$power'
 import $rule from './$rule'
 import $ruleValid from './$ruleValid'
-import $search from './$search'
 import $table from './$table'
 import $tree from './$tree'
 
@@ -35,7 +34,6 @@ export default {
     $power,
     $rule,
     $ruleValid,
-    $search,
     $table,
     $tree,
 

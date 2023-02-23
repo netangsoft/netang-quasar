@@ -67,7 +67,7 @@ function getChildren(data, callback) {
 /**
  * 创建树实例
  */
-function create(params) {
+function create(options) {
 
     const {
         // 路由路径
@@ -93,10 +93,10 @@ function create(params) {
         query: {},
         // 是否开启展开节点缓存
         cache: false,
-    }, params)
+    }, options)
 
     // 获取权限注入
-    const $power = $n_has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n_has(options, '$power') ? options.$power : inject(NPowerKey)
     const hasPowr = !! $power
 
     // 获取权限路由
@@ -215,7 +215,7 @@ function create(params) {
     /**
      * 获取菜单状态
      */
-    function getMenuStatus(params) {
+    function getMenuStatus(options) {
 
         const o = Object.assign({
             updateName: 'update',
@@ -223,7 +223,7 @@ function create(params) {
             copyName: 'copy',
             deleteName: 'realdel',
             statusName: 'status'
-        }, params)
+        }, options)
 
         const maps = {}
         maps[o.updateName] = 'update'
@@ -265,7 +265,7 @@ function create(params) {
     /**
      * 菜单点击
      */
-    function menuClick(params) {
+    function menuClick(options) {
 
         // 参数
         const o = Object.assign({
@@ -273,7 +273,7 @@ function create(params) {
             type: '',
             // 节点
             node: null,
-        }, params)
+        }, options)
 
         // 菜单类型
         switch (o.type) {
@@ -671,8 +671,16 @@ function create(params) {
     }
 
     return {
-        // 当前地址
-        fullPath: $route.fullPath,
+        // 当前路由全路径
+        routeFullPath: $route.fullPath,
+        // 当前路由路径
+        routePath: $route.path,
+        // 当前路由参数
+        routeQuery: $route.query,
+        // 获取当前路由
+        getRoute() {
+            return $route
+        },
         // 获取节点
         getNode,
         // 更新节点

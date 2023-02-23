@@ -13,9 +13,9 @@ function create(params) {
 
     // 获取参数
     const o = Object.assign({
-        // 表单数据
+        // 初始表单数据
         formData: {},
-        // 重置表单
+        // 重置表单方法
         resetForm: null,
     }, params)
 
