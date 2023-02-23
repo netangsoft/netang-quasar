@@ -46,6 +46,18 @@ $table.create(options: Object): Object
 | rowClick             | 单击表格行事件     | `Function` | -                                           | -                                   | -   | 
 | rowDblClick          | 双击表格行事件     | `Function` | -                                           | -                                   | -   | 
 
+#### pagination
+
+表格翻页参数
+
+| 参数名         | 说明          | 类型        | 默认值  |
+|-------------|-------------|-----------|------|
+| page        | 页码          | `Number`  | 1    |
+| rowsPerPage | 每页的数据条数     | `Number`  | 30   |
+| rowsNumber  | 数据总数(服务器返回) | `Number`  | 1    |
+| sortBy      | 排序字段        | `String`  | null |
+| descending  | 是否降序排列      | `Boolean` | true |
+
 #### request
 
 格式化表格按钮
@@ -53,7 +65,7 @@ $table.create(options: Object): Object
 ```javascript
 // 创建表格实例
 const $table = $n.$table.create({
-    
+
     // 自定义请求方法
     async request({ data, props, rows, selected }) {
         return await $n.http({
@@ -71,103 +83,56 @@ const $table = $n.$table.create({
 | rows     | 表格行数据  | `Array`  | -   |
 | selected | 表格选中数据 | `Array`  | -   |
 
-#### requestBefore
+#### formatRow
 
-请求前执行, 用于在请求前对数据进行一些验证或修改
-
-```javascript
-// 创建表格实例
-const $table = $n.$table.create({
-    
-    // 请求前执行
-    requestBefore({ options, requestData }) {
-        
-        // 如果没有标题
-        if (requestData.title) {
-            
-            // 轻提示
-            $n.toast({
-                message: '名称不能为空',
-            })
-            
-            // 如果返回 false, 则取消该请求
-            return false
-        }
-        
-        // 修改请求数据
-        requestData.test_data = 123
-    },
-})
-```
-
-| 参数名         | 说明        | 类型       | 示例  |
-|-------------|-----------|----------|-----|
-| options     | 请求时的上下文参数 | `Object` | -   |
-| requestData | 请求接口的数据   | `Object` | -   |
-
-#### requestSuccess
-
-请求成功执行, 请求成功后进行一些操作
+格式化单条数据
 
 ```javascript
 // 创建表格实例
 const $table = $n.$table.create({
     
-    // 请求成功执行
-    requestSuccess({ options, requestData, next, data, response }) {
-        
-        if (data.type === 1) {
-            
-            // 如果返回 false, 则不会继续向下执行
-            return false
-        }
-        
-        // 确认框
-        $n.confirm({
-            message: '提交成功，确认继续执行吗？',
-        })
-            // 点击确认执行
-            .onOk(function () {
-                
-                // 如果传值为 false, 则关闭请求成功的轻提示
-                next(false)
-            })
+    // 格式化单条数据
+    formatRow({ row, rows, selected }) {
+        row.title = '[测试]' + row.title
     },
 })
 ```
 
-| 参数名         | 说明        | 类型         | 示例  |
-|-------------|-----------|------------|-----|
-| options     | 请求时的上下文参数 | `Object`   | -   |
-| requestData | 请求接口的数据   | `Object`   | -   |
-| next        | 继续向下执行    | `Function` | -   |
-| status      | 请求结果状态    | `Boolean`  | -   |
-| data        | 请求返回数据    | `Any`      | -   |
-| response    | 请求返回原始数据  | `Object`   | -   |
+| 参数名      | 说明     | 类型       | 示例  |
+|----------|--------|----------|-----|
+| row      | 当前单条数据 | `Object` | -   |
+| rows     | 表格行数据  | `Array`  | -   |
+| selected | 表格已选数据 | `Array`  | -   |
 
-#### requestFail
+#### rowClick
 
-请求失败执行
+单击表格行事件
 
-| 参数名         | 说明        | 类型         | 示例  |
-|-------------|-----------|------------|-----|
-| options     | 请求时的上下文参数 | `Object`   | -   |
-| requestData | 请求接口的数据   | `Object`   | -   |
-| status      | 请求结果状态    | `Boolean`  | -   |
-| data        | 请求返回数据    | `Any`      | -   |
-| response    | 请求返回原始数据  | `Object`   | -   |
+```javascript
+// 创建表格实例
+const $table = $n.$table.create({
+    
+    // 单击表格行事件
+    rowClick(evt, row, index) {
+        
+    },
+})
+```
 
-#### requestAfter
+#### rowDblClick
 
-请求后执行
+双击表格行事件
 
-| 参数名         | 说明        | 类型         | 示例  |
-|-------------|-----------|------------|-----|
-| options     | 请求时的上下文参数 | `Object`   | -   |
-| requestData | 请求接口的数据   | `Object`   | -   |
-| status      | 请求结果状态    | `Boolean`  | -   |
-| data        | 请求返回数据    | `Any`      | -   |
-| response    | 请求返回原始数据  | `Object`   | -   |
+```javascript
+// 创建表格实例
+const $table = $n.$table.create({
+    
+    // 双击表格行事件
+    rowDblClick(evt, row, index) {
+        
+    },
+})
+```
 
 
 ### 返回数据
