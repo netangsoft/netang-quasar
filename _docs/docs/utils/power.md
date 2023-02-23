@@ -229,7 +229,7 @@ const $power = $n.$power.create({
 | hidden | 是否隐藏按钮                            | `Boolean` | -                                                                     | -                      |
 | data   | 按钮参数                              | `Object`  | -                                                                     | -                      |
 
-data 按钮参数
+- data 按钮参数
 
 | 参数名             | 说明                       | 类型                   | 可选值                               | 默认值    | 示例  |
 |-----------------|--------------------------|----------------------|-----------------------------------|--------|-----|
@@ -244,3 +244,110 @@ data 按钮参数
 | requestQuery    | 请求参数                     | `Object`             | -                                 | -      | -   |
 | requestSuccess  | 请求成功执行                   | `Object`             | -                                 | -      | -   |
 | params          | 自定义参数, 任意类型              | `Any`                | -                                 | -      | -   |
+
+- requestQuery
+
+请求参数
+
+| 参数名  | 说明  | 类型                | 示例 |
+|------  |-----|--------------------|--|
+| list | 列表  | `String` / `Array` | [ "id", "sku_id AS sku" ] |
+| query | 参数  | `String` / `Array` | [ "id", "sku_id AS sku", { "type": 1, "name": "age" } ] |
+
+
+- requestSuccess
+
+请求成功执行
+
+| 参数名  | 说明  | 类型                | 可选值 |
+|------  |-----|--------------------|--|
+| type | 类型  | `String` | `close` / `closePush` / `closePushRefresh` / `resetForm` / `refreshList` |
+| params | 参数  | `Any` | - |
+
+
+## $power.setData
+
+设置权限数据
+
+- 类型
+
+```javascript
+$power.setData(options: Object): void
+```
+
+### options 参数
+
+| 参数名  | 说明    | 类型       |
+|------|-------|----------|
+| rows | 路由路径  | `Array`  |
+| v    | 权限版本号 | `Number` |
+
+
+## $power.getData
+
+获取权限数据
+
+- 类型
+
+```javascript
+await $power.getData(): Object
+```
+
+### 返回数据
+
+| 参数名  | 说明 | 类型       | 默认值  |
+|------|--|----------|------|
+| v    | 权限版本号 | `Number` | null |
+| all | 以 id 为索引的权限数据对象 | `Object`  |      |
+| urls | 以 url 为索引的权限数据对象 | `Object`  |      |
+| btns | 以 url 为索引的权限按钮对象 | `Object`  |      |
+| menus | 所有权限菜单数组 | `Array`  |      |
+
+
+## $power.getPageData
+
+获取权限数据
+
+- 类型
+
+```javascript
+$power.getPageData($route): Object
+```
+
+### 返回数据
+
+| 参数名  | 说明 | 类型       |
+|------|--|----------|
+| page    | 页面权限 | `Number` |
+| btns | 页面权限按钮数组 | `Array`  |
+
+
+## $power.formatBtns
+
+格式化权限按钮
+
+- 类型
+
+```javascript
+$power.formatBtns(powerBtns, filterBtns, toObject = false): Array
+```
+
+## $power.request
+
+权限请求
+
+- 类型
+
+```javascript
+await $power.request(powerBtns, filterBtns, toObject = false): void
+```
+
+| 参数名  | 说明 | 类型       |
+|------|--|-----|
+| powerBtn    | 权限按钮数据 | `Object` |
+| tableSelected | 表格选中数据 | `Array`  |
+| checkUploading | 检查是否正在上传文件 | `Function`  |
+| [requestBefore](#requestbefore)     | 请求前执行       | `Function` |
+| [requestSuccess](#requestsuccess)   | 请求成功执行      | `Function` |
+| [requestFail](#requestfail)         | 请求失败执行      | `Function` |
+| [requestAfter](#requestafter)       | 请求后执行       | `Function` |

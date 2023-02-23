@@ -1165,7 +1165,7 @@ async function request(options) {
 }
 
 /**
- * 获取当前页面角色权限
+ * 获取路由页面的角色权限
  */
 function getPageData($route) {
 
@@ -1204,7 +1204,7 @@ const $power = {
     setData,
     // 获取权限数据
     getData,
-    // 获取页面权限数据
+    // 获取路由页面的角色权限
     getPageData,
     // 格式化权限按钮
     formatBtns,

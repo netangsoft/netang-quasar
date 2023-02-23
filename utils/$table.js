@@ -69,13 +69,13 @@ function create(params) {
         // selection: '',
         // 分隔栏, 可选值 horizontal vertical cell none
         separator: 'cell',
-        // 已选数据
+        // 初始已选数据
         selected: [],
-        // 表格加载状态
+        // 初始表格加载状态
         loading: false,
         // 表格列数据(对象数组)
         columns: [],
-        // 可见列
+        // 初始可见列
         visibleColumns: [],
         // 表格行数据
         rows: [],
@@ -95,7 +95,7 @@ function create(params) {
         },
         // 每页显示行数选项
         rowsPerPageOptions,
-        // 请求方法
+        // 自定义请求方法
         request: null,
         // 格式化单条数据
         formatRow: null,
@@ -107,13 +107,13 @@ function create(params) {
         summary: false,
         // 从参数中获取搜索值
         searchFromQuery: true,
-        // 显示宫格
+        // 是否显示宫格
         showGrid: true,
-        // 显示可见列
+        // 是否显示可见列
         showVisibleColumns: true,
-        // 开启缓存
+        // 是否开启缓存
         cache: true,
-        // 刷新后清空已选数据
+        // 是否刷新后清空已选数据
         refreshResetSelected: true,
 
         // 单击表格行事件
