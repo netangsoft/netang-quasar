@@ -247,6 +247,8 @@ export default {
 
         // 请求路径
         path: String,
+        // 请求地址(如果为空, 则默认为表格路由地址)
+        url: String,
         // 请求参数
         query: Object,
         // 附加请求数据
@@ -743,7 +745,7 @@ export default {
 
             // 请求数据
             const { status, data } = await $n_http({
-                url: $table.routePath,
+                url: props.url ?? $table.routePath,
                 data: Object.assign(
                     // 获取表格请求数据
                     $table.getTableRequestData({

@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-3a38f66d","path":"/components/input-number.html","title":"InputNumber 数字输入框","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/input-number.md"}');export{t as data};

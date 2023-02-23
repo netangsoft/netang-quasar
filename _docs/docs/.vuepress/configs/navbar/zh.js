@@ -11,6 +11,6 @@ export const navbarZh = [
     {
         text: '工具',
         activeMatch: '/utils/',
-        link: '/utils/alert',
+        link: '/utils/auth',
     },
 ]

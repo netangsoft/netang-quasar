@@ -1,8 +1,10 @@
 # Dialog 对话框
 
 ::: tip
-继承 `<q-dialog>` 所有特性
+- 继承 `<q-dialog>` 所有特性
 [中文文档](http://www.quasarchs.com/vue-components/dialog) [英文文档](https://quasar.dev/vue-components/dialog)
+
+- 使用 [$n.dialog.create()](../utils/dialog.md) 创建对话框进行使用
 :::
 
 | 属性名             | 说明       | 类型                  | 可选值 | 默认值   |

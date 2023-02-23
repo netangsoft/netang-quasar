@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-aa730a28","path":"/components/empty.html","title":"Empty 空状态","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/empty.md"}');export{t as data};

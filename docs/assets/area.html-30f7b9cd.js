@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-082ac875","path":"/utils/area.html","title":"xxxx xxxx","lang":"en-US","frontmatter":{},"headers":[{"level":3,"title":"使用示例","slug":"使用示例","link":"#使用示例","children":[]},{"level":3,"title":"xxxx 参数","slug":"xxxx-参数","link":"#xxxx-参数","children":[]}],"git":{"updatedTime":null,"contributors":[]},"filePathRelative":"utils/area.md"}');export{e as data};

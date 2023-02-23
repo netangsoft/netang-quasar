@@ -14,7 +14,7 @@ function isLogin() {
 }
 
 /**
- * 登录后更新数据
+ * 登录后更新用户状态数据
  */
 function updateLogin(res) {
 
@@ -34,17 +34,6 @@ function updateLogin(res) {
         token: t,
         info: $n_isValidObject(user_info) ? user_info : {},
     })
-}
-
-/**
- * 更新用户信息
- */
-function updateUserInfo(res) {
-    return _updateUserInfo(Object.assign(
-        {},
-        stateUserInfo.value,
-        res,
-    ))
 }
 function _updateUserInfo(res) {
 
@@ -85,9 +74,9 @@ function getUserInfo() {
 }
 
 /**
- * 获取用户 id
+ * 获取用户 ID
  */
-function getAdminUserId() {
+function getUserId() {
     return isLogin() ? stateUserInfo.value.id : 0
 }
 
@@ -123,18 +112,16 @@ function logout() {
 const $auth = {
     // 是否登录
     isLogin,
-    // 登录后更新数据
-    updateLogin,
-    // 更新用户信息
-    updateUserInfo,
     // 获取用户信息
     getUserInfo,
-    // 获取管理员 id
-    getAdminUserId,
+    // 获取用户 ID
+    getUserId,
     // 跳转登录页面
     pushLogin,
     // 退出登录
     logout,
+    // 登录后更新用户状态数据
+    updateLogin,
 }
 
 export default $auth

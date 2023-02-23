@@ -22,9 +22,9 @@ export function checkUserInfo(data) {
     return ! $n_validator(data, {
         // 管理员 id
         id: 'required|natural_no_zero',
-        // 登录 token
+        // 鉴权认证
         token: 'required|string',
-        // 管理员信息
+        // 用户信息
         info: 'required',
     })
 }

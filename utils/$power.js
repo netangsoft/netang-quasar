@@ -53,7 +53,7 @@ const {
 /**
  * 创建权限实例
  */
-function create(params) {
+function create(options) {
 
     // 获取参数
     const o = Object.assign({
@@ -61,7 +61,7 @@ function create(params) {
         path: '',
         // 路由参数
         query: {},
-        // 页面加载
+        // 是否加载页面
         pageLoading: false,
         // 页面状态
         pageStatus: null,
@@ -79,7 +79,6 @@ function create(params) {
         leftDrawerIcon: 'format_list_bulleted',
         // 右边侧滑菜单图标
         rightDrawerIcon: 'search',
-
         // 请求前执行
         requestBefore: null,
         // 请求成功执行
@@ -88,7 +87,7 @@ function create(params) {
         requestFail: null,
         // 请求后执行
         requestAfter: null,
-    }, params)
+    }, options)
 
     // 获取对话框渲染注入
     const $dialog = inject(NDialogKey)
@@ -851,7 +850,7 @@ function formatQuery(query, isJoinArr) {
 /**
  * 角色请求
  */
-async function request(params) {
+async function request(options) {
 
     // 参数
     const o = Object.assign({
@@ -869,14 +868,14 @@ async function request(params) {
         requestFail: null,
         // 请求后执行
         requestAfter: null,
-    }, params)
+    }, options)
 
     const {
         // 权限路由参数
         $route,
         // 当前路由参数
         $currentRoute,
-    } = params
+    } = options
 
     o.query = $route.query
 
@@ -947,7 +946,7 @@ async function request(params) {
         }
 
         // 请求前执行
-        const resBefore = await $n_runAsync(o.requestBefore)({ params: o, requestData: query })
+        const resBefore = await $n_runAsync(o.requestBefore)({ options: o, requestData: query })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
@@ -970,7 +969,7 @@ async function request(params) {
     if (btnData.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
-        o.$form = $n_has(params, '$form') ? params.$form : inject(NFormKey)
+        o.$form = $n_has(options, '$form') ? options.$form : inject(NFormKey)
 
         if (! o.$form) {
             throw new Error('没有创建表单实例')
@@ -1010,7 +1009,7 @@ async function request(params) {
     // --------------------------------------------------
     } else {
         // 获取表格注入
-        o.$table = $n_has(params, '$table') ? params.$table : inject(NTableKey)
+        o.$table = $n_has(options, '$table') ? options.$table : inject(NTableKey)
 
         // 获取请求数据
         requestData = formatQuery(query, false)
@@ -1048,7 +1047,7 @@ async function request(params) {
     async function onRequest() {
 
         // 请求前执行
-        const resBefore = await $n_runAsync(o.requestBefore)({ params: o, requestData })
+        const resBefore = await $n_runAsync(o.requestBefore)({ options: o, requestData })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
@@ -1199,7 +1198,7 @@ function getPageData($route) {
  * 权限业务
  */
 const $power = {
-    // 创建
+    // 创建权限实例
     create,
     // 设置权限数据
     setData,
