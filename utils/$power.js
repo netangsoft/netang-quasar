@@ -330,12 +330,12 @@ function create(params) {
             })
 
             // 权限按钮点击
-            data.powerBtnClick = async function ({ data }, tableSelected) {
+            data.powerBtnClick = async function (powerBtn, tableSelected) {
 
                 // 权限请求
                 await request({
                     // 按钮数据
-                    data,
+                    powerBtn,
                     // 权限路由参数
                     $route,
                     // 当前路由参数
@@ -852,8 +852,8 @@ async function request(params) {
 
     // 参数
     const o = Object.assign({
-        // 按钮数据
-        data: {},
+        // 权限按钮数据
+        powerBtn: {},
         // 表格选中数据
         tableSelected: [],
         // 检查是否正在上传文件
@@ -878,7 +878,7 @@ async function request(params) {
     o.query = $route.query
 
     // 判断类型
-    if (! $n_get(o.data, 'type')) {
+    if (! $n_get(o.powerBtn, 'data.type')) {
 
         // 【调试模式】
         // --------------------------------------------------
@@ -890,18 +890,18 @@ async function request(params) {
         return
     }
 
-    // 克隆 data
-    o.data = $n_cloneDeep(o.data)
+    // 克隆按钮
+    o.powerBtn = $n_cloneDeep(o.powerBtn)
 
     // 判断 url
-    o.data.url = $n_toLower($n_trimString(o.data.url))
-    if (! o.data.url) {
+    o.powerBtn.data.url = $n_toLower($n_trimString(o.powerBtn.data.url))
+    if (! o.powerBtn.data.url) {
 
         if (
             // 如果没有跳转页面地址
-            ! $n_has(o.data, 'toPage')
+            ! $n_has(o.powerBtn.data, 'toPage')
             // 或跳转页面地址为空
-            || ! $n_isValidString(o.data.toPage)
+            || ! $n_isValidString(o.powerBtn.data.toPage)
         ) {
             // 【调试模式】
             // --------------------------------------------------
@@ -914,24 +914,33 @@ async function request(params) {
         }
 
         // 用跳转页面地址替换 toPage
-        o.data = Object.assign({}, o.data, {
-            url: o.data.toPage,
+        o.powerBtn.data = Object.assign({}, o.powerBtn.data, {
+            url: o.powerBtn.data.toPage,
         })
     }
+
+    // 获取按钮数据
+    const btnData = o.powerBtn.data
 
     // 获取请求参数
     let query = getRequestQuery(o)
 
     // 如果是打开新窗口
     // --------------------------------------------------
-    if (o.data.type === dicts.POWER_DATA_TYPE__OPEN) {
+    if (btnData.type === dicts.POWER_DATA_TYPE__OPEN) {
 
         query = formatQuery(query, true)
 
         // 如果不是禁止添加来源页面参数
-        if ($n_get(o.data, 'noFromPageQuery') !== true) {
+        if ($n_get(btnData, 'noFromPageQuery') !== true) {
             // 来源页面是当前路由的完整路径
             query.n_from_page = encodeURIComponent($currentRoute.fullPath)
+        }
+
+        // 如果按钮有标题
+        const pageTitle = $n_trimString(o.powerBtn.title)
+        if (pageTitle) {
+            query.n_page_title = pageTitle
         }
 
         // 请求前执行
@@ -944,7 +953,7 @@ async function request(params) {
         }
 
         $n_router.push({
-            path: o.data.url,
+            path: btnData.url,
             query,
         })
         return
@@ -955,7 +964,7 @@ async function request(params) {
 
     // 如果是提交表单
     // --------------------------------------------------
-    if (o.data.type === dicts.POWER_DATA_TYPE__FORM) {
+    if (btnData.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
         o.$form = $n_has(params, '$form') ? params.$form : inject(NFormKey)
@@ -965,7 +974,7 @@ async function request(params) {
         }
 
         // 如果验证表单
-        if ($n_get(o.data, 'validate') !== false) {
+        if ($n_get(btnData, 'validate') !== false) {
 
             if (! o.$form.formRef) {
                 throw new Error('没有绑定 fromRef')
@@ -1005,12 +1014,12 @@ async function request(params) {
     }
 
     // 判断是否有确认框
-    const isConfirm = $n_get(o.data, 'confirm')
+    const isConfirm = $n_get(btnData, 'confirm')
     if (
         // 如果有确认框
         isConfirm
         // 如果有密码确认框
-        || $n_get(o.data, 'confirmPassword')
+        || $n_get(btnData, 'confirmPassword')
     ) {
         // 如果需要先弹出确认框
         if (isConfirm) {
@@ -1047,7 +1056,7 @@ async function request(params) {
         // 请求
         const res = await $n_http({
             // 请求地址
-            url: o.data.url,
+            url: btnData.url,
             // 请求数据
             data: requestData,
         })
@@ -1080,8 +1089,8 @@ async function request(params) {
                 }
 
                 // 判断是否有请求成功后的操作动作
-                if ($n_has(o.data, 'requestSuccess.type')) {
-                    switch (o.data.requestSuccess.type) {
+                if ($n_has(btnData, 'requestSuccess.type')) {
+                    switch (btnData.requestSuccess.type) {
 
                         // 关闭当前页面
                         case 'close':
@@ -1103,7 +1112,7 @@ async function request(params) {
 
                             if (
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                                o.data.requestSuccess.type !== 'close'
+                                btnData.requestSuccess.type !== 'close'
                                 // 如果有来源页面
                                 && $n_has($route.query, 'n_from_page')
                                 && $n_isValidString($route.query.n_from_page)
@@ -1112,12 +1121,12 @@ async function request(params) {
                                     // 跳转页面地址
                                     pushPage: decodeURIComponent($route.query.n_from_page),
                                     // 是否跳转并刷新页面
-                                    isPushRefresh: o.data.requestSuccess.type === 'closePushRefresh',
+                                    isPushRefresh: btnData.requestSuccess.type === 'closePushRefresh',
                                 })
 
                                 // 否则如果定义了跳转页面
-                                // else if ($n_has(o.data, 'requestSuccess.params') && $n_isValidString(o.data.requestSuccess.params)) {
-                                //     pushPage = o.data.requestSuccess.params
+                                // else if ($n_has(btnData, 'requestSuccess.params') && $n_isValidString(btnData.requestSuccess.params)) {
+                                //     pushPage = btnData.requestSuccess.params
                                 // }
                             }
 
