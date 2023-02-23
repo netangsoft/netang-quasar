@@ -743,12 +743,15 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
  */
 function getRequestQuery(o) {
 
+    // 获取按钮数据
+    const btnData = o.powerBtn.data
+
     // 传参
     const query = {}
 
     // 如果有请求传参的传参设置
-    if ($n_has(o.data, 'requestQuery.query')) {
-        const resQuery = parseQuery(o.query, o.data.requestQuery.query)
+    if ($n_has(btnData, 'requestQuery.query')) {
+        const resQuery = parseQuery(o.query, btnData.requestQuery.query)
         if ($n_isValidObject(resQuery)) {
             Object.assign(query, resQuery)
         }
@@ -757,18 +760,18 @@ function getRequestQuery(o) {
     // 获取列表数据
     if (
         // 如果按钮参数有显示类型
-        $n_has(o.data, 'show')
+        $n_has(btnData, 'show')
         // 按钮参数的显示类型必须是单选或多选
-        && $n_indexOf(['single', 'multiple'], o.data.show) > -1
+        && $n_indexOf(['single', 'multiple'], btnData.show) > -1
         // 如果有请求传参的列表设置
-        && $n_has(o.data, 'requestQuery.list')
+        && $n_has(btnData, 'requestQuery.list')
         // 如果有表格数据
         && $n_isValidArray(o.tableSelected)
     ) {
         let newQuery = {}
 
         // 如果是单选
-        if (o.data.show === 'single') {
+        if (btnData.show === 'single') {
             // 取表格选中第一条数据
             newQuery = o.tableSelected[0]
 
@@ -786,7 +789,7 @@ function getRequestQuery(o) {
             }
         }
 
-        const resTable = parseQuery(newQuery, o.data.requestQuery.list)
+        const resTable = parseQuery(newQuery, btnData.requestQuery.list)
         if ($n_isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
