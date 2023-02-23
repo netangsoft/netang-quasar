@@ -203,6 +203,11 @@ export default {
     name: 'NTable',
 
     /**
+     * 关闭组件 attribute 透传行为
+     */
+    inheritAttrs: false,
+
+    /**
      * 组件
      */
     components: {
