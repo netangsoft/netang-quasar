@@ -172,3 +172,24 @@ const $table = $n.$table.create({
 | tableRowClick           | 表格单击表格行          | `Function`     | @row-click="tableRowClick"                       |
 | tableRowDblclick        | 表格双击表格行          | `Function`     | @row-dblclick="currentTableRowDblclick"          |
 | setTableSearchOptions   | 设置表格搜索参数         | `Function`     | -                                                |
+
+
+## $table.config
+
+获取表格配置
+
+从 `src/tables` 文件夹中获取路由路径对应的表格配置
+
+- 示例
+
+```javascript
+$table.config(routePath, path, defaultValue)
+```
+
+### options 参数
+
+| 参数名          | 说明              | 类型       | 示例                |
+|--------------|-----------------|----------|-------------------|
+| routePath    | 路由路径            | `String` | goods/goods/index |
+| path         | 配置字段            | `String` | columns           |
+| defaultValue | 默认值（没有获取到配置时显示） | `Any`    | [ ]               |

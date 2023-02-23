@@ -1,18 +1,31 @@
-# xxxx xxxx
+# $ruleValid 表单单个验证
 
 ::: tip
-xxxxxxxx
+`@netang/quasar/utils/$ruleValid.js` [Github](https://github.com/netangsoft/netang-quasar/blob/main/utils/%24ruleValid.js) [Gitee](https://gitee.com/jinmarcus/netang-quasar/blob/main/utils/%24ruleValid.js)
+
+单个验证真假规则(用于表单验证)
 :::
 
-### 使用示例
+- 示例
 
 ```javascript
+$n.dialog.create({
+    title: '请输入',
+    prompt: {
+        model: '',
+        type: 'text',
+        isValid: $n.$ruleValid('required|min:6|max:20'),
+    },
+    cancel: true,
+    persistent: true,
+})
+    .onOk(function(data) {
 
+    })
 ```
 
+### options 参数
 
-### xxxx 参数
-
-| 参数名   | 类型    | 默认值 | 可选值 | 说明  |
-|-------|-------|-----|-----|-----|
-| xxxxx | xxxxx | -   | -   | -   |
+| 参数名                  | 说明          | 类型         |
+|----------------------|-------------|------------|
+| rule                 | 验证规则        | `String`   |
