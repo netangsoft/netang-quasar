@@ -193,6 +193,7 @@ import $n_isValidString from '@netang/utils/isValidString'
 import $n_numberDeep from '@netang/utils/numberDeep'
 import $n_sleep from '@netang/utils/sleep'
 import $n_http from '@netang/utils/http'
+import $n_runAsync from '@netang/utils/runAsync'
 
 import $n_$power from '../../utils/$power'
 import $n_$table from '../../utils/$table'
@@ -296,6 +297,8 @@ export default {
             type: [ Number, String ],
             default: 500
         },
+        // 自定义请求方法
+        onRequest: Function,
     },
 
     /**
@@ -743,8 +746,8 @@ export default {
          */
         async function onRequestSelected(value) {
 
-            // 请求数据
-            const { status, data } = await $n_http({
+            // 请求参数
+            const options = {
                 url: props.url ?? $table.routePath,
                 data: Object.assign(
                     // 获取表格请求数据
@@ -771,7 +774,19 @@ export default {
                         },
                     }
                 ),
-            })
+            }
+
+            // 请求数据
+            const { status, data } = $n_isFunction(props.onRequest) ?
+                // 如果有自定义请求方法
+                await $n_runAsync(props.onRequest)({
+                    options,
+                    props,
+                    // 是否在对话框中
+                    inDialog: showDialog.value,
+                }) :
+                // 否则请求数据
+                await $n_http(options)
 
             return status && $n_isValidArray($n_get(data, 'rows')) ? data.rows : []
         }
