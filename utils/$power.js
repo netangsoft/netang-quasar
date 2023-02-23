@@ -931,16 +931,16 @@ async function request(params) {
 
         query = formatQuery(query, true)
 
-        // 如果不是禁止添加来源页面参数
-        if ($n_get(btnData, 'noFromPageQuery') !== true) {
-            // 来源页面是当前路由的完整路径
-            query.n_from_page = encodeURIComponent($currentRoute.fullPath)
-        }
-
         // 如果按钮有标题
         const pageTitle = $n_trimString(o.powerBtn.title)
         if (pageTitle) {
             query.n_page_title = pageTitle
+        }
+
+        // 如果不是禁止添加来源页面参数
+        if ($n_get(btnData, 'noFromPageQuery') !== true) {
+            // 来源页面是当前路由的完整路径
+            query.n_from_page = encodeURIComponent($currentRoute.fullPath)
         }
 
         // 请求前执行
