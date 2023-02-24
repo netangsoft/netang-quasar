@@ -1,5 +1,5 @@
 import { ref, computed, provide, inject, watch } from 'vue'
-import { date, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 
 import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
@@ -24,13 +24,13 @@ import $n_forIn from '@netang/utils/forIn'
 import $n_runAsync from '@netang/utils/runAsync'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidValue from '@netang/utils/isValidValue'
-import $n_toDate from '@netang/utils/toDate'
 import $n_slash from '@netang/utils/slash'
 import $n_http from '@netang/utils/http'
 
 import $n_$power from './$power'
 import $n_dict from './dict'
 import $n_price from './price'
+import $n_getTime from './getTime'
 
 import { configs } from './config'
 
@@ -222,7 +222,7 @@ function create(params) {
 
         // 如果有时间戳
         if ($n_has(item, 'time')) {
-            item.format = val => date.formatDate($n_toDate(val), item.time === true ? `YYYY-MM-DD HH:mm` : item.time)
+            item.format = val => $n_getTime(val, { format: item.time === true ? `YYYY-MM-DD HH:mm` : item.time }, '-')
 
         // 如果有数据字典
         } else if ($n_has(item, 'dict')) {

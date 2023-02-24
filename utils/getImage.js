@@ -12,7 +12,7 @@ import $n_config from './config'
 /**
  * 获取图片
  */
-export default function getImage(src, params) {
+export default function getImage(src, options) {
 
     if (src) {
 
@@ -23,8 +23,8 @@ export default function getImage(src, params) {
         // 如果为对象
         } else if ($n_isValidObject(src)) {
 
-            if ($n_has(src, 'params')) {
-                params = src.params
+            if ($n_has(src, 'options')) {
+                options = src.options
             }
 
             if ($n_has(src, 'img')) {
@@ -40,21 +40,21 @@ export default function getImage(src, params) {
             }
 
             // 如果为对象定义的规格
-            if ($n_isValidObject(params)) {
+            if ($n_isValidObject(options)) {
 
                 // 是否自动缩放
                 // --------------------------------------------------
                 // 如果有定义 w
-                if ($n_has(params, 'w')) {
+                if ($n_has(options, 'w')) {
 
                     let {
                         w,
                         maxWidth,
                         zoom,
-                    } = params
+                    } = options
 
                     // 先设为 0
-                    params.w = 0
+                    options.w = 0
 
                     // 如果开启缩放 && 有宽度
                     if (zoom && w) {
@@ -86,7 +86,7 @@ export default function getImage(src, params) {
                                     w = maxWidth
                                 }
 
-                                params.w = w
+                                options.w = w
                             }
                         }
                     }
@@ -118,7 +118,7 @@ export default function getImage(src, params) {
                             q: 75,
                             // 格式
                             format: 'webp',
-                        }, params)
+                        }, options)
 
                         // 裁剪图片方式
                         src += '?imageView2/2'

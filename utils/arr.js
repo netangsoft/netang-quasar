@@ -6,7 +6,7 @@ import $n_isFunction from 'lodash/isFunction'
 const arr = {
 
     /**
-     * 增加
+     * 数组添加值
      */
     add(children, index, newItem) {
         if (Array.isArray(children)) {
@@ -15,7 +15,7 @@ const arr = {
     },
 
     /**
-     * 删除
+     * 数组删除值
      */
     delete(children, index) {
         if (Array.isArray(children)) {
@@ -24,7 +24,7 @@ const arr = {
     },
 
     /**
-     * 上移
+     * 数组值上移
      */
     up(children, index) {
         if (Array.isArray(children)) {
@@ -36,7 +36,7 @@ const arr = {
     },
 
     /**
-     * 下移
+     * 数组值下移
      */
     down(children, index) {
         if (Array.isArray(children)) {

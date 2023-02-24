@@ -1,18 +1,26 @@
-# xxxx xxxx
+# alert 提示框
 
 ::: tip
-xxxxxxxx
+`@netang/quasar/utils/alert.js` [Github](https://github.com/netangsoft/netang-quasar/blob/main/utils/alert.js) [Gitee](https://gitee.com/jinmarcus/netang-quasar/blob/main/utils/alert.js)
+
+继承 `Dialog.create()` 所有特性
+[中文文档](http://www.quasarchs.com/quasar-plugins/dialog) [英文文档](https://quasar.dev/quasar-plugins/dialog)
 :::
 
-### 使用示例
+- 示例
 
 ```javascript
-
+alert({
+    message: '登录验证失败',
+})
 ```
 
+- 类型
 
-### xxxx 参数
+```javascript
+alert(options: Object): void
+```
 
-| 参数名   | 类型    | 默认值 | 可选值 | 说明  |
-|-------|-------|-----|-----|-----|
-| xxxxx | xxxxx | -   | -   | -   |
+| 参数名     | 说明  | 类型       |
+|---------|-----|----------|
+| options | 参数  | `Object` |

@@ -3,10 +3,10 @@ import { Dialog } from 'quasar'
 /**
  * 提示框
  */
-function alert(params) {
+function alert(options) {
     return Dialog.create(Object.assign({
         title: '提示',
-    }, params))
+    }, options))
 }
 
 export default alert

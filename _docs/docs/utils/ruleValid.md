@@ -9,12 +9,12 @@
 - 示例
 
 ```javascript
-$n.dialog.create({
+dialog.create({
     title: '请输入',
     prompt: {
         model: '',
         type: 'text',
-        isValid: $n.$ruleValid('required|min:6|max:20'),
+        isValid: $ruleValid('required|min:6|max:20'),
     },
     cancel: true,
     persistent: true,

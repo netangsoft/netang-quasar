@@ -8,10 +8,10 @@ import { date as quasarDate } from 'quasar'
 /**
  * 获取时间
  */
-export default function getTime(time, params, defaultValue = '') {
+export default function getTime(time, options, defaultValue = '') {
 
     if (! time) {
-        return $n_isValidString(params) ? params : defaultValue
+        return $n_isValidString(options) ? options : defaultValue
     }
 
     let {
@@ -25,17 +25,17 @@ export default function getTime(time, params, defaultValue = '') {
     } = Object.assign({
         // 默认格式化
         format: 'MM-DD HH:mm',
-        // 显示秒
+        // 是否显示秒
         showSecond: false,
-        // 隐藏当前年份
+        // 是否隐藏当前年份
         hideCurrentYear: false,
-        // 日历时间
+        // 是否显示日历格式
         calendar: false,
-        // 显示日历今天
+        // 是否显示日历今天
         showCalendarToday: false,
-        // 显示日历时间
+        // 是否显示日历时间
         showCalendarTime: false,
-    }, params)
+    }, options)
 
     // 传入时间
     const date = $n_toDate(time)

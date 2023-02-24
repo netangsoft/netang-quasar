@@ -1,0 +1,1 @@
+const a=JSON.parse('{"key":"v-b3fc7d5e","path":"/components/dialog.html","title":"Dialog 对话框","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1},{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"components/dialog.md"}');export{a as data};

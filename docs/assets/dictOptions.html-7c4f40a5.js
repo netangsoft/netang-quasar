@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-330c37a8","path":"/utils/dictOptions.html","title":"dictOptions 数据字典选项","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/dictOptions.md"}');export{t as data};

@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-7fef4586","path":"/components/table-column-fixed.html","title":"TableSplitter 表格拆分器","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"components/table-column-fixed.md"}');export{e as data};

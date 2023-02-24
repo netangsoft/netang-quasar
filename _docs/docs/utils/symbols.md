@@ -1,18 +1,30 @@
-# xxxx xxxx
+# symbols 内置符号
 
 ::: tip
-xxxxxxxx
+`@netang/quasar/utils/symbols.js` [Github](https://github.com/netangsoft/netang-quasar/blob/main/utils/symbols.js) [Gitee](https://gitee.com/jinmarcus/netang-quasar/blob/main/utils/symbols.js)
 :::
 
-### 使用示例
+- 示例
 
 ```javascript
+import { inject } from 'vue'
+import { NRenderKey, NPowerKey, NTableKey, NFormKey, NDialogKey, NUploaderKey } from './symbols'
 
+// 获取渲染组件注入
+inject(NRenderKey)
+
+// 获取权限注入
+inject(NPowerKey)
+
+// 获取表格注入
+inject(NTableKey)
+
+// 获取表单注入
+inject(NFormKey)
+
+// 获取对话框注入
+inject(NDialogKey)
+
+// 获取上传器注入
+inject(NUploaderKey)
 ```
-
-
-### xxxx 参数
-
-| 参数名   | 类型    | 默认值 | 可选值 | 说明  |
-|-------|-------|-----|-----|-----|
-| xxxxx | xxxxx | -   | -   | -   |

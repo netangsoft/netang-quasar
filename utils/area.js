@@ -10,21 +10,21 @@ import $n_replaceAll from '@netang/utils/replaceAll'
 let _areaData = null
 
 /**
- * 获取数据
+ * 获取地区数据
  */
-function getData(level = 3, params) {
-    return _getData(() => import('../configs/area3'), level, params)
+function getData(level = 3, options) {
+    return _getData(() => import('../configs/area3'), level, options)
 }
-function _getData(areaData, level, params) {
+function _getData(areaData, level, options) {
     return new Promise(function(resolve) {
 
         // 执行
         function run() {
 
             const para = Object.assign({
-                // 忽略省市 id
+                // 忽略地区 id
                 ignore: [],
-            }, params)
+            }, options)
 
             // 克隆树数据
             const treeData = $n_cloneDeep(_areaData)
@@ -130,9 +130,9 @@ function replaceArea(val) {
 }
 
 /**
- * 获取详情
+ * 获取地区详情
  */
-async function getInfo(params) {
+async function getInfo(options) {
 
     let {
         // 地址数据
@@ -165,7 +165,7 @@ async function getInfo(params) {
         areaText: '',
         // 详细区域文字
         regionText: '',
-    }, params)
+    }, options)
 
     if (! areaData) {
         areaData = await getData(level)
@@ -391,9 +391,9 @@ async function getInfo(params) {
  * 地区
  */
 const area = {
-    // 获取数据
+    // 获取地区数据
     getData,
-    // 获取详情
+    // 获取地区详情
     getInfo,
 }
 

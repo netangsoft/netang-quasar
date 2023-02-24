@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-2c8b2530","path":"/utils/bus.html","title":"xxxx xxxx","lang":"en-US","frontmatter":{},"headers":[{"level":3,"title":"使用示例","slug":"使用示例","link":"#使用示例","children":[]},{"level":3,"title":"xxxx 参数","slug":"xxxx-参数","link":"#xxxx-参数","children":[]}],"git":{"updatedTime":null,"contributors":[]},"filePathRelative":"utils/bus.md"}');export{t as data};

@@ -1,18 +1,11 @@
-# xxxx xxxx
+# previewImage 预览图片
 
 ::: tip
-xxxxxxxx
+`@netang/quasar/utils/previewImage.js` [Github](https://github.com/netangsoft/netang-quasar/blob/main/utils/previewImage.js) [Gitee](https://gitee.com/jinmarcus/netang-quasar/blob/main/utils/previewImage.js)
 :::
 
-### 使用示例
+- 示例
 
 ```javascript
-
+previewImage('https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png')
 ```
-
-
-### xxxx 参数
-
-| 参数名   | 类型    | 默认值 | 可选值 | 说明  |
-|-------|-------|-----|-----|-----|
-| xxxxx | xxxxx | -   | -   | -   |

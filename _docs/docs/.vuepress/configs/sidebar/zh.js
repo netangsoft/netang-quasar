@@ -52,7 +52,6 @@ export const sidebarZh = {
                 '/utils/alert',
                 '/utils/arr',
                 '/utils/bus',
-                '/utils/config',
                 '/utils/confirm',
                 '/utils/copy',
                 '/utils/dialog',
@@ -70,9 +69,6 @@ export const sidebarZh = {
                 '/utils/timestamp',
                 '/utils/toast',
                 '/utils/uploader',
-                '/utils/useAuth',
-                '/utils/useRouter',
-                '/utils/useUploader',
             ],
         }
     ],

@@ -18,23 +18,23 @@ $power.create(options: Object): Object
 
 ### options 参数
 
-| 参数名                                 | 说明          | 类型         | 默认值                  | 可选值 | 示例  |
-|-------------------------------------|-------------|------------|----------------------|-----|-----|
-| path                                | 路由路径        | `String`   | -                    | -   | -   | 
-| query                               | 路由参数        | `Object`   | -                    | -   | -   | 
-| pageLoading                         | 是否加载页面      | `Boolean`  | false                | -   | -   | 
-| pageStatus                          | 页面状态        | `Boolean`  | null                 | -   | -   | 
-| emptyDescription                    | 空状态描述       | `String`   | -                    | -   | -   | 
-| power                               | 是否开启权限      | `Boolean`  | true                 | -   | -   | 
-| showPowerBtns                       | 是否显示权限按钮    | `Boolean`  | true                 | -   | -   | 
+| 参数名                                 | 说明        | 类型         | 默认值                  | 可选值 | 示例  |
+|-------------------------------------|-----------|------------|----------------------|-----|-----|
+| path                                | 路由路径      | `String`   | 当前路由路径               | -   | -   | 
+| query                               | 路由参数      | `Object`   | 当前路由参数               | -   | -   | 
+| pageLoading                         | 是否加载页面    | `Boolean`  | false                | -   | -   | 
+| pageStatus                          | 页面状态      | `Boolean`  | null                 | -   | -   | 
+| emptyDescription                    | 空状态描述     | `String`   | -                    | -   | -   | 
+| power                               | 是否开启权限    | `Boolean`  | true                 | -   | -   | 
+| showPowerBtns                       | 是否显示权限按钮  | `Boolean`  | true                 | -   | -   | 
 | showToolbarPowerBtns                | 是否显示工具栏权限按钮 | `Boolean`  | true                 | -   | -   | 
-| [formatPowerBtns](#formatpowerbtns) | 格式化权限按钮     | `Function` | -                    | -   | -   | 
-| leftDrawerIcon                      | 左边侧滑菜单图标    | `String`   | format_list_bulleted | -   | -   | 
-| rightDrawerIcon                     | 右边侧滑菜单图标    | `search`   | -                    | -   | -   | 
-| [requestBefore](#requestbefore)     | 请求前执行       | `Function` | -                    | -   | -   | 
-| [requestSuccess](#requestsuccess)   | 请求成功执行      | `Function` | -                    | -   | -   | 
-| [requestFail](#requestfail)         | 请求失败执行      | `Function` | -                    | -   | -   | 
-| [requestAfter](#requestafter)       | 请求后执行       | `Function` | -                    | -   | -   | 
+| [formatPowerBtns](#formatpowerbtns) | 格式化权限按钮   | `Function` | -                    | -   | -   | 
+| leftDrawerIcon                      | 左边侧滑菜单图标  | `String`   | format_list_bulleted | -   | -   | 
+| rightDrawerIcon                     | 右边侧滑菜单图标  | `search`   | -                    | -   | -   | 
+| [requestBefore](#requestbefore)     | 请求前执行     | `Function` | -                    | -   | -   | 
+| [requestSuccess](#requestsuccess)   | 请求成功执行    | `Function` | -                    | -   | -   | 
+| [requestFail](#requestfail)         | 请求失败执行    | `Function` | -                    | -   | -   | 
+| [requestAfter](#requestafter)       | 请求后执行     | `Function` | -                    | -   | -   | 
 
 #### formatPowerBtns
 

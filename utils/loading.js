@@ -1,7 +1,7 @@
 import { Loading } from 'quasar'
 
 /**
- * 加载
+ * 全局加载
  */
 const loading = {
     show() {

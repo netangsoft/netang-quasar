@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-da9d2720","path":"/components/price.html","title":"FieldTree 下拉树","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":null,"contributors":[]},"filePathRelative":"components/price.md"}');export{e as data};

@@ -1,18 +1,31 @@
-# xxxx xxxx
+# confirm 确认框
 
 ::: tip
-xxxxxxxx
+`@netang/quasar/utils/confirm.js` [Github](https://github.com/netangsoft/netang-quasar/blob/main/utils/confirm.js) [Gitee](https://gitee.com/jinmarcus/netang-quasar/blob/main/utils/confirm.js)
+
+继承 `Dialog.create()` 所有特性
+[中文文档](http://www.quasarchs.com/quasar-plugins/dialog) [英文文档](https://quasar.dev/quasar-plugins/dialog)
 :::
 
-### 使用示例
+- 示例
 
 ```javascript
-
+// 确认框
+confirm({
+    message: '确认删除吗？',
+})
+    // 点击确认执行
+    .onOk(function () {
+        
+    })
 ```
 
+- 类型
 
-### xxxx 参数
+```javascript
+confirm(options: Object): void
+```
 
-| 参数名   | 类型    | 默认值 | 可选值 | 说明  |
-|-------|-------|-----|-----|-----|
-| xxxxx | xxxxx | -   | -   | -   |
+| 参数名     | 说明  | 类型       |
+|---------|-----|----------|
+| options | 参数  | `Object` |
