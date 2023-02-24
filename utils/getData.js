@@ -15,7 +15,7 @@ import $n_config from './config'
  * @param refValue 请求成功后设置值
  * @returns
  */
-export default async function getData(url, pageStatus, emptyDescription, refValue) {
+export default async function getData(url, pageStatus = null, emptyDescription = null, refValue = null) {
 
     const warn = $n_isNil(pageStatus) || ! isRef(pageStatus)
 

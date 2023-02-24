@@ -78,7 +78,7 @@ export default {
                 item = $n_cloneDeep(item)
 
                 // 格式化权限按钮
-                if (formatPowerBtns(item, true, [ props.props.row ]) === false) {
+                if (formatPowerBtns(item, true, [ props.props.row ]) === false || item.hidden === true) {
                     return
                 }
 
