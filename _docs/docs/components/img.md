@@ -1,21 +1,25 @@
-# FieldTree 下拉树
+# Img 图片
 
 ::: tip
-继承 `<q-field>` 所有特性
-[中文文档](http://www.quasarchs.com/vue-components/field) [英文文档](https://quasar.dev/vue-components/field)
+继承 `<q-img>` 所有特性
+[中文文档](http://www.quasarchs.com/vue-components/img) [英文文档](https://quasar.dev/vue-components/img)
 :::
 
-| 属性名                         | 说明                                    | 类型        | 可选值 | 默认值   |
-|-----------------------------|---------------------------------------|-----------|-----|-------|
-| value / v-model             | 绑定值（必填）                               | -         | -   | -     |
-| expanded / v-model:expanded | 树展开节点                                 | `Array`   | -   | -     |
-| nodes                       | 节点数组                                  | `String`  | -   | -     |
-| node-key                    | 唯一的节点键值（必填）                           | `String`  | -   | id    |
-| label-key                   | 标签字段                                  | `String`  | -   | label |
-| strict                      | 是否可选任意一级(true:可选任意一级, false: 仅能选叶子节点) | `Boolean` | -   | false |
-| multiple                    | 是否多选                                  | `Boolean` | -   | false |
-| accordion                   | 手风琴模式                                 | `Boolean` | -   | false |
-| show-all-levels             | 是否显示选中值的完整路径                          | `Boolean` | -   | true  |
-| filter                      | 是否开启筛选                                | `Boolean` | -   | false |
-| collapse-tags               | 是否折叠标签(多选模式有效)                        | `Boolean` | -   | false |
-| placeholder                 | 占位符                                   | `String`  | -   | -     |
+示例
+
+```javascript
+<n-img 
+    src="..."
+/>
+```
+
+新增属性
+
+| 属性名             | 说明                          | 类型                  | 可选值 | 默认值   |
+|-----------------|-----------------------------|---------------------|-----|-------|
+| round           | 是否为圆形                       | `Boolean`           | -   | false |
+| rounded         | 是否为圆角                       | `Boolean`           | -   | false |
+| error-size      | 错误尺寸（发生错误后如果没有定义宽高，则此参数为宽高） | `String` / `Number` | -   | 70    |
+| error-icon-size | 错误图标大小                      | `Number`            | -   | md    |
+| error-icon      | 错误图标                        | `String`            | -   | image |
+| preview         | 是否点击放大预览                    | `Boolean`           | -   | false |

@@ -1,11 +1,18 @@
 # Thumbnail 缩略图
 
 ::: tip
-缩略图
+继承 [`<n-img>`](./img.md) 所有特性
 :::
 
 | 属性名     | 说明       | 类型                            | 可选值 | 默认值   |
 |---------|----------|-------------------------------|-----|-------|
-| src     | 图片地址     | `String` / `Array` / `Object` | -   | -     |
 | size    | 图片尺寸     | `Number`                      | -   | 40    |
-| preview | 是否点击放大预览 | `Boolean`                     | -   | false |
+
+
+示例
+
+```javascript
+<n-thumbnail
+    src="..."
+/>
+```

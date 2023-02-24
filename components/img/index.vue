@@ -69,7 +69,6 @@
 <script>
 import { computed } from 'vue'
 
-import $n_get from 'lodash/get'
 import $n_px from '@netang/utils/px'
 
 import $n_getImage from '../../utils/getImage'
@@ -103,7 +102,7 @@ export default {
         rounded: Boolean,
         // 加载旋转器尺寸
         spinnerSize: [ String, Number ],
-        // 错误尺寸
+        // 错误尺寸(发生错误后如果没有定义宽高, 则此参数为宽高)
         errorSize: {
             type: [ String, Number ],
             default: 70,
@@ -125,7 +124,7 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { attrs }) {
+    setup(props) {
 
         // ==========【计算属性】==========================================================================================
 

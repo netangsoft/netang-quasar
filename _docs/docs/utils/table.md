@@ -63,25 +63,24 @@ $table.create(options: Object): Object
 格式化表格按钮
 
 ```javascript
+import http from '@netang/utils/http'
+
 // 创建表格实例
 const $table = $n.$table.create({
 
     // 自定义请求方法
-    async request({ data, props, rows, selected }) {
-        return await $n.http({
-            url: '...',
-            data,
-        })
+    async request({ httpOptions, props, rows, selected }) {
+        return await http(httpOptions)
     },
 })
 ```
 
-| 参数名      | 说明     | 类型       | 示例  |
-|----------|--------|----------|-----|
-| data     | 请求数据   | `Object` | -   |
-| props    | 表格声明属性 | `Array`  | -   |
-| rows     | 表格行数据  | `Array`  | -   |
-| selected | 表格选中数据 | `Array`  | -   |
+| 参数名         | 说明        | 类型       | 示例  |
+|-------------|-----------|----------|-----|
+| httpOptions | http 请求参数 | `Object` | -   |
+| props       | 表格声明属性    | `Array`  | -   |
+| rows        | 表格行数据     | `Array`  | -   |
+| selected    | 表格已选数据    | `Array`  | -   |
 
 #### formatRow
 
