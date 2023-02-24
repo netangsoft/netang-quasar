@@ -55,7 +55,7 @@ const {
 /**
  * 创建表格
  */
-function create(params) {
+function create(options) {
 
     // ==========【数据】=================================================================================================
 
@@ -130,10 +130,10 @@ function create(params) {
         rowClick: null,
         // 双击表格行事件
         rowDblClick: null,
-    }, params)
+    }, options)
 
     // 获取权限注入
-    const $power = $n_has(params, '$power') ? params.$power : inject(NPowerKey)
+    const $power = $n_has(options, '$power') ? options.$power : inject(NPowerKey)
     const hasPowr = !! $power
 
     // 获取渲染注入
@@ -718,36 +718,31 @@ function create(params) {
             }
         } = props
 
-        // 获取表格请求数据
-        const data = getTableRequestData(props, isRequestSummary)
+        // http 请求参数
+        const httpOptions = Object.assign({
+            // 请求数据
+            url: $route.path,
+            // 请求数据
+            data: getTableRequestData(props, isRequestSummary),
+            // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
+            // 关闭防抖(允许重复请求)
+            // debounce: false,
+        }, o.httpSettings)
 
-        let result
-
-        // 如果有自定义请求方法
-        if ($n_isFunction(o.request)) {
-            result = await $n_runAsync(o.request)({
-                data,
+        const { status, data: res } = $n_isFunction(o.request)
+            // 如果有自定义请求方法
+            ? await $n_runAsync(o.request)({
+                // http 请求参数
+                httpOptions,
+                // 表格声明属性
                 props,
+                // 表格行数据
                 rows: tableRows,
+                // 表格已选数据
                 selected: tableSelected,
             })
-
-        // 否则请求服务器
-        } else {
-            const opts = Object.assign({
-                // 请求数据
-                url: $route.path,
-                // 请求数据
-                data,
-                // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
-                // 关闭防抖(允许重复请求)
-                // debounce: false,
-            }, o.httpSettings)
-
-            result = await $n_http(opts)
-        }
-
-        const { status, data: res } = result
+            // 否则请求服务器
+            : await $n_http(httpOptions)
 
         // 请求成功
         if (status) {

@@ -248,8 +248,6 @@ export default {
 
         // 请求路径
         path: String,
-        // 请求地址(如果为空, 则默认为表格路由地址)
-        url: String,
         // 请求参数
         query: Object,
         // 附加请求数据
@@ -298,7 +296,7 @@ export default {
             default: 500
         },
         // 自定义请求方法
-        onRequest: Function,
+        request: Function,
     },
 
     /**
@@ -402,6 +400,19 @@ export default {
             },
             // 刷新后清空已选数据
             refreshResetSelected: false,
+            // 自定义请求方法
+            async request({ httpOptions }) {
+                return $n_isFunction(props.request) ?
+                    // 如果有自定义请求方法
+                    await $n_runAsync(props.request)({
+                        // http 请求参数
+                        httpOptions,
+                        // 对话框是否已显示
+                        showDialog: showDialog.value,
+                    }) :
+                    // 否则请求数据
+                    await $n_http(httpOptions)
+            },
         })
 
         // 创建睡眠实例
@@ -747,8 +758,8 @@ export default {
         async function onRequestSelected(value) {
 
             // 请求参数
-            const options = {
-                url: props.url ?? $table.routePath,
+            const httpOptions = {
+                url: $table.routePath,
                 data: Object.assign(
                     // 获取表格请求数据
                     $table.getTableRequestData({
@@ -777,16 +788,16 @@ export default {
             }
 
             // 请求数据
-            const { status, data } = $n_isFunction(props.onRequest) ?
+            const { status, data } = $n_isFunction(props.request) ?
                 // 如果有自定义请求方法
-                await $n_runAsync(props.onRequest)({
-                    options,
-                    props,
-                    // 是否在对话框中
-                    inDialog: showDialog.value,
+                await $n_runAsync(props.request)({
+                    // http 请求参数
+                    httpOptions,
+                    // 对话框是否已显示
+                    showDialog: showDialog.value,
                 }) :
                 // 否则请求数据
-                await $n_http(options)
+                await $n_http(httpOptions)
 
             return status && $n_isValidArray($n_get(data, 'rows')) ? data.rows : []
         }
