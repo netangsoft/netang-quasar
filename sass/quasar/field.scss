@@ -154,6 +154,22 @@
             &.q-textarea.q-field--labeled .q-field__control-container {
                 padding-top: 5px;
             }
+
+            // 底部
+            .q-field__bottom {
+                position: absolute;
+                padding: 0;
+
+                .q-field__messages {
+                    position: absolute;
+                    top: -8px;
+                    right: 5px;
+                    line-height: 16px;
+                    padding: 0 6px;
+                    border-radius: 6px;
+                    background-color: #ffffff;
+                }
+            }
         }
 
         &--labeled {
@@ -188,6 +204,11 @@
         .q-field__native,
         .q-field__input {
             z-index: 2;
+        }
+
+        // 底部
+        &--with-bottom {
+            padding-bottom: 0;
         }
     }
 
