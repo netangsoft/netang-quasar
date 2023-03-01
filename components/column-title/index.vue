@@ -1,13 +1,15 @@
 <template>
     <div class="full-width">
-        <q-badge
+
+        <q-chip
+            square
             :label="label"
-            color="grey-7"
-            outline
+            :clickable="false"
+            :ripple="false"
         >
             <!-- 提示信息 -->
             <q-tooltip anchor="center right" self="center left" v-if="tooltip">{{tooltip}}</q-tooltip>
-        </q-badge>
+        </q-chip>
 
         <!-- 插槽 -->
         <slot />
