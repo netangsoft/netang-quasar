@@ -89,7 +89,11 @@
                     @row-dblclick="currentTableRowDblclick"
                     @request="tableRequest"
                     flat
-                    virtual-scroll
+                    :virtual-scroll="{
+                        virtualScrollSliceRatioBefore: 20,
+                        virtualScrollSliceSize: 50,
+                        virtualScrollSliceRatioAfter: 20,
+                    }"
                     :dense="dense"
                     v-bind="$attrs"
                 >

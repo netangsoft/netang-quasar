@@ -1,5 +1,6 @@
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_toDate from '@netang/utils/toDate'
+import $n_indexOf from '@netang/utils/indexOf'
 
 import $n_timestamp from './timestamp'
 
@@ -91,7 +92,13 @@ export default function getTime(time, options, defaultValue = '') {
     }
 
     // 如果是今年是否显示
-    if (! hideCurrentYear || quasarDate.formatDate(date, 'YYYY') !== quasarDate.formatDate(now, 'YYYY')) {
+    if (
+        $n_indexOf(format, 'YYYY') === -1
+        && (
+            ! hideCurrentYear
+            || quasarDate.formatDate(date, 'YYYY') !== quasarDate.formatDate(now, 'YYYY')
+        )
+    ) {
         format = 'YYYY-' + format
     }
 
