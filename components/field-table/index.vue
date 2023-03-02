@@ -162,7 +162,7 @@
         width="80%"
         :on-confirm="onDialogConfirm"
         @before-show="onDialogBeforeShow"
-        @show="tableLoad"
+        @show="onDialogShow"
         @hide="onDialogHide"
         cancel
         v-bind="dialogProps"
@@ -987,6 +987,31 @@ export default {
         }
 
         /**
+         * 对话框显示回调
+         */
+        let _dialogShowed = false
+        function onDialogShow() {
+
+            if ($n_isFunction(props.request)) {
+
+                if (_dialogShowed) {
+                    return
+                }
+                _dialogShowed = true
+
+                // 表格重新加载
+                $table.tableReload()
+                    .finally()
+
+                return
+            }
+
+            // 表格加载(只加载一次)
+            $table.tableLoad()
+                .finally()
+        }
+
+        /**
          * 对话框隐藏后回调
          */
         function onDialogHide() {
@@ -1158,6 +1183,8 @@ export default {
             onShowDialog,
             // 对话框显示前回调
             onDialogBeforeShow,
+            // 对话框显示回调
+            onDialogShow,
             // 对话框隐藏后回调
             onDialogHide,
             // 对话框点击确认回调
