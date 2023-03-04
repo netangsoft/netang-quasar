@@ -91,10 +91,10 @@
                 <!-- 树 -->
                 <q-tree
                     class="q-pa-sm q-pr-md"
-                    style="min-width:260px;"
                     ref="treeRef"
+                    style="min-width:260px;"
                     :filter="inputValue"
-                    :nodes="nodes"
+                    :nodes="currentTreeNodes"
                     :node-key="nodeKey"
                     :label-key="labelKey"
                     :ticked="treeTicked"
@@ -102,6 +102,8 @@
                     v-model:expanded="treeExpanded"
                     :tick-strategy="currentTickStrategy"
                     :accordion="accordion"
+                    v-bind="treeProps"
+                    v-if="showTree"
                 >
                     <template v-slot:default-header="{ node }">
                         <div
@@ -119,17 +121,22 @@
 </template>
 
 <script>
-import { ref, computed, watch, onUpdated } from 'vue'
+import { ref, computed, watch, onUpdated, nextTick } from 'vue'
 
 import $n_has from 'lodash/has'
 import $n_uniq from 'lodash/uniq'
 import $n_concat from 'lodash/concat'
+import $n_isString from 'lodash/isString'
+import $n_isFunction from 'lodash/isFunction'
 
 import $n_forEach from '@netang/utils/forEach'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_indexOf from '@netang/utils/indexOf'
 import $n_isRequired from '@netang/utils/isRequired'
 import $n_isValidValue from '@netang/utils/isValidValue'
+import $n_runAsync from '@netang/utils/runAsync'
+import $n_http from '@netang/utils/http'
+import $n_toTree from '@netang/utils/toTree'
 
 export default {
 
@@ -148,8 +155,11 @@ export default {
         },
         // 树展开节点
         expanded: Array, // v-model:expanded
-        // 节点数组
-        nodes: Array,
+        // 初始节点数组
+        // Array: 初始节点数据数据组
+        // String: 请求初始节点数据的地址
+        // Function: 获取初始节点数据的方法
+        nodes: [ Array, String, Function ],
         // 唯一的节点键值
         nodeKey: {
             type: String,
@@ -183,6 +193,8 @@ export default {
         disable: Boolean,
         // 是否只读
         readonly: Boolean,
+        // 树声明属性
+        treeProps: Object,
     },
 
     /**
@@ -211,6 +223,13 @@ export default {
                 : ''
         })
 
+        /**
+         * 是否为初始加载树节点树
+         */
+        const isDefaultLoadNodes = computed(function () {
+            return $n_isString(props.nodes) || $n_isFunction(props.nodes)
+        })
+
         // ==========【数据】============================================================================================
 
         // 输入框节点
@@ -225,17 +244,23 @@ export default {
         // 是否显示弹出层
         const showPopup = ref(false)
 
+        // 是否显示树(如果为非初始加载树节点树, 则直接显示)
+        const showTree = ref(! isDefaultLoadNodes.value)
+
         // 树节点
         const treeRef = ref(null)
-
-        // tree all
-        let treeAll = getTreeAll()
 
         // 树展开数据
         const treeExpanded = ref(getExpanded())
 
         // 树选择数据
         const treeTicked = ref(formatModelValue(props.modelValue))
+
+        // 当前树节点数据
+        const currentTreeNodes = ref(isDefaultLoadNodes ? [] : props.nodes)
+
+        // tree all
+        let treeAll = getTreeAll()
 
         // ==========【计算属性】=========================================================================================
 
@@ -272,9 +297,14 @@ export default {
         // ==========【监听数据】=========================================================================================
 
         /**
-         * 监听节点数组
+         * 监听声明节点
          */
-        watch(() => props.nodes, function () {
+        watch(() => props.nodes, defaultLoadNodes)
+
+        /**
+         * 监听当前节点数组
+         */
+        watch(currentTreeNodes, function () {
             // 更新 tree all
             treeAll = getTreeAll()
         })
@@ -318,31 +348,36 @@ export default {
 
             const all = {}
 
-            // 获取子节点
-            function getChildren(data, pid, pPath) {
-                for (const item of data) {
+            if (
+                // 如果显示树
+                showTree.value
+                // 如果当前树节点数据为有效数组
+                && $n_isValidArray(currentTreeNodes.value)
+            ) {
+                // 获取子节点
+                function getChildren(data, pid, pPath) {
+                    for (const item of data) {
 
-                    const label = item[props.labelKey]
+                        const label = item[props.labelKey]
 
-                    const path = pPath ? (pPath + ' / ' + label) : label
+                        const path = pPath ? (pPath + ' / ' + label) : label
 
-                    all[item[props.nodeKey]] = {
-                        id: item[props.nodeKey],
-                        pid,
-                        label,
-                        children: item.children,
-                        path,
-                    }
+                        all[item[props.nodeKey]] = {
+                            id: item[props.nodeKey],
+                            pid,
+                            label,
+                            children: item.children,
+                            path,
+                        }
 
-                    // 如果是父节点
-                    if ($n_isValidArray(item.children)) {
-                        getChildren(item.children, item.id, path)
+                        // 如果是父节点
+                        if ($n_isValidArray(item.children)) {
+                            getChildren(item.children, item.id, path)
+                        }
                     }
                 }
-            }
 
-            if ($n_isValidArray(props.nodes)) {
-                getChildren(props.nodes, 0, '')
+                getChildren(currentTreeNodes.value, 0, '')
             }
 
             return all
@@ -541,13 +576,27 @@ export default {
         /**
          * 弹出层显示回调
          */
-        function onPopupShow() {
+        let __treeLoaded = false
+        async function onPopupShow() {
 
             // 显示弹出层
             showPopup.value = true
 
             // 设置输入框焦点
             setInputFocus()
+
+            if (
+                // 如果树已加载过了
+                __treeLoaded
+                // 如果树已显示
+                || showTree.value
+            ) {
+                // 则无任何操作
+                return
+            }
+
+            // 初始加载节点
+            await defaultLoadNodes()
         }
 
         /**
@@ -589,6 +638,50 @@ export default {
             return $n_indexOf(treeTicked.value, id) > -1
         }
 
+        /**
+         * 初始加载节点
+         */
+        async function defaultLoadNodes() {
+
+            let resNodes = props.nodes
+
+            // 如果是初始加载树节点树
+            if (
+                $n_isString(props.nodes)
+                || $n_isFunction(props.nodes)
+            ) {
+                // 隐藏树
+                showTree.value = false
+
+                // 下次 DOM 更新
+                await nextTick()
+
+                // 如果为字符串
+                if ($n_isString(props.nodes)) {
+                    const { status, data } = await $n_http({
+                        url: props.nodes,
+                    })
+                    if (status) {
+                        resNodes = data
+                    }
+
+                // 否则为方法
+                } else {
+                    resNodes = await $n_runAsync(props.nodes)
+                }
+            }
+
+            resNodes = $n_toTree({
+                data: resNodes,
+            }).tree
+
+            // 设置当前树节点数组
+            currentTreeNodes.value = $n_isValidArray(resNodes) ? resNodes : []
+
+            // 设置显示树
+            showTree.value = true
+        }
+
         // ==========【生命周期】=========================================================================================
 
         /**
@@ -613,6 +706,8 @@ export default {
             popupRef,
             // 是否显示弹出层
             showPopup,
+            // 是否显示树
+            showTree,
             // 树节点
             treeRef,
             // 树选择数据
@@ -621,6 +716,8 @@ export default {
             treeTickedNodes,
             // 树展开数据
             treeExpanded,
+            // 当前树节点数据
+            currentTreeNodes,
             // 当前节点选择策略
             currentTickStrategy,
 
