@@ -115,6 +115,15 @@
                         >{{node.label}}</div>
                     </template>
                 </q-tree>
+
+                <!-- loading -->
+                <div class="flex flex-center" style="height:100px" v-else>
+                    <q-spinner
+                        color="primary"
+                        size="3em"
+                    />
+                </div>
+
             </q-card>
         </q-popup-proxy>
     </q-field>
@@ -126,7 +135,6 @@ import { ref, computed, watch, onUpdated, nextTick } from 'vue'
 import $n_has from 'lodash/has'
 import $n_uniq from 'lodash/uniq'
 import $n_concat from 'lodash/concat'
-import $n_isString from 'lodash/isString'
 import $n_isFunction from 'lodash/isFunction'
 
 import $n_forEach from '@netang/utils/forEach'
@@ -135,8 +143,6 @@ import $n_indexOf from '@netang/utils/indexOf'
 import $n_isRequired from '@netang/utils/isRequired'
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_runAsync from '@netang/utils/runAsync'
-import $n_http from '@netang/utils/http'
-import $n_toTree from '@netang/utils/toTree'
 
 export default {
 
@@ -206,7 +212,7 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { emit }) {
+    setup(props, { attrs, emit }) {
 
         // ==========【计算属性】=========================================================================================
 
@@ -649,7 +655,7 @@ export default {
                 // 下次 DOM 更新
                 await nextTick()
 
-                resNodes = await $n_runAsync(props.nodes)
+                resNodes = await $n_runAsync(props.nodes)()
             }
 
             // 设置当前树节点数组
