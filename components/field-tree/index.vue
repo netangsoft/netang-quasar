@@ -157,9 +157,8 @@ export default {
         expanded: Array, // v-model:expanded
         // 初始节点数组
         // Array: 初始节点数据数据组
-        // String: 请求初始节点数据的地址
         // Function: 获取初始节点数据的方法
-        nodes: [ Array, String, Function ],
+        nodes: [ Array, Function ],
         // 唯一的节点键值
         nodeKey: {
             type: String,
@@ -223,14 +222,10 @@ export default {
                 : ''
         })
 
-        /**
-         * 是否为初始加载树节点树
-         */
-        const isDefaultLoadNodes = computed(function () {
-            return $n_isString(props.nodes) || $n_isFunction(props.nodes)
-        })
-
         // ==========【数据】============================================================================================
+
+        // 是否为初始加载树节点树
+        const isDefaultLoadNodes = $n_isFunction(props.nodes)
 
         // 输入框节点
         const inputRef = ref(null)
@@ -245,7 +240,7 @@ export default {
         const showPopup = ref(false)
 
         // 是否显示树(如果为非初始加载树节点树, 则直接显示)
-        const showTree = ref(! isDefaultLoadNodes.value)
+        const showTree = ref(! isDefaultLoadNodes)
 
         // 树节点
         const treeRef = ref(null)
@@ -646,34 +641,16 @@ export default {
             let resNodes = props.nodes
 
             // 如果是初始加载树节点树
-            if (
-                $n_isString(props.nodes)
-                || $n_isFunction(props.nodes)
-            ) {
+            if ($n_isFunction(props.nodes)) {
+
                 // 隐藏树
                 showTree.value = false
 
                 // 下次 DOM 更新
                 await nextTick()
 
-                // 如果为字符串
-                if ($n_isString(props.nodes)) {
-                    const { status, data } = await $n_http({
-                        url: props.nodes,
-                    })
-                    if (status) {
-                        resNodes = data
-                    }
-
-                // 否则为方法
-                } else {
-                    resNodes = await $n_runAsync(props.nodes)
-                }
+                resNodes = await $n_runAsync(props.nodes)
             }
-
-            resNodes = $n_toTree({
-                data: resNodes,
-            }).tree
 
             // 设置当前树节点数组
             currentTreeNodes.value = $n_isValidArray(resNodes) ? resNodes : []
