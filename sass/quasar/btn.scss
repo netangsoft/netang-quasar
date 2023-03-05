@@ -1,0 +1,46 @@
+/**
+ * 按钮
+ */
+.q-btn {
+    &.disabled {
+        opacity: 0.5 !important;
+    }
+
+    // 线条默认按钮
+    &--outline {
+        &.text-default {
+            &:before {
+                border-color: rgba(var(--n-reverse-color-rgb), 0.2);
+            }
+        }
+    }
+}
+
+.n-button {
+    // 带图标的按钮
+    &-icon {
+        .q-icon {
+            font-size: 1.315em;
+        }
+        .on-left {
+            margin-right: 5px;
+        }
+        .on-right {
+            margin-left: 5px;
+        }
+    }
+}
+
+
+
+// 亮色
+.body--light {
+    .q-btn {
+        // 线条默认按钮
+        &--outline {
+            &.text-default {
+                background: #ffffff !important;
+            }
+        }
+    }
+}

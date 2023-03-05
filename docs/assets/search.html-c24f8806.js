@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-f718d61e","path":"/components/search.html","title":"Search 搜索","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/search.md"}');export{e as data};

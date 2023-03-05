@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-0e83afd2","path":"/components/table-summary.html","title":"TableSplitter 表格拆分器","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"components/table-summary.md"}');export{t as data};

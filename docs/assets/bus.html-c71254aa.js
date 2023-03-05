@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-2c8b2530","path":"/utils/bus.html","title":"bus 通知","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/bus.md"}');export{t as data};

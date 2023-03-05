@@ -1,0 +1,24 @@
+{
+  "name": "@netang/quasar",
+  "version": "0.0.101",
+  "description": "netang-quasar",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netangsoft/netang-quasar.git"
+  },
+  "keywords": [
+    "netang-quasar"
+  ],
+  "author": "Netang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/netangsoft/netang-quasar/issues"
+  },
+  "homepage": "https://github.com/netangsoft/netang-quasar#readme",
+  "dependencies": {
+    "spark-md5": "^3.0.2"
+  }
+}

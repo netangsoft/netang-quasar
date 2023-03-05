@@ -1,0 +1,243 @@
+/**
+ * 输入框
+ */
+.q-field {
+    &--outlined {
+        .q-field__control {
+            // 输入框边框颜色
+            &:after {
+                border-width: 1px !important;
+            }
+
+            // 输入框边框颜色
+            &:before {
+                border-color: rgba(var(--n-reverse-color-rgb), 0.15) !important;
+            }
+        }
+
+        // 输入框激活后高亮
+        &.q-field--highlighted {
+            // 输入框激活后高亮边框宽度
+            .q-field__control:after {
+                border-width: 1px !important;
+            }
+
+            // 输入框触碰边框颜色
+            &:hover:before {
+                border-color: rgba(var(--n-reverse-color-rgb), 0.4) !important;
+            }
+        }
+    }
+
+    &--labeled {
+        &.q-field--float {
+            .q-field__native,
+            .q-field__input {
+                &::-webkit-input-placeholder {
+                    color: var(--n-placeholder-color) !important;
+                }
+                &::-moz-placeholder {
+                    color: var(--n-placeholder-color) !important;
+                }
+                &::-ms-input-placeholder {
+                    color: var(--n-placeholder-color) !important;
+                }
+                &::-ms-input-placeholder {
+                    color: var(--n-placeholder-color) !important;
+                }
+                &::placeholder {
+                    color: var(--n-placeholder-color) !important;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 分组
+ */
+.n-field-group {
+    > .q-field--outlined {
+        // 非第一个子节点
+        &:not(:first-child) {
+            .q-field__control {
+                &:before {
+                    left: -1px;
+                    border-left-color: transparent !important;
+                }
+                border-top-left-radius: inherit !important;
+                border-bottom-left-radius: inherit !important;
+            }
+        }
+        // 非最后一个子节点
+        &:not(:last-child) {
+            .q-field__control {
+                border-top-right-radius: inherit !important;
+                border-bottom-right-radius: inherit !important;
+            }
+        }
+    }
+
+    > .n-field-group {
+
+        // 非第一个子节点
+        &:not(:first-child) {
+            margin-top: -1px;
+
+            .q-field--outlined {
+
+                // 第一个子节点
+                &:first-child {
+                    .q-field__control {
+                        border-top-left-radius: inherit !important;
+                    }
+                }
+
+                // 最后一个子节点
+                &:first-child {
+                    .q-field__control {
+                        border-top-right-radius: inherit !important;
+                    }
+                }
+
+                .q-field__control {
+                    &:before {
+                        border-top-color: transparent !important;
+                    }
+                }
+            }
+        }
+
+        // 非最后一个子节点
+        &:not(:last-child) {
+            .q-field--outlined {
+
+                // 第一个子节点
+                &:first-child {
+                    .q-field__control {
+                        border-bottom-left-radius: inherit !important;
+                    }
+                }
+
+                // 最后一个子节点
+                &:first-child {
+                    .q-field__control {
+                        border-bottom-right-radius: inherit !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 字段集样式
+ */
+.n-field-fieldset {
+    &.q-field {
+
+        // 紧凑模式
+        &--dense {
+            // 紧凑模式最小高度
+            //.q-field__control,
+            //.q-field__marginal {
+            //    min-height: 44px;
+            //}
+
+            &.q-field--float {
+                .q-field__label {
+                    transform: translateY(-80%) scale(0.85) !important;
+                }
+            }
+
+            // 文本框的上边距
+            &.q-textarea.q-field--labeled .q-field__control-container {
+                padding-top: 5px;
+            }
+
+            // 底部
+            .q-field__bottom {
+                position: absolute;
+                padding: 0;
+
+                .q-field__messages {
+                    position: absolute;
+                    top: -8px;
+                    right: 5px;
+                    line-height: 16px;
+                    padding: 0 6px;
+                    border-radius: 6px;
+                    background-color: #ffffff;
+                }
+            }
+        }
+
+        &--labeled {
+            .q-field__prefix,
+            .q-field__suffix,
+            .q-field__native {
+                padding-top: 5px !important;
+                padding-bottom: 5px !important;
+            }
+
+            .q-field__label {
+                left: -6px;
+                padding: 0 6px;
+                z-index: 1 !important;
+                border-radius: 6px;
+            }
+        }
+
+        &--float {
+            .q-field__prefix,
+            .q-field__suffix,
+            .q-field__native {
+                padding-top: 7px !important;
+            }
+
+            .q-field__label {
+                transform: translateY(-120%) scale(0.85) !important;
+                background-color: var(--n-mode-color) !important;
+            }
+        }
+
+        .q-field__native,
+        .q-field__input {
+            z-index: 2;
+        }
+
+        // 底部
+        &--with-bottom {
+            padding-bottom: 0;
+        }
+    }
+
+    &.q-field--auto-height.q-field--labeled .q-field__control-container {
+        padding-top: 4px;
+    }
+}
+
+/**
+ * 亮色
+ */
+.body--light {
+    // 输入框背景 白色
+    .n-field-fieldset {
+        &.q-field {
+            &--outlined {
+                .q-field__inner {
+                    &:before {
+                        content: "";
+                        position: absolute;
+                        top: 1px;
+                        left: 0;
+                        right: 0;
+                        bottom: 1px;
+                        border-radius: 4px;
+                        background-color: #ffffff;
+                    }
+                }
+            }
+        }
+    }
+}
