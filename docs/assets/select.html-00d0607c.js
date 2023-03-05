@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-9d218bc6","path":"/components/select.html","title":"Select 选择框","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/select.md"}');export{e as data};

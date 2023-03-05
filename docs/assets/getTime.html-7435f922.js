@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-a32bb266","path":"/utils/getTime.html","title":"getTime 获取时间","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/getTime.md"}');export{t as data};

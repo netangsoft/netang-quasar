@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-b86a29cc","path":"/utils/timestamp.html","title":"timestamp 当前时间戳","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/timestamp.md"}');export{t as data};

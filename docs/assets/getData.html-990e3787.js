@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-d2dbe7e0","path":"/utils/getData.html","title":"getData 获取公共数据","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/getData.md"}');export{t as data};

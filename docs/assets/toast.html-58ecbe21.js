@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-228737ae","path":"/utils/toast.html","title":"toast 轻提示","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/toast.md"}');export{t as data};

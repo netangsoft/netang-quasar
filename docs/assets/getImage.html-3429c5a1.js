@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-52b26846","path":"/utils/getImage.html","title":"getImage 获取图片地址","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/getImage.md"}');export{t as data};

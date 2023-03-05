@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-7b870f32","path":"/components/splitter.html","title":"Splitter 拆分器","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/splitter.md"}');export{t as data};

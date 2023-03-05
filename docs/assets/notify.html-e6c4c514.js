@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-142c0e0e","path":"/utils/notify.html","title":"notify 通知","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":1}]},"filePathRelative":"utils/notify.md"}');export{t as data};

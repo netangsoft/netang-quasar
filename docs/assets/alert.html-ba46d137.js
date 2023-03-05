@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-7b1a2a14","path":"/utils/alert.html","title":"alert 提示框","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1677137834000,"contributors":[{"name":"junmiao","email":"mj287@163.com","commits":2}]},"filePathRelative":"utils/alert.md"}');export{t as data};

@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-df88a5ea","path":"/components/table.html","title":"Table 表格","lang":"en-US","frontmatter":{},"headers":[],"git":{"updatedTime":1675864180000,"contributors":[{"name":"junmiao","email":"Jumiao28","commits":1}]},"filePathRelative":"components/table.md"}');export{e as data};
