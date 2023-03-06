@@ -1,7 +1,9 @@
 <template>
     <div class="flex column absolute-full" v-if="isValidArray(options)">
-        <q-scroll-area class="n-flex-1">
-
+        <q-scroll-area
+            class="n-flex-1"
+            content-style="n-overflow-hidden-x"
+        >
             <div class="n-search q-pa-sm q-pt-sm q-gutter-sm">
 
                 <template

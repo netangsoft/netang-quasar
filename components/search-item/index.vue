@@ -39,7 +39,7 @@
         <!-- 比较2(类型为 > / >=) -->
         <div
             class="n-field-group row"
-            v-if="data.compareOptions2.length && indexOf([dicts.SEARCH_TYPE__GT, dicts.SEARCH_TYPE__GTE], modelValue[0].compare) > -1"
+            v-if="data.compareOptions2.length && indexOf([dicts.SEARCH_COMPARE_TYPE__GT, dicts.SEARCH_COMPARE_TYPE__GTE], modelValue[0].compare) > -1"
         >
             <!-- 比较类型2 -->
             <q-select
@@ -114,7 +114,9 @@ export default {
         /**
          * 监听值的比较类型
          */
-        watch(()=>props.modelValue[0].compare, function(compare) {
+        watch(() => props.modelValue[0].compare, function(compare) {
+
+            console.log('compare', props.data, props.modelValue[0].compare)
 
             // 获取当前值
             const value = props.modelValue[0].value
