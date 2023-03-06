@@ -361,12 +361,6 @@ export async function getOptions(rawSearchOptions, format) {
                     clearable: true,
                 }, newItem.tree)
 
-                // 如果节点数组是方法
-                if ($n_isFunction(newItem.tree.nodes)) {
-                    // 读取下拉选项
-                    newItem.tree.nodes = await $n_runAsync(newItem.tree.nodes)()
-                }
-
             // 如果有表格选项(调用的是 <n-field-table.md> 组件)
             } else if ($n_has(newItem, 'table')) {
                 newItem.searchType = 'table'
