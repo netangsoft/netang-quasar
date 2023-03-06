@@ -210,6 +210,13 @@
         &--with-bottom {
             padding-bottom: 0;
         }
+
+        // 用于解决搜索中撑破的问题
+        .q-field__control {
+            .q-field__input.col {
+                width: 100%;
+            }
+        }
     }
 
     &.q-field--auto-height.q-field--labeled .q-field__control-container {
