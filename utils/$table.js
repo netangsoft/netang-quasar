@@ -69,6 +69,8 @@ function create(options) {
     const o = $n_merge({
         // 路由路径
         path: '',
+        // 请求地址(默认为 path)
+        url: '',
         // 路由参数
         query: {},
         // 附加请求数据
@@ -137,7 +139,7 @@ function create(options) {
     const hasPowr = !! $power
 
     // 获取渲染注入
-    const $render = inject(NRenderKey)
+    const $render = $n_has(options, '$render') ? options.$render : inject(NRenderKey)
     if (!! $render) {
         // 如果有表格传参, 则合并参数
         const tableProps = $n_get($render, 'props.tableProps')
@@ -721,7 +723,7 @@ function create(options) {
         // http 请求参数
         const httpOptions = Object.assign({
             // 请求数据
-            url: $route.path,
+            url: $n_isValidString(o.url) ? o.url : $route.path,
             // 请求数据
             data: getTableRequestData(props, isRequestSummary),
             // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖

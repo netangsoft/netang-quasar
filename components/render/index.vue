@@ -34,6 +34,7 @@ import $n_slash from '@netang/utils/slash'
 
 import components from '../private/components'
 
+import $n_$render from '../../utils/$render'
 import { NRenderKey } from '../../utils/symbols'
 import { configs } from '../../utils/config'
 
@@ -105,39 +106,8 @@ export default {
 
         // ==========【注入】============================================================================================
 
-        // 注入数据
-        const data = {
-            // 组件标识
-            name: props.name,
-            // 参数
-            query: $n_isValidObject(props.query) ? props.query : {},
-            // 组件传参
-            props: props.props,
-        }
-
-        // 如果有路由路径
-        if ($n_isValidString(props.path)) {
-
-            // 获取页面路由
-            const $route = $n_router.resolve({
-                path: props.path,
-                query: data.query,
-            })
-
-            Object.assign(data, {
-                // 当前路由全路径
-                routeFullPath: $route.fullPath,
-                // 当前路由路径
-                routePath: $route.path,
-                // 当前路由参数
-                routeQuery: $route.query,
-                // 当前路由,
-                $route,
-            })
-        }
-
-        // 向后代注入数据
-        provide(NRenderKey, data)
+        // 创建渲染
+        $n_$render.create(props)
 
         // ==========【返回】=============================================================================================
 

@@ -90,11 +90,11 @@ function create(options) {
     }, options)
 
     // 获取对话框渲染注入
-    const $dialog = inject(NDialogKey)
+    const $dialog = $n_has(options, '$dialog') ? options.$dialog : inject(NDialogKey)
     const hasDialog = !! $dialog
 
     // 获取渲染注入
-    const $render = inject(NRenderKey)
+    const $render = $n_has(options, '$render') ? options.$render :  inject(NRenderKey)
     const hasRender = !! $render
 
     // 如果有对话框注入
@@ -147,13 +147,14 @@ function create(options) {
         })
 
     // 如果在渲染组件内 && 该渲染组件有自定义路由
-    } else if (hasRender && $n_has($render, '$route')) {
+    } else if (hasRender && $n_has($render, 'getRoute')) {
 
         // 设为渲染组件的路由
-        $route = $render.$route
+        $route = $render.getRoute()
 
     // 否则获取当前路由
     } else {
+
         $route = $currentRoute
     }
 

@@ -246,8 +246,10 @@ export default {
             default: ',',
         },
 
-        // 请求路径
+        // 请求路由路径
         path: String,
+        // 请求地址(默认为 path)
+        url: String,
         // 请求参数
         query: Object,
         // 附加请求数据
@@ -358,7 +360,6 @@ export default {
 
         // ==========【数据】============================================================================================
 
-
         // 创建权限实例
         const $power = $n_$power.create({
             // 路由路径
@@ -367,6 +368,8 @@ export default {
             query: props.query,
             // 关闭权限页面
             power: false,
+            // 禁止对话框注入
+            $dialog: null,
         })
 
         const {
@@ -378,6 +381,8 @@ export default {
         const $table = $n_$table.create({
             // 权限实例
             $power,
+            // 请求地址
+            url: props.url,
             // 附加请求数据
             data: props.data,
             // 获取表格列数据
@@ -785,6 +790,8 @@ export default {
                         },
                     }
                 ),
+                // 是否开启防抖(防止重复请求)
+                debounce: false,
             }
 
             // 请求数据

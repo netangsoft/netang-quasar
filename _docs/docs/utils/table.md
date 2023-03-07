@@ -18,33 +18,34 @@ $table.create(options: Object): Object
 
 ### options 参数
 
-| 参数名                  | 说明          | 类型         | 可选值                                         | 默认值                                 | 示例  |
-|----------------------|-------------|------------|---------------------------------------------|-------------------------------------|-----|
-| path                 | 路由路径        | `String`   | -                                           | -                                   | -   | 
-| query                | 路由参数        | `Object`   | -                                           | { }                                 | -   | 
-| data                 | 附加请求数据      | `Object`   | -                                           | { }                                 | -   | 
-| rowKey               | 表格行唯一键值     | `String`   | -                                           | id                                  | -   | 
-| selection            | 选择类型        | `String`   | `none` / `single` / `multiple`              | single                              | -   | 
-| separator            | 分隔栏         | `String`   | `horizontal` / `vertical` / `cell` / `none` | cell                                | -   | 
-| selected             | 初始已选数据      | `Array`    | -                                           | [ ]                                 | -   | 
-| loading              | 初始表格加载状态    | `Boolean`  | -                                           | false                               | -   | 
-| columns              | 表格列数据(对象数组) | `Array`    | -                                           | [ ]                                 | -   | 
-| visibleColumns       | 初始可见列       | `Array`    | -                                           | [ ]                                 | -   | 
-| rows                 | 表格行数据       | `Array`    | -                                           | [ ]                                 | -   | 
-| pagination           | 表格翻页参数      | `Object`   | -                                           | -                                   | -   | 
-| rowsPerPageOptions   | 每页显示行数选项    | `Array`    | -                                           | [ 30, 40, 50, 100, 200, 500, 1000 ] | -   | 
-| request              | 自定义请求方法     | `Function` | -                                           | -                                   | -   | 
-| formatRow            | 格式化单条数据     | `Function` | -                                           | -                                   | -   | 
-| httpSettings         | http 设置     | `Object`   | -                                           | -                                   | -   | 
-| search               | 是否开启初始搜素    | `Boolean`  | -                                           | true                                | -   | 
-| summary              | 是否开启合计      | `Boolean`  | -                                           | false                               | -   | 
-| searchFromQuery      | 从参数中获取搜索值   | `Boolean`  | -                                           | true                                | -   | 
-| showGrid             | 是否显示宫格      | `Boolean`  | -                                           | true                                | -   | 
-| showVisibleColumns   | 是否显示可见列     | `Boolean`  | -                                           | true                                | -   | 
-| cache                | 是否开启缓存      | `Boolean`  | -                                           | true                                | -   | 
-| refreshResetSelected | 是否刷新后清空已选数据 | `Boolean`  | -                                           | true                                | -   | 
-| rowClick             | 单击表格行事件     | `Function` | -                                           | -                                   | -   | 
-| rowDblClick          | 双击表格行事件     | `Function` | -                                           | -                                   | -   | 
+| 参数名                  | 说明             | 类型         | 可选值                                         | 默认值                                 | 示例  |
+|----------------------|----------------|------------|---------------------------------------------|-------------------------------------|-----|
+| path                 | 路由路径           | `String`   | -                                           | -                                   | -   |
+| url                  | 请求地址(默认为 path) | `String`   | -                                           | -                                   | -   |
+| query                | 路由参数           | `Object`   | -                                           | { }                                 | -   |
+| data                 | 附加请求数据         | `Object`   | -                                           | { }                                 | -   |
+| rowKey               | 表格行唯一键值        | `String`   | -                                           | id                                  | -   |
+| selection            | 选择类型           | `String`   | `none` / `single` / `multiple`              | single                              | -   |
+| separator            | 分隔栏            | `String`   | `horizontal` / `vertical` / `cell` / `none` | cell                                | -   |
+| selected             | 初始已选数据         | `Array`    | -                                           | [ ]                                 | -   |
+| loading              | 初始表格加载状态       | `Boolean`  | -                                           | false                               | -   |
+| columns              | 表格列数据(对象数组)    | `Array`    | -                                           | [ ]                                 | -   |
+| visibleColumns       | 初始可见列          | `Array`    | -                                           | [ ]                                 | -   |
+| rows                 | 表格行数据          | `Array`    | -                                           | [ ]                                 | -   |
+| pagination           | 表格翻页参数         | `Object`   | -                                           | -                                   | -   |
+| rowsPerPageOptions   | 每页显示行数选项       | `Array`    | -                                           | [ 30, 40, 50, 100, 200, 500, 1000 ] | -   |
+| request              | 自定义请求方法        | `Function` | -                                           | -                                   | -   |
+| formatRow            | 格式化单条数据        | `Function` | -                                           | -                                   | -   |
+| httpSettings         | http 设置        | `Object`   | -                                           | -                                   | -   |
+| search               | 是否开启初始搜素       | `Boolean`  | -                                           | true                                | -   |
+| summary              | 是否开启合计         | `Boolean`  | -                                           | false                               | -   |
+| searchFromQuery      | 从参数中获取搜索值      | `Boolean`  | -                                           | true                                | -   |
+| showGrid             | 是否显示宫格         | `Boolean`  | -                                           | true                                | -   |
+| showVisibleColumns   | 是否显示可见列        | `Boolean`  | -                                           | true                                | -   |
+| cache                | 是否开启缓存         | `Boolean`  | -                                           | true                                | -   |
+| refreshResetSelected | 是否刷新后清空已选数据    | `Boolean`  | -                                           | true                                | -   |
+| rowClick             | 单击表格行事件        | `Function` | -                                           | -                                   | -   |
+| rowDblClick          | 双击表格行事件        | `Function` | -                                           | -                                   | -   |
 
 #### pagination
 
@@ -89,7 +90,7 @@ const $table = $n.$table.create({
 ```javascript
 // 创建表格实例
 const $table = $n.$table.create({
-    
+
     // 格式化单条数据
     formatRow({ row, rows, selected }) {
         row.title = '[测试]' + row.title
@@ -110,10 +111,10 @@ const $table = $n.$table.create({
 ```javascript
 // 创建表格实例
 const $table = $n.$table.create({
-    
+
     // 单击表格行事件
     rowClick(evt, row, index) {
-        
+
     },
 })
 ```
@@ -125,10 +126,10 @@ const $table = $n.$table.create({
 ```javascript
 // 创建表格实例
 const $table = $n.$table.create({
-    
+
     // 双击表格行事件
     rowDblClick(evt, row, index) {
-        
+
     },
 })
 ```

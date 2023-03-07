@@ -227,8 +227,6 @@ export default {
      * 声明属性
      */
     props: {
-        // 表格请求地址
-        url: String,
         // 树声明属性
         treeProps: Object,
         // 树节点唯一键值
@@ -291,6 +289,8 @@ export default {
 
         // 获取表格注入
         const $table = inject(NTableKey)
+
+        // console.log('----$table222---', $table, $table.tableSearchValue.value)
 
         // 获取对话框注入
         const $dialog = inject(NDialogKey)

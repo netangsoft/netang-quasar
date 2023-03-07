@@ -1,6 +1,7 @@
 import $auth from './$auth'
 import $form from './$form'
 import $power from './$power'
+import $render from './$render'
 import $rule from './$rule'
 import $ruleValid from './$ruleValid'
 import $table from './$table'
