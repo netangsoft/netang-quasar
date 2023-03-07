@@ -588,7 +588,6 @@ export default {
          * 加载已选数据
          */
         async function loadSelected() {
-
             if (
                 // 如果值类型不是数组对象
                 props.valueType !== 'objectArray'
@@ -600,7 +599,6 @@ export default {
                 // 获取值数组
                 const values = valueToSelected(props.modelValue, false, false)
                 if (values.length) {
-
                     // 初始的已选数据
                     const _selected = await onRequestSelected(values)
                     const _value = selectedToValue(_selected)
@@ -791,7 +789,7 @@ export default {
                     }
                 ),
                 // 是否开启防抖(防止重复请求)
-                debounce: false,
+                // debounce: false,
             }
 
             // 请求数据

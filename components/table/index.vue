@@ -165,6 +165,7 @@
                 :options="tableSearchOptions"
                 :on-search="tableReload"
                 :on-reset="tableSearchReset"
+                v-if="showSearch"
             >
                 <!-- 插槽 -->
                 <template
@@ -180,7 +181,7 @@
 </template>
 
 <script>
-import { ref, watch, computed, inject } from 'vue'
+import { ref, watch, computed, inject, onMounted } from 'vue'
 
 import $n_isFunction from 'lodash/isFunction'
 
@@ -290,8 +291,6 @@ export default {
         // 获取表格注入
         const $table = inject(NTableKey)
 
-        // console.log('----$table222---', $table, $table.tableSearchValue.value)
-
         // 获取对话框注入
         const $dialog = inject(NDialogKey)
         const inDialog = !! $dialog
@@ -326,6 +325,9 @@ export default {
 
         // 树选择数据
         const treeSelected = ref(null)
+
+        // 是否显示搜索
+        const showSearch = ref(false)
 
         // ==========【计算属性】==========================================================================================
 
@@ -432,6 +434,17 @@ export default {
             })
         }
 
+        // ==========【生命周期】=========================================================================================
+
+        /**
+         * 实例被挂载后调用
+         */
+        onMounted( async function() {
+
+            // 显示搜索
+            showSearch.value = true
+        })
+
         // ==========【返回】=============================================================================================
 
         return {
@@ -444,6 +457,8 @@ export default {
             treeFilterValue,
             // 树选择数据
             treeSelected,
+            // 是否显示搜索
+            showSearch,
 
             // 插槽 body 单元格标识
             slotNames,
