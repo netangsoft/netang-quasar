@@ -214,24 +214,13 @@ export default {
      */
     setup(props, { emit }) {
 
-        // ==========【计算属性】=========================================================================================
-
-        /**
-         * 显示值
-         */
-        const showValue = computed(function () {
-
-            // 如果有已选数据
-            return $n_isValidArray(treeTickedNodes.value)
-                // 取已选数据第一条的标签
-                ? treeTickedNodes.value[0].label
-                : ''
-        })
-
         // ==========【数据】============================================================================================
 
         // 是否为初始加载树节点树
         const isDefaultLoadNodes = $n_isFunction(props.nodes)
+
+        // 树节点是否已加载
+        let __treeNodesLoaded = false
 
         // 输入框节点
         const inputRef = ref(null)
@@ -251,20 +240,17 @@ export default {
         // 树节点
         const treeRef = ref(null)
 
+        // 当前树节点数据
+        const currentTreeNodes = ref(isDefaultLoadNodes ? [] : props.nodes)
+
         // tree all
-        const treeAll = ref({})
+        const treeAll = ref(getTreeAll())
 
         // 树展开数据
         const treeExpanded = ref(getExpanded())
 
         // 树选择数据
         const treeTicked = ref(formatModelValue(props.modelValue))
-
-        // 当前树节点数据
-        const currentTreeNodes = ref(isDefaultLoadNodes ? [] : props.nodes)
-
-        // 树节点是否已加载
-        let __treeNodesLoaded = false
 
         // 如果为初始加载树节点树
         if (isDefaultLoadNodes) {
@@ -298,6 +284,18 @@ export default {
             }
 
             return lists
+        })
+
+        /**
+         * 显示值
+         */
+        const showValue = computed(function () {
+
+            // 如果有已选数据
+            return $n_isValidArray(treeTickedNodes.value)
+                // 取已选数据第一条的标签
+                ? treeTickedNodes.value[0].label
+                : ''
         })
 
         // ==========【监听数据】=========================================================================================
@@ -365,9 +363,9 @@ export default {
         }
 
         /**
-         * 设置 tree all
+         * 获取 tree all
          */
-        function setTreeAll() {
+        function getTreeAll() {
 
             const all = {}
 
@@ -376,7 +374,7 @@ export default {
                 _getTreeChildren(all, currentTreeNodes.value, 0, '')
             }
 
-            treeAll.value = all
+            return all
         }
 
         /**
@@ -658,7 +656,7 @@ export default {
                     currentTreeNodes.value = resNodes
 
                     // 设置 tree all
-                    setTreeAll()
+                    treeAll.value = getTreeAll()
 
                     // 设置开数据
                     treeExpanded.value = getExpanded()
@@ -669,7 +667,7 @@ export default {
                     currentTreeNodes.value = []
 
                     // 设置 tree all
-                    setTreeAll()
+                    treeAll.value = getTreeAll()
                 }
 
             // 否则为节点数组数据
@@ -679,7 +677,7 @@ export default {
                 currentTreeNodes.value = $n_isValidArray(props.nodes) ? props.nodes : []
 
                 // 设置 tree all
-                setTreeAll()
+                treeAll.value = getTreeAll()
             }
 
             // 设置显示树
