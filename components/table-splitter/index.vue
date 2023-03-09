@@ -61,7 +61,8 @@
 
             <slot
                 name="after"
-                :data="currentSelectedItem"
+                :selected="tableSelected"
+                :single-selected="currentSelectedItem"
             >
                 <!-- 渲染 -->
                 <n-render
@@ -367,6 +368,8 @@ export default {
             // 设置表格选择类型
             setSelection,
 
+            // 表格已选数据
+            tableSelected: $table.tableSelected,
             // 当前已选数据的第一条数据
             currentSelectedItem,
         }
