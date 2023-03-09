@@ -61,8 +61,11 @@
 
             <!-- 渲染 -->
             <n-render
+                :name="renderName"
                 :path="renderPath"
+                :component="renderComponent"
                 :query="currentQuery"
+                :props="renderProps"
                 v-if="currentQuery"
             />
 
@@ -155,13 +158,16 @@ export default {
             type: String,
             default: '是否显示详情',
         },
+        // 渲染组件标识
+        renderName: String,
         // 渲染组件路径
-        renderPath: {
-            type: String,
-            required: true,
-        },
+        renderPath: String,
+        // 渲染组件的组件
+        renderComponent: Object,
         // 格式化已选表格的数据并返回渲染组件参数
         renderQuery: Function,
+        // 渲染组件的传参
+        renderProps: Object,
         // 渲染空状态描述
         renderDescription: {
             type: String,

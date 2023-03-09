@@ -56,6 +56,8 @@ export default {
     props: {
         // 组件标识
         name: String,
+        // 组件
+        component: Object,
         // 组件路径
         path: String,
         // 参数
@@ -86,8 +88,13 @@ export default {
 
             // 如果有组件标识
             } else if (props.name && $n_has(components, props.name)) {
-                // 获取自定义组件
+                // 设置自定义组件
                 comp = components[props.name]
+
+            // 如果有声明组件
+            } else if (props.component) {
+                // 设置声明组件
+                comp = props.component
             }
 
             // 如果没有组件
