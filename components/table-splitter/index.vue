@@ -59,8 +59,10 @@
         <!-- 渲染详情页面(手机端不显示) -->
         <template v-slot:after>
 
-            <slot name="after">
-
+            <slot
+                name="after"
+                :data="currentSelectedItem"
+            >
                 <!-- 渲染 -->
                 <n-render
                     :name="renderName"
@@ -364,6 +366,9 @@ export default {
 
             // 设置表格选择类型
             setSelection,
+
+            // 当前已选数据的第一条数据
+            currentSelectedItem,
         }
     }
 }
