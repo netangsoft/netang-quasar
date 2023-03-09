@@ -38,10 +38,6 @@ export default {
     props: {
         // 传值
         props: Object,
-        // 选择类型, 可选值 single multiple none
-        selection: String,
-        // 表格合计数据
-        data: Object,
     },
 
     /**
@@ -55,6 +51,7 @@ export default {
         const {
             // 表格选择类型
             tableSelection,
+            tableSummary,
         } = inject(NTableKey)
 
         // ==========【计算属性】============================================================================================
@@ -86,9 +83,9 @@ export default {
                 }
 
                 // 如果有统计字段
-                if ($n_has(props.data, name)) {
+                if ($n_has(tableSummary.value, name)) {
                     // 判断是否是价格
-                    res.value = $n_has(item, 'price') ? $n_price(props.data[name]) : props.data[name]
+                    res.value = $n_has(item, 'price') ? $n_price(tableSummary.value[name]) : tableSummary.value[name]
                 }
 
                 lists.push(res)
