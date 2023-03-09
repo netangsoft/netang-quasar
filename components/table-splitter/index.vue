@@ -61,8 +61,7 @@
 
             <slot
                 name="after"
-                :selected="tableSelected"
-                :single-selected="currentSelectedItem"
+                :selected="currentSelectedItem"
             >
                 <!-- 渲染 -->
                 <n-render
