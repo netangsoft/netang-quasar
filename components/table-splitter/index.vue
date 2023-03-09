@@ -59,22 +59,26 @@
         <!-- 渲染详情页面(手机端不显示) -->
         <template v-slot:after>
 
-            <!-- 渲染 -->
-            <n-render
-                :name="renderName"
-                :path="renderPath"
-                :component="renderComponent"
-                :query="currentQuery"
-                :props="renderProps"
-                v-if="currentQuery"
-            />
+            <slot name="after">
 
-            <!-- 空状态 -->
-            <n-empty
-                :description="renderDescription"
-                fit
-                v-else
-            />
+                <!-- 渲染 -->
+                <n-render
+                    :name="renderName"
+                    :path="renderPath"
+                    :component="renderComponent"
+                    :query="currentQuery"
+                    :props="renderProps"
+                    v-if="currentQuery"
+                />
+
+                <!-- 空状态 -->
+                <n-empty
+                    :description="renderDescription"
+                    fit
+                    v-else
+                />
+
+            </slot>
 
         </template>
 
@@ -174,7 +178,7 @@ export default {
             default: '没有找到任何数据',
         },
         // 不需要加载渲染页面标识参数
-        // 额外加载参数 { n_renderpage: 1 }
+        // 额外加载参数 { n_render_page: 1 }
         noRendPageName: Boolean,
     },
 
@@ -225,7 +229,7 @@ export default {
                         // 格式化已选数据, 并返回参数
                         return Object.assign({}, resQuery, {
                             // 是否为渲染页面
-                            n_renderpage: 1,
+                            n_render_page: 1,
                         })
                     }
 
