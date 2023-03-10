@@ -1,4 +1,5 @@
 import $n_has from 'lodash/has'
+import $n_isArray from 'lodash/isArray'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_merge from 'lodash/merge'
 import $n_isFunction from 'lodash/isFunction'
@@ -18,6 +19,7 @@ import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_trimString from '@netang/utils/trimString'
 import $n_numberDeep from '@netang/utils/numberDeep'
 import $n_toDate from '@netang/utils/toDate'
+import $n_replaceAll from '@netang/utils/replaceAll'
 
 import { date as quasarDate } from 'quasar'
 import { getQuickRange, quickRange } from '../components/field-date/methods'
@@ -399,17 +401,21 @@ export function formatValue(rawSearchOptions, searchValue) {
         function addValue1(value1) {
 
             // 如果有值1
-            if ($n_isValidValue(value1.value)) {
+            if ($n_isRequired(value1.value)) {
 
                 // 如果值1 类型为 in / not in
                 if ($n_indexOf([dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN], value1.compare) > -1) {
+
                     const vals = []
-                    $n_forEach($n_split($n_trimString(value1.value).replaceAll('，', ','), ','), function (item) {
+
+                    const values = $n_isArray(value1.value) ? value1.value : $n_split($n_replaceAll($n_trimString(value1.value), '，', ','), ',')
+                    $n_forEach(values, function (item) {
                         item = $n_numberDeep(item)
                         if ($n_isValidValue(item)) {
                             vals.push(item)
                         }
                     })
+
                     if (vals.length) {
                         lists.push({
                             field: name,
