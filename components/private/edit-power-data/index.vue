@@ -147,6 +147,25 @@
                 <!-- 如果为非新窗口 -->
                 <template v-if="dataType !== dicts.POWER_DATA_TYPE__OPEN">
 
+                    <!-- 是否表单验证 -->
+                    <div class="col-xs-12 col-sm-6 col-md-3">
+                        <q-select
+                            class="n-field-fieldset"
+                            label="提交前验证表单"
+                            v-model="formData.validate"
+                            :options="[
+                                { label: '关闭表单验证', value: false },
+                                { label: '开启表单验证', value: true },
+                            ]"
+                            map-options
+                            emit-value
+                            outlined
+                            stack-label
+                            dense
+                            options-dense
+                        />
+                    </div>
+
                     <!-- 是否确认 -->
                     <div class="col-xs-12 col-sm-6 col-md-3">
                         <q-select
@@ -458,6 +477,8 @@ export default {
                 fixed: false,
                 // 是否双击: 可选 true / false
                 dbclick: false,
+                // 是否表单验证: 可选 true / false
+                validate: true,
                 // 是否确认: 可选 true / false / 字符串(确认提示的内容)
                 confirm: false,
                 // 是否确认密码: 可选 true / false / 字符串(确认提示的内容)
@@ -689,9 +710,18 @@ export default {
                     }
 
                 } else {
-                    // 如果非表单显示
+
+                    // 如果表单显示
                     // --------------------------------------------------
-                    if (props.dataType !== dicts.POWER_DATA_TYPE__FORM) {
+                    if (props.dataType === dicts.POWER_DATA_TYPE__FORM) {
+
+                        // 关闭表单验证(默认开启)
+                        if (data.validate === false) {
+                            obj.validate = false
+                        }
+
+                    // 如果非表单显示
+                    } else {
 
                         // 显示类型
                         if (data.show) {

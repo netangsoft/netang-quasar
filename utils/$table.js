@@ -679,11 +679,8 @@ function create(options) {
             }
         })
 
-        console.log('tableSearchValue.value', tableSearchValue.value)
-
         // 获取搜索值
         const search = formatValue(rawSearchOptions, tableSearchValue.value)
-        console.log('search', search)
         if ($n_isValidArray(search)) {
             data.n_search = $n_has(data, 'n_search') ? $n_concat(data.n_search, search) : search
         }
