@@ -148,7 +148,7 @@
                 <template v-if="dataType !== dicts.POWER_DATA_TYPE__OPEN">
 
                     <!-- 是否表单验证 -->
-                    <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="col-xs-12 col-sm-6 col-md-3" v-if="dataType === dicts.POWER_DATA_TYPE__FORM">
                         <q-select
                             class="n-field-fieldset"
                             label="提交前验证表单"
