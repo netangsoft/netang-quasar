@@ -184,6 +184,7 @@
 import { ref, watch, computed, inject, onMounted } from 'vue'
 
 import $n_isFunction from 'lodash/isFunction'
+import $n_isNil from 'lodash/isNil'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidValue from '@netang/utils/isValidValue'
@@ -245,6 +246,8 @@ export default {
             type: Array,
             default: ()=>[],
         },
+        // 默认树已选节点 v-model:tree-selected
+        treeSelected: [ String, Number ],
         // 树节点点击
         treeNodeClick: Function,
         // 是否选中第一个树节点
@@ -284,7 +287,7 @@ export default {
     /**
      * 组合式
      */
-    setup(props, { slots }) {
+    setup(props, { slots, emit }) {
 
         // ==========【数据】============================================================================================
 
@@ -324,7 +327,7 @@ export default {
         const treeFilterValue = ref('')
 
         // 树选择数据
-        const treeSelected = ref(null)
+        const treeSelected = ref(props.treeSelected)
 
         // 是否显示搜索
         const showSearch = ref(false)
@@ -382,17 +385,16 @@ export default {
                     .toObject()
             })
 
-            // 是否已选择过第一个节点
-            let isSelectedFirstNode = false
-
             /**
              * 监听树选择数据
              */
             watch(treeSelected, function(nodeKey) {
 
+                // 触发更新已选树节点
+                emit('update:treeSelected', nodeKey)
+
                 // 如果节点值不是有效值
                 if (! $n_isValidValue(nodeKey)) {
-
                     // 则无任何操作
                     return
                 }
@@ -415,19 +417,17 @@ export default {
              */
             watch(() => props.treeNodes, function (val) {
 
-                // 如果已选择过第一个节点
-                if (isSelectedFirstNode) {
-
+                if (
+                    // 如果关闭选中第一个树节点
+                    ! props.treeSelectFirstNode
+                    || ! $n_isNil(treeSelected.value)
+                ) {
                     // 则无任何操作
                     return
                 }
 
                 // 选中第一个节点的值
                 treeSelected.value = val[0][props.treeNodeKey]
-
-                // 已选择过第一个节点
-                isSelectedFirstNode = true
-
             }, {
                 // 立即执行
                 immediate: true,

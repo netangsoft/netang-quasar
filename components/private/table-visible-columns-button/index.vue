@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 
 import $n_indexOf from '@netang/utils/indexOf'
 

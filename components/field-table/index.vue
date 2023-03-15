@@ -852,10 +852,10 @@ export default {
             const columns = []
 
             // 如果有原始表格列数据
-            if ($n_isValidArray($table.tableColumns)) {
+            if ($n_isValidArray($table.tableColumns.value)) {
 
                 // 克隆原始表格列数据
-                const rawTableColumns = $n_cloneDeep($table.tableColumns)
+                const rawTableColumns = $n_cloneDeep($table.tableColumns.value)
 
                 // 快捷表格显示的属性名称数组
                 $n_forEach(currentShowKeys.value, function (key) {

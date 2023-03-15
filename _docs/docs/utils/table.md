@@ -172,6 +172,7 @@ const $table = $n.$table.create({
 | tableRowClick           | 表格单击表格行          | `Function`     | @row-click="tableRowClick"                       |
 | tableRowDblclick        | 表格双击表格行          | `Function`     | @row-dblclick="currentTableRowDblclick"          |
 | setTableSearchOptions   | 设置表格搜索参数         | `Function`     | -                                                |
+| reCreate                | 重新创建表格           | `Function`     | -                                                |
 
 
 ## $table.config

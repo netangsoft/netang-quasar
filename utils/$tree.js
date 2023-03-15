@@ -361,7 +361,6 @@ function create(options) {
 
                             // 修改当前节点数据
                             nodeItem.attr.pid = moveNodeItem.attr.id
-                            // console.log('moveNodeItem.children', moveNodeItem.children)
 
                             nodeItem.attr.sort =
                                 // 如果移动至的节点有子节点

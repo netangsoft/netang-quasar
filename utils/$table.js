@@ -65,8 +65,8 @@ function create(options) {
     // 每页显示行数选项
     const rowsPerPageOptions = [30, 40, 50, 100, 200, 500, 1000]
 
-    // 获取参数
-    const o = $n_merge({
+    // 原始参数
+    const rawOptions = {
         // 路由路径
         path: '',
         // 请求地址(默认为 path)
@@ -96,7 +96,7 @@ function create(options) {
             // 页码
             page: 1,
             // 每页的数据条数
-            rowsPerPage: rowsPerPageOptions[0],
+            rowsPerPage: $n_has(options, 'rowsPerPageOptions') ? options.rowsPerPageOptions[0] : rowsPerPageOptions[0],
             // 数据总数(服务器返回)
             rowsNumber: 1,
             // 排序字段
@@ -132,195 +132,367 @@ function create(options) {
         rowClick: null,
         // 双击表格行事件
         rowDblClick: null,
-    }, options)
-
-    // 获取权限注入
-    const $power = $n_has(options, '$power') ? options.$power : inject(NPowerKey)
-    const hasPowr = !! $power
-
-    // 获取渲染注入
-    const $render = $n_has(options, '$render') ? options.$render : inject(NRenderKey)
-    if (!! $render) {
-        // 如果有表格传参, 则合并参数
-        const tableProps = $n_get($render, 'props.tableProps')
-        if ($n_isValidObject(tableProps)) {
-            $n_merge(o, tableProps)
-        }
     }
 
-    // 获取选择类型(默认 single)
-    if (! $n_has(o, 'selection') || ! $n_isValidString(o.selection)) {
-        if (hasPowr) {
-            o.selection = $n_get($power, 'powerPage.data.selection')
-            if (! $n_isValidString(o.selection)) {
-                o.selection = 'single'
-            }
-        } else {
-            o.selection = 'single'
-        }
-    }
-
-    // 获取权限路由
-    const $route = $n_isValidString(o.path) ?
-        // 如果为自定义路由
-        $n_router.resolve({
-            path: o.path,
-            query: $n_isValidObject(o.query) ? o.query : {},
-        })
-        // 否则获取当前路由
-        : (hasPowr ? $power.getRoute() : $n_router.getRoute())
-
-    // 是否有权限按钮
-    const hasPowerBtns = hasPowr ? $power.powerBtns.value.length : false
-
-    // 表格已选数据
-    const tableSelected = hasPowr ? $power.tableSelected : ref([])
-    if ($n_isValidArray(o.selected)) {
-        tableSelected.value = o.selected
-    }
-
-    // 是否开启缓存
-    const isCache = !! o.cache
-
-    // 缓存名
-    const cacheName = $route.fullPath ? $route.fullPath : ($n_isValidString(o.cache) ? o.cache : '')
-
-    // 表格列
-    const tableColumns = []
-
-    // 如果有权限按钮
-    if (hasPowerBtns) {
-        // 添加操作列
-        o.columns.push({
-            label: '操作',
-            name: 'settings',
-        })
-    }
-
-    // 表格图片标识数组
-    const tableImgNames = ref([])
-
-    // 设置列参数
-    $n_forEach(o.columns, function(item) {
-
-        if (
-            ! $n_has(item, 'field')
-            && $n_has(item, 'name')
-        ) {
-            item.field = item.name
-        }
-
-        if (! $n_has(item, 'align')) {
-            item.align = 'left'
-        }
-
-        // 是否隐藏
-        item.hide = $n_get(item, 'hide') === true
-
-        // 如果有显示项
-        if ($n_get(item, 'visible') !== false) {
-            o.visibleColumns.push(item.field)
-        }
-
-        // 如果有时间戳
-        if ($n_has(item, 'time')) {
-            item.format = val => $n_getTime(val, { format: item.time === true ? `YYYY-MM-DD HH:mm` : item.time }, '-')
-
-        // 如果有数据字典
-        } else if ($n_has(item, 'dict')) {
-            item.format = val => $n_dict(item.dict, val)
-
-        // 如果有图片
-        } else if ($n_has(item, 'img') && item.img === true) {
-            tableImgNames.value.push(item.name)
-
-        // 如果有价格
-        } else if ($n_has(item, 'price')) {
-            item.format = val => $n_price(val)
-        }
-
-        // 如果有路由
-        if ($n_get(item, 'route')) {
-            // 如果该值在当前路由路径中, 则显示
-            if ($n_indexOf($route.fullPath, item.route) > -1) {
-                tableColumns.push(item)
-            }
-
-        } else {
-            tableColumns.push(item)
-        }
-    })
+    let o
+    let $power
+    let hasPowr
+    let $render
+    let $route
+    let hasPowerBtns
+    let tableSelected
+    let isCache
+    let cacheName
+    let tableColumns
+    let tableImgNames
 
     // 获取可见列缓存
-    const visibleColumnsCache = o.showVisibleColumns && isCache ? $n_storage.get('table:visible_columns:' + cacheName) : []
-
+    let visibleColumnsCache
     // 表格可见列
-    const tableVisibleColumns = ref(Array.isArray(visibleColumnsCache) ? visibleColumnsCache : $n_uniq([...o.visibleColumns]))
-
+    let tableVisibleColumns
     // 表格加载状态
-    const tableLoading = ref(o.loading)
-
+    let tableLoading
     // 表格行数据
-    const tableRows = ref(o.rows)
-
+    let tableRows
     // 表格翻页参数
-    const tablePagination = ref($route.fullPath ? o.pagination : {})
-
+    let tablePagination
     // 表格宫格
-    const tableGrid = ref(o.showGrid && isCache ? $n_storage.get('table:grid:' + cacheName) === true : false)
-
+    let tableGrid
     // 表格请求参数(将表格传参中的搜索参数剥离掉, 剩下的直接当做参数传递给服务器)
-    let tableRequestQuery = {}
-
+    let tableRequestQuery
     // 是否请求表格合计
-    let isRequestSummary = false
-
+    let isRequestSummary
     // 表格合计
-    const tableSummary = ref(null)
-
+    let tableSummary
     // 表格选择类型
-    const tableSelection = ref(o.selection)
-
+    let tableSelection
     // 表格分隔栏
-    const tableSeparator = ref(o.separator)
+    let tableSeparator
 
-    const {
-        // 原始参数
-        rawQuery,
-        // 原始表格搜索参数
-        rawSearchOptions,
-        // 原始表格搜索值(空表格搜索值, 用于搜索重置)
-        rawTableSearchValue,
-        // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
-        firstTableSearchValue,
-        // 表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
-    } = getRawData(tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
+    // 原始参数
+    let rawQuery
+    // 原始表格搜索参数
+    let rawSearchOptions
+    // 原始表格搜索值(空表格搜索值, 用于搜索重置)
+    let rawTableSearchValue
+    // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+    let firstTableSearchValue
 
     // 表格搜索数据值
-    const tableSearchValue = ref($route.fullPath ? firstTableSearchValue : [])
-
+    let tableSearchValue
     // 表格搜索参数
-    const tableSearchOptions = ref()
-
+    let tableSearchOptions
     // 是否已加载
-    let _isTableLoaded = false
+    let _isTableLoaded
+
+    // 是否已生成数据
+    let _isCreated = false
+
+    // 创建表格
+    reCreate(options)
+
+    // 已生成数据
+    _isCreated = true
+
+    // ==========【方法】================================================================================================
+
+    /**
+     * 重新创建表格
+     */
+    function reCreate(options) {
+
+        // 获取参数
+        o = $n_merge({}, rawOptions, options)
+
+        // 获取权限注入
+        $power = $n_has(options, '$power') ? options.$power : (_isCreated ? $power : inject(NPowerKey))
+        hasPowr = !! $power
+
+        // 获取渲染注入
+        $render = $n_has(options, '$render') ? options.$render : (_isCreated ? $render : inject(NRenderKey))
+        if (!! $render) {
+            // 如果有表格传参, 则合并参数
+            const tableProps = $n_get($render, 'props.tableProps')
+            if ($n_isValidObject(tableProps)) {
+                $n_merge(o, tableProps)
+            }
+        }
+
+        // 获取选择类型(默认 single)
+        if (! $n_has(o, 'selection') || ! $n_isValidString(o.selection)) {
+            if (hasPowr) {
+                o.selection = $n_get($power, 'powerPage.data.selection')
+                if (! $n_isValidString(o.selection)) {
+                    o.selection = 'single'
+                }
+            } else {
+                o.selection = 'single'
+            }
+        }
+
+        // 获取权限路由
+        $route = $n_isValidString(o.path) ?
+            // 如果为自定义路由
+            $n_router.resolve({
+                path: o.path,
+                query: $n_isValidObject(o.query) ? o.query : {},
+            })
+            // 否则获取当前路由
+            : (hasPowr ? $power.getRoute() : $n_router.getRoute())
+
+        // 是否有权限按钮
+        const _hasPowerBtns = hasPowr ? $power.powerBtns.value.length : false
+        if (_isCreated) {
+            hasPowerBtns.value = _hasPowerBtns
+        } else {
+            hasPowerBtns = ref(_hasPowerBtns)
+        }
+
+        // 表格已选数据
+        if (hasPowr) {
+            tableSelected = $power.tableSelected
+        } else if (_isCreated) {
+            tableSelected.value = []
+        } else {
+            tableSelected = ref([])
+        }
+        if ($n_isValidArray(o.selected)) {
+            tableSelected.value = o.selected
+        }
+
+        // 是否开启缓存
+        isCache = !! o.cache
+
+        // 缓存名
+        cacheName = $route.path ? $route.path : ($n_isValidString(o.cache) ? o.cache : '')
+
+        // 表格列
+        const _tableColumns = []
+
+        // 如果有权限按钮
+        if (hasPowerBtns.value) {
+            // 添加操作列
+            o.columns.push({
+                label: '操作',
+                name: 'settings',
+            })
+        }
+
+        // 表格图片标识数组
+        if (_isCreated) {
+            tableImgNames.value = []
+        } else {
+            tableImgNames = ref([])
+        }
+
+        // 设置表格列数据
+        // 设置列参数
+        $n_forEach(o.columns, function(item) {
+
+            if (
+                ! $n_has(item, 'field')
+                && $n_has(item, 'name')
+            ) {
+                item.field = item.name
+            }
+
+            if (! $n_has(item, 'align')) {
+                item.align = 'left'
+            }
+
+            // 是否隐藏
+            item.hide = $n_get(item, 'hide') === true
+
+            // 如果有显示项
+            if ($n_get(item, 'visible') !== false) {
+                o.visibleColumns.push(item.field)
+            }
+
+            // 如果有时间戳
+            if ($n_has(item, 'time')) {
+                item.format = val => $n_getTime(val, { format: item.time === true ? `YYYY-MM-DD HH:mm` : item.time }, '-')
+
+                // 如果有数据字典
+            } else if ($n_has(item, 'dict')) {
+                item.format = val => $n_dict(item.dict, val)
+
+                // 如果有图片
+            } else if ($n_has(item, 'img') && item.img === true) {
+                tableImgNames.value.push(item.name)
+
+                // 如果有价格
+            } else if ($n_has(item, 'price')) {
+                item.format = val => $n_price(val)
+            }
+
+            // 如果有路由
+            if ($n_get(item, 'route')) {
+                // 如果该值在当前路由路径中, 则显示
+                if ($n_indexOf($route.fullPath, item.route) > -1) {
+                    _tableColumns.push(item)
+                }
+
+            } else {
+                _tableColumns.push(item)
+            }
+        })
+
+        // 获取可见列缓存
+        visibleColumnsCache = o.showVisibleColumns && isCache ? $n_storage.get('table:visible_columns:' + cacheName) : []
+
+        // 表格可见列
+        const _tableVisibleColumns = Array.isArray(visibleColumnsCache) ? visibleColumnsCache : $n_uniq([...o.visibleColumns])
+
+        // 表格翻页参数
+        const _tablePagination = $route.fullPath ? o.pagination : {}
+
+        // 表格宫格
+        const _tableGrid = o.showGrid && isCache ? $n_storage.get('table:grid:' + cacheName) === true : false
+
+        // 获取原始数据
+        const r = getRawData(_tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
+        // 原始参数
+        rawQuery = r.rawQuery
+        // 原始表格搜索参数
+        rawSearchOptions = r.rawSearchOptions
+        // 原始表格搜索值(空表格搜索值, 用于搜索重置)
+        rawTableSearchValue = r.rawTableSearchValue
+        // 首次表格搜索值(如果表格搜索参数中带了初始值, 则设置初始值)
+        firstTableSearchValue = r.firstTableSearchValue
+
+        // 表格搜索数据值
+        const _tableSearchValue = $route.fullPath ? firstTableSearchValue : []
+
+        if (_isCreated) {
+
+            // 表格列
+            tableColumns.value = _tableColumns
+
+            // 表格可见列
+            tableVisibleColumns.value = _tableVisibleColumns
+
+            // 表格加载状态
+            tableLoading.value = o.loading
+
+            // 表格行数据
+            tableRows.value = o.rows
+
+            // 表格翻页参数
+            tablePagination.value = _tablePagination
+
+            // 表格宫格
+            tableGrid.value = _tableGrid
+
+            // 表格合计
+            tableSummary.value = null
+
+            // 表格选择类型
+            tableSelection.value = o.selection
+
+            // 表格分隔栏
+            tableSeparator.value = o.separator
+
+            // 表格搜索数据值
+            tableSearchValue.value = _tableSearchValue
+
+            // 表格搜索参数
+            tableSearchOptions.value = null
+
+        } else {
+
+            // 表格列
+            tableColumns = ref(_tableColumns)
+
+            // 表格可见列
+            tableVisibleColumns = ref(_tableVisibleColumns)
+
+            // 表格加载状态
+            tableLoading = ref(o.loading)
+
+            // 表格行数据
+            tableRows = ref(o.rows)
+
+            // 表格翻页参数
+            tablePagination = ref(_tablePagination)
+
+            // 表格宫格
+            tableGrid = ref(_tableGrid)
+
+            // 表格合计
+            tableSummary = ref(null)
+
+            // 表格选择类型
+            tableSelection = ref(o.selection)
+
+            // 表格分隔栏
+            tableSeparator = ref(o.separator)
+
+            // 表格搜索数据值
+            tableSearchValue = ref(_tableSearchValue)
+
+            // 表格搜索参数
+            tableSearchOptions = ref(null)
+        }
+
+        // 表格请求参数(将表格传参中的搜索参数剥离掉, 剩下的直接当做参数传递给服务器)
+        tableRequestQuery = {}
+
+        // 是否请求表格合计
+        isRequestSummary = false
+
+        // 是否已加载
+        _isTableLoaded = false
+
+        // 如果开启搜索
+        if (o.search) {
+            // 设置表格搜索参数
+            setTableSearchOptions()
+                .finally()
+        }
+
+        if (_isCreated) {
+
+            // 重新赋值
+            Object.assign(resTable, {
+                // 当前路由全路径
+                routeFullPath: $route.fullPath,
+                // 当前路由路径
+                routePath: $route.path,
+                // 当前路由参数
+                routeQuery: $route.query,
+                // 表格行唯一键值
+                tableRowKey: o.rowKey,
+                // 表格每页显示行数选项
+                tableRowsPerPageOptions: o.rowsPerPageOptions,
+            })
+
+            if (hasPowr) {
+                $power.update(function(data, _data) {
+                    _data.$table = resTable
+                })
+            }
+        }
+    }
 
     // ==========【计算属性】=============================================================================================
 
     /**
      * 固定在表格右边的权限按钮列表
      */
-    const tableFixedPowerBtns = ! hasPowerBtns ? ref([]) : computed(function () {
+    const tableFixedPowerBtns = computed(function () {
 
         const lists = []
 
-        // 先格式化权限按钮列表
-        $n_forEach($n_$power.formatBtns($power.powerBtns.value), function(item) {
-            // 如果是固定按钮
-            if (item.fixed) {
-                lists.push(item)
-            }
-        })
+        if (hasPowerBtns.value) {
+
+            // 先格式化权限按钮列表
+            $n_forEach($n_$power.formatBtns($power.powerBtns.value), function(item) {
+                // 如果是固定按钮
+                if (item.fixed) {
+                    lists.push(item)
+                }
+            })
+        }
 
         return lists
     })
@@ -328,10 +500,12 @@ function create(options) {
     /**
      * 获取权限按钮中可双击的按钮
      */
-    const tableDbClickPowerBtn = ! hasPowerBtns ? ref(null) : computed(function () {
+    const tableDbClickPowerBtn = computed(function () {
         if (
+            // 如果有权限按钮
+            hasPowerBtns.value
             // 非手机模式
-            ! $q.platform.is.mobile
+            && ! $q.platform.is.mobile
             // 有权限列表
             && $n_isValidArray($power.powerBtns.value)
         ) {
@@ -352,72 +526,72 @@ function create(options) {
 
     // ==========【监听数据】=============================================================================================
 
-    /**
-     * 监听表格宫格模式
-     */
-    if (o.showGrid && isCache) {
+    // #if ! IS_DEV
+
+        /**
+         * 监听表格宫格模式
+         */
         watch(tableGrid, function(val) {
-
-            // 设置宫格模式缓存(永久缓存)
-            // #if ! IS_DEV
-            $n_storage.set('table:grid:' + cacheName, val, 0)
-            // #endif
+            if (o.showGrid && isCache) {
+                // 设置宫格模式缓存(永久缓存)
+                $n_storage.set('table:grid:' + cacheName, val, 0)
+            }
         })
-    }
 
-    /**
-     * 监听表格可见列
-     */
-    if (o.showVisibleColumns && isCache) {
+        /**
+         * 监听表格可见列
+         */
         watch(tableVisibleColumns, function(val) {
-
-            // 设置可见列缓存(永久缓存)
-            // #if ! IS_DEV
-            $n_storage.set('table:visible_columns:' + cacheName, val, 0)
-            // #endif
+            if (o.showVisibleColumns && isCache) {
+                // 设置监听表格可见列缓存(永久缓存)
+                $n_storage.set('table:visible_columns:' + cacheName, val, 0)
+            }
         })
-    }
+
+    // #endif
 
     /**
      * 监听固定在右边的权限按钮列表
      */
-    if (hasPowerBtns) {
-        watch(tableFixedPowerBtns, function (lists) {
+    watch(tableFixedPowerBtns, function (lists) {
 
-            const index = $n_indexOf(tableVisibleColumns.value, 'settings')
+        if (! hasPowerBtns.value) {
+            return
+        }
 
-            // 如果有固定在右边的权限按钮列表
-            if ($n_isValidArray(lists)) {
+        const index = $n_indexOf(tableVisibleColumns.value, 'settings')
 
-                // 如果设置不在可见列中
-                if (index === -1) {
+        // 如果有固定在右边的权限按钮列表
+        if ($n_isValidArray(lists)) {
 
-                    // 如果非手机模式
-                    if (! $q.platform.is.mobile) {
+            // 如果设置不在可见列中
+            if (index === -1) {
 
-                        // 则将设置加入可见列中
-                        tableVisibleColumns.value.push('settings')
-                    }
+                // 如果非手机模式
+                if (! $q.platform.is.mobile) {
 
-                // 否则在可见列中 && 如果是手机模式
-                } else if ($q.platform.is.mobile) {
-
-                    // 则将设置从可见列中删除
-                    tableVisibleColumns.value.splice(index, 1)
+                    // 则将设置加入可见列中
+                    tableVisibleColumns.value.push('settings')
                 }
 
-            // 否则如果设置在可见列中
-            } else if (index > -1) {
+            // 否则在可见列中 && 如果是手机模式
+            } else if ($q.platform.is.mobile) {
 
                 // 则将设置从可见列中删除
                 tableVisibleColumns.value.splice(index, 1)
             }
 
-        }, {
-            // 立即执行
-            immediate: true,
-        })
-    }
+        // 否则如果设置在可见列中
+        } else if (index > -1) {
+
+            // 则将设置从可见列中删除
+            tableVisibleColumns.value.splice(index, 1)
+        }
+
+    }, {
+        // 立即执行
+        immediate: true,
+    })
 
     // ==========【方法】================================================================================================
 
@@ -885,13 +1059,6 @@ function create(options) {
         return !! formatValue(rawSearchOptions, tableSearchValue.value).length
     }
 
-    // 如果开启搜索
-    if (o.search) {
-        // 设置表格搜索参数
-        setTableSearchOptions()
-            .finally()
-    }
-
     // ==========【返回】=================================================================================================
 
     const resTable = {
@@ -901,21 +1068,17 @@ function create(options) {
         routePath: $route.path,
         // 当前路由参数
         routeQuery: $route.query,
-        // 获取当前路由
-        getRoute() {
-            return $route
-        },
+        // 表格行唯一键值
+        tableRowKey: o.rowKey,
+        // 表格每页显示行数选项
+        tableRowsPerPageOptions: o.rowsPerPageOptions,
 
         // 表格加载状态
         tableLoading,
-        // 表格行唯一键值
-        tableRowKey: o.rowKey,
         // 表格选择类型
         tableSelection,
         // 表格分隔栏
         tableSeparator,
-        // 表格每页显示行数选项
-        tableRowsPerPageOptions: rowsPerPageOptions,
         // 表格列数据(对象数组)
         tableColumns,
         // 表格可见列
@@ -967,6 +1130,13 @@ function create(options) {
 
         // 是否有表格搜索值
         hasTableSearchValue,
+
+        // 获取当前路由
+        getRoute() {
+            return $route
+        },
+        // 重新创建表格
+        reCreate,
     }
 
     if (hasPowr) {
