@@ -334,6 +334,8 @@ function create(options) {
 
                 // 权限请求
                 await request({
+                    // power
+                    $power: data,
                     // 按钮数据
                     powerBtn,
                     // 权限路由参数
@@ -941,7 +943,10 @@ async function request(options) {
         }
 
         // 请求前执行
-        const resBefore = await $n_runAsync(o.requestBefore)({ options: o, requestData: query })
+        const resBefore = await $n_runAsync(o.requestBefore)({
+            options: o,
+            requestData: query,
+        })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
@@ -1049,7 +1054,10 @@ async function request(options) {
     async function onRequest() {
 
         // 请求前执行
-        const resBefore = await $n_runAsync(o.requestBefore)({ options: o, requestData })
+        const resBefore = await $n_runAsync(o.requestBefore)({
+            options: o,
+            requestData,
+        })
         if (resBefore !== void 0) {
             if (resBefore === false) {
                 return
