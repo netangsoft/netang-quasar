@@ -1006,9 +1006,9 @@ async function request(options) {
         requestData = $n_merge({}, formatQuery(query, false), o.$form.formData.value)
 
         // 合并请求原始表单数据
-        if ($n_isValidObject(o.$form.requestRawFormData)) {
+        if ($n_isValidObject(o.$form.requestRawFormData.value)) {
             Object.assign(requestData, {
-                n__raw: o.$form.requestRawFormData
+                n__raw: o.$form.requestRawFormData.value
             })
         }
 

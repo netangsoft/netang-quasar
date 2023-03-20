@@ -1,6 +1,7 @@
 import { ref, provide, inject } from 'vue'
 
 import $n_has from 'lodash/has'
+import $n_cloneDeep from 'lodash/cloneDeep'
 
 import { NPowerKey, NFormKey } from './symbols'
 
@@ -28,9 +29,9 @@ function create(params) {
         // 表单节点
         formRef: ref(null),
         // 原始表单数据(用于业务使用)
-        rawFormData: o.formData,
+        rawFormData: ref(o.formData),
         // 请求服务器的原始表单数据(只有执行 setRaw 方法才会生成, 用于请求接口使用)
-        requestRawFormData: null,
+        requestRawFormData: ref(null),
         // 表单数据
         formData: ref(o.formData),
     }
@@ -39,11 +40,11 @@ function create(params) {
      * 设置原始数据
      */
     resForm.setRaw = function (value) {
-        resForm.rawFormData = value
-        resForm.requestRawFormData = value
+        resForm.rawFormData.value = $n_cloneDeep(value)
+        resForm.requestRawFormData.value = resForm.rawFormData.value
         return value
     }
-
+    
     if ($power) {
         $power.update(function(data, _data) {
             _data.$form = resForm

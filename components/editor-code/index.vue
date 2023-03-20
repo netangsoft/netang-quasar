@@ -15,7 +15,6 @@ import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_sleep from '@netang/utils/sleep'
 import $n_px from '@netang/utils/px'
 
-
 import $n_toast from '../../utils/toast'
 
 export default {
@@ -34,6 +33,8 @@ export default {
             type: [ String, Number ],
             default: '',
         },
+        // 原始值
+        originalValue: [ String, Number ],
         // 宽度
         width: {
             type: [ String, Number ],
@@ -57,6 +58,8 @@ export default {
             type: String,
             default: 'vs',
         },
+        // 是否开启差异代码
+        diff: Boolean,
     },
 
     /**
@@ -102,21 +105,23 @@ export default {
         /**
          * 监听声明值
          */
-        watch(() => props.modelValue, function (val) {
+        if (! props.diff) {
+            watch(() => props.modelValue, function (val) {
 
-            // 如果停止值观察
-            if (stopValueWatcher) {
+                // 如果停止值观察
+                if (stopValueWatcher) {
 
-                // 则无任何操作
-                return
-            }
+                    // 则无任何操作
+                    return
+                }
 
-            // 取消停止值观察
-            stopValueWatcher = false
+                // 取消停止值观察
+                stopValueWatcher = false
 
-            // 设置值
-            setValue(val)
-        })
+                // 设置值
+                setValue(val)
+            })
+        }
 
         // ==========【方法】============================================================================================
 
@@ -173,7 +178,7 @@ export default {
         function create() {
 
             // 创建编辑器
-            $editor = monaco.editor.create(targetRef.value, {
+            $editor = monaco.editor[props.diff ? 'createDiffEditor' : 'create'](targetRef.value, {
                 // 主题
                 theme: props.theme,
                 // 脚本语言
@@ -195,20 +200,22 @@ export default {
             })
 
             // 监听失去焦点事件
-            $editor.onDidBlurEditorText(function () {
+            if (! props.diff) {
+                $editor.onDidBlurEditorText(function () {
 
-                // 获取编辑器内容
-                const value = getValue()
-                if (value === void 0) {
-                    return
-                }
+                    // 获取编辑器内容
+                    const value = getValue()
+                    if (value === void 0) {
+                        return
+                    }
 
-                // 停止值观察
-                stopValueWatcher = true
+                    // 停止值观察
+                    stopValueWatcher = true
 
-                // 触发更新值
-                emit('update:modelValue', value)
-            })
+                    // 触发更新值
+                    emit('update:modelValue', value)
+                })
+            }
 
             // 等编辑器全部加载完成后, 设置内容值
             sleep(300)
@@ -224,11 +231,21 @@ export default {
         function setValue(value) {
             if ($editor) {
 
-                // 编辑器设置内容
-                $editor.setValue(value)
+                // 如果是比较差异代码
+                if (props.diff) {
+                    $editor.setModel({
+                        original: monaco.editor.createModel(formatValue(props.originalValue), props.language),
+                        modified: monaco.editor.createModel(formatValue(value), props.language),
+                    })
+
+                // 否则是编辑代码
+                } else {
+                    // 编辑器设置内容
+                    $editor.setValue(formatValue(value))
+                }
 
                 // 代码格式化
-                $editor.getAction('editor.action.formatDocument').run()
+                // $editor.getAction('editor.action.formatDocument').run()
             }
         }
 
@@ -261,6 +278,25 @@ export default {
 
                 return value
             }
+
+            return ''
+        }
+
+        /**
+         * 格式化值
+         */
+        function formatValue(value) {
+            try {
+                if (value) {
+                    if (
+                        props.language === 'json'
+                        && $n_isValidValue(value)
+                    ) {
+                        return JSON.stringify(JSON.parse(value), null, 2)
+                    }
+                    return value
+                }
+            } catch (e) {}
 
             return ''
         }
