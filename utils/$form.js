@@ -27,10 +27,21 @@ function create(params) {
     const resForm = {
         // 表单节点
         formRef: ref(null),
-        // 原始表单数据
+        // 原始表单数据(用于业务使用)
         rawFormData: o.formData,
+        // 请求服务器的原始表单数据(只有执行 setRaw 方法才会生成, 用于请求接口使用)
+        requestRawFormData: null,
         // 表单数据
         formData: ref(o.formData),
+    }
+
+    /**
+     * 设置原始数据
+     */
+    resForm.setRaw = function (value) {
+        resForm.rawFormData = value
+        resForm.requestRawFormData = value
+        return value
     }
 
     if ($power) {

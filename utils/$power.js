@@ -743,15 +743,12 @@ function formatBtns(powerBtns, filterBtns, toObject = false) {
  */
 function getRequestQuery(o) {
 
-    // 获取按钮数据
-    const btnData = o.powerBtn.data
-
     // 传参
     const query = {}
 
     // 如果有请求传参的传参设置
-    if ($n_has(btnData, 'requestQuery.query')) {
-        const resQuery = parseQuery(o.query, btnData.requestQuery.query)
+    if ($n_has(o.powerBtn.data, 'requestQuery.query')) {
+        const resQuery = parseQuery(o.query, o.powerBtn.data.requestQuery.query)
         if ($n_isValidObject(resQuery)) {
             Object.assign(query, resQuery)
         }
@@ -760,18 +757,18 @@ function getRequestQuery(o) {
     // 获取列表数据
     if (
         // 如果按钮参数有显示类型
-        $n_has(btnData, 'show')
+        $n_has(o.powerBtn.data, 'show')
         // 按钮参数的显示类型必须是单选或多选
-        && $n_indexOf(['single', 'multiple'], btnData.show) > -1
+        && $n_indexOf(['single', 'multiple'], o.powerBtn.data.show) > -1
         // 如果有请求传参的列表设置
-        && $n_has(btnData, 'requestQuery.list')
+        && $n_has(o.powerBtn.data, 'requestQuery.list')
         // 如果有表格数据
         && $n_isValidArray(o.tableSelected)
     ) {
         let newQuery = {}
 
         // 如果是单选
-        if (btnData.show === 'single') {
+        if (o.powerBtn.data.show === 'single') {
             // 取表格选中第一条数据
             newQuery = o.tableSelected[0]
 
@@ -789,7 +786,7 @@ function getRequestQuery(o) {
             }
         }
 
-        const resTable = parseQuery(newQuery, btnData.requestQuery.list)
+        const resTable = parseQuery(newQuery, o.powerBtn.data.requestQuery.list)
         if ($n_isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
@@ -922,15 +919,12 @@ async function request(options) {
         })
     }
 
-    // 获取按钮数据
-    const btnData = o.powerBtn.data
-
     // 获取请求参数
     let query = getRequestQuery(o)
 
     // 如果是打开新窗口
     // --------------------------------------------------
-    if (btnData.type === dicts.POWER_DATA_TYPE__OPEN) {
+    if (o.powerBtn.data.type === dicts.POWER_DATA_TYPE__OPEN) {
 
         query = formatQuery(query, true)
 
@@ -941,7 +935,7 @@ async function request(options) {
         }
 
         // 如果不是禁止添加来源页面参数
-        if ($n_get(btnData, 'noFromPageQuery') !== true) {
+        if ($n_get(o.powerBtn.data, 'noFromPageQuery') !== true) {
             // 来源页面是当前路由的完整路径
             query.n_from_page = encodeURIComponent($currentRoute.fullPath)
         }
@@ -956,7 +950,7 @@ async function request(options) {
         }
 
         $n_router.push({
-            path: btnData.url,
+            path: o.powerBtn.data.url,
             query,
         })
         return
@@ -967,7 +961,7 @@ async function request(options) {
 
     // 如果是提交表单
     // --------------------------------------------------
-    if (btnData.type === dicts.POWER_DATA_TYPE__FORM) {
+    if (o.powerBtn.data.type === dicts.POWER_DATA_TYPE__FORM) {
 
         // 获取表单注入
         o.$form = $n_has(options, '$form') ? options.$form : inject(NFormKey)
@@ -977,7 +971,7 @@ async function request(options) {
         }
 
         // 如果验证表单
-        if ($n_get(btnData, 'validate') !== false) {
+        if ($n_get(o.powerBtn.data, 'validate') !== false) {
 
             if (! o.$form.formRef) {
                 throw new Error('没有绑定 fromRef')
@@ -1006,6 +1000,13 @@ async function request(options) {
         // 获取请求数据
         requestData = $n_merge({}, formatQuery(query, false), o.$form.formData.value)
 
+        // 合并请求原始表单数据
+        if ($n_isValidObject(o.$form.requestRawFormData)) {
+            Object.assign(requestData, {
+                n__raw: o.$form.requestRawFormData
+            })
+        }
+
     // 如果是请求数据
     // --------------------------------------------------
     } else {
@@ -1017,12 +1018,12 @@ async function request(options) {
     }
 
     // 判断是否有确认框
-    const isConfirm = $n_get(btnData, 'confirm')
+    const isConfirm = $n_get(o.powerBtn.data, 'confirm')
     if (
         // 如果有确认框
         isConfirm
         // 如果有密码确认框
-        || $n_get(btnData, 'confirmPassword')
+        || $n_get(o.powerBtn.data, 'confirmPassword')
     ) {
         // 如果需要先弹出确认框
         if (isConfirm) {
@@ -1059,7 +1060,7 @@ async function request(options) {
         // 请求
         const res = await $n_http({
             // 请求地址
-            url: btnData.url,
+            url: o.powerBtn.data.url,
             // 请求数据
             data: requestData,
         })
@@ -1092,8 +1093,8 @@ async function request(options) {
                 }
 
                 // 判断是否有请求成功后的操作动作
-                if ($n_has(btnData, 'requestSuccess.type')) {
-                    switch (btnData.requestSuccess.type) {
+                if ($n_has(o.powerBtn.data, 'requestSuccess.type')) {
+                    switch (o.powerBtn.data.requestSuccess.type) {
 
                         // 关闭当前页面
                         case 'close':
@@ -1115,7 +1116,7 @@ async function request(options) {
 
                             if (
                                 // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                                btnData.requestSuccess.type !== 'close'
+                                o.powerBtn.data.requestSuccess.type !== 'close'
                                 // 如果有来源页面
                                 && $n_has($route.query, 'n_from_page')
                                 && $n_isValidString($route.query.n_from_page)
@@ -1124,12 +1125,12 @@ async function request(options) {
                                     // 跳转页面地址
                                     pushPage: decodeURIComponent($route.query.n_from_page),
                                     // 是否跳转并刷新页面
-                                    isPushRefresh: btnData.requestSuccess.type === 'closePushRefresh',
+                                    isPushRefresh: o.powerBtn.data.requestSuccess.type === 'closePushRefresh',
                                 })
 
                                 // 否则如果定义了跳转页面
-                                // else if ($n_has(btnData, 'requestSuccess.params') && $n_isValidString(btnData.requestSuccess.params)) {
-                                //     pushPage = btnData.requestSuccess.params
+                                // else if ($n_has(o.powerBtn.data, 'requestSuccess.params') && $n_isValidString(o.powerBtn.data.requestSuccess.params)) {
+                                //     pushPage = o.powerBtn.data.requestSuccess.params
                                 // }
                             }
 
