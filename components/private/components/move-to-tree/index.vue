@@ -11,14 +11,14 @@
         />
 
         <!-- 分类树 -->
-        <q-tree
+        <!--selected-color="primary"-->
+        <n-tree
             ref="treeRef"
             color="grey-5"
             :nodes="treeNodes"
             :filter="treeFilter"
             :node-key="treeNodeKey"
             v-model:expanded="treeExpanded"
-            selected-color="primary"
             v-model:selected="treeSelected"
             no-selection-unset
         />

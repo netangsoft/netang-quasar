@@ -89,10 +89,9 @@
         >
             <q-card>
                 <!-- 树 -->
-                <q-tree
-                    class="q-pa-sm q-pr-md"
+                <n-tree
                     ref="treeRef"
-                    style="min-width:260px;"
+                    style="min-width:260px;max-height:380px;"
                     :filter="inputValue"
                     :nodes="currentTreeNodes"
                     :node-key="nodeKey"
@@ -107,14 +106,13 @@
                 >
                     <template v-slot:default-header="{ node }">
                         <div
-                            class="cursor-pointer full-width"
                             :class="{
                                 'text-primary': checkTreeNodeActive(node),
                             }"
                             @click="onNode($event, node)"
                         >{{node.label}}</div>
                     </template>
-                </q-tree>
+                </n-tree>
 
                 <!-- loading -->
                 <div class="flex flex-center" style="height:100px" v-else>

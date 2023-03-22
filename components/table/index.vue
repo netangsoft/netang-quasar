@@ -49,14 +49,14 @@
                 </div>
 
                 <!-- 分类树 -->
-                <q-tree
+                <!--selected-color="primary"-->
+                <n-tree
                     color="grey-5"
                     ref="treeRef"
                     :nodes="treeNodes"
                     :filter="treeFilterValue"
                     :node-key="treeNodeKey"
                     :label-key="treeLabelKey"
-                    selected-color="primary"
                     v-model:selected="treeSelected"
                     no-selection-unset
                     default-expand-all
