@@ -17,6 +17,17 @@ $dark-td-bg-color: $dark;
         white-space: pre-wrap !important;
     }
 
+    // 箭头
+    .q-tree__arrow {
+        color: $grey;
+    }
+
+    // 空箭头
+    &__arrow-noop {
+        width: 16px;
+        margin-right: 4px;
+    }
+
     &.q-table {
         &--dense {
             // 复选框

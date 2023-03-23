@@ -84,7 +84,7 @@ import {
     nextTick, getCurrentInstance, onBeforeUpdate, onMounted, onUnmounted
 } from 'vue'
 
-import { stopAndPrevent } from 'quasar/src/utils/event.js'
+import { stopAndPrevent } from 'quasar/src/utils/event'
 
 const tickStrategyOptions = [ 'none', 'strict', 'leaf', 'leaf-filtered' ]
 
@@ -1076,7 +1076,7 @@ export default {
                 const dragCss = $n_get(dragClasses.value, key)
 
                 // 当前节点类名
-                const classes = 'n-tree__node relative-position row no-wrap items-center  q-tree__node--link q-hoverable'
+                const classes = 'n-tree__node relative-position row no-wrap items-center q-tree__node--link q-hoverable'
                         // + (m.link === true ? ' q-tree__node--link q-hoverable q-focusable' : '')
                         + (m.selected === true || props.multiple && m.ticked === true ? ' n-tree__node--selected' : '')
                         + (m.disabled === true ? ' q-tree__node--disabled' : '')
@@ -1491,6 +1491,7 @@ export default {
 .n-tree {
     color: $grey;
 
+    // 空箭头
     &__arrow--noop {
         width: 16px;
         height: 16px;

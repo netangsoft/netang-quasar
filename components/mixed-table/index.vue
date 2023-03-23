@@ -101,13 +101,11 @@
                         v-for="imgName in tableImgNames"
                         v-slot:[`body-cell-${imgName}`]="props"
                     >
-                        <q-td :props="props">
-                            <!-- 缩略图 -->
-                            <n-thumbnail
-                                :src="props.row[imgName]"
-                                preview
-                            />
-                        </q-td>
+                        <!-- 缩略图 -->
+                        <n-thumbnail
+                            :src="props.row[imgName]"
+                            preview
+                        />
                     </template>
 
                     <!-- 插槽 -->
@@ -115,12 +113,10 @@
                         v-for="slotName in slotNames.table"
                         v-slot:[slotName]="props"
                     >
-                        <q-td :props="props">
-                            <slot
-                                :name="slotName"
-                                v-bind="props"
-                            />
-                        </q-td>
+                        <slot
+                            :name="slotName"
+                            v-bind="props"
+                        />
                     </template>
 
                     <!-- 操作 -->

@@ -1,21 +1,19 @@
 <template>
-    <q-td :props="props">
-        <div class="q-gutter-sm" v-if="currentTableFixedPowerBtns.length">
-            <q-btn
-                v-for="item in currentTableFixedPowerBtns"
-                :key="`btn-item-${item.id}`"
-                class="n-button-icon"
-                :icon="item.icon"
-                dense
-                unelevated
-                round
-                @click.prevent.stop="onClick(item)"
-            >
-                <!-- 标题提示 -->
-                <q-tooltip>{{item.title}}</q-tooltip>
-            </q-btn>
-        </div>
-    </q-td>
+    <div class="q-gutter-sm" v-if="currentTableFixedPowerBtns.length">
+        <q-btn
+            v-for="item in currentTableFixedPowerBtns"
+            :key="`btn-item-${item.id}`"
+            class="n-button-icon"
+            :icon="item.icon"
+            dense
+            unelevated
+            round
+            @click.prevent.stop="onClick(item)"
+        >
+            <!-- 标题提示 -->
+            <q-tooltip>{{item.title}}</q-tooltip>
+        </q-btn>
+    </div>
 </template>
 
 <script>
