@@ -99,7 +99,7 @@
             v-if="! readonly && ! disable"
         >
             <!-- 快捷表格 -->
-            <q-table
+            <n-table
                 class="n-table n-field-table__popup-table"
                 v-model:pagination="tablePagination"
                 :selected="selected"
@@ -152,7 +152,7 @@
                         dense
                     />
                 </template>
-            </q-table>
+            </n-table>
         </q-popup-proxy>
     </q-field>
 

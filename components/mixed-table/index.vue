@@ -69,7 +69,7 @@
         <!-- 列表 -->
         <q-page-container>
             <q-page>
-                <q-table
+                <n-table
                     class="n-table absolute-full"
                     :class="{
                         'n-table--last-fixed': showTableFixed,
@@ -143,7 +143,7 @@
                             :props="props"
                         />
                     </template>
-                </q-table>
+                </n-table>
             </q-page>
         </q-page-container>
 

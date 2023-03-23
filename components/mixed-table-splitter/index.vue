@@ -112,7 +112,7 @@ export default {
     /**
      * 标识
      */
-    name: 'NTableSplitter',
+    name: 'NMixedTableSplitter',
 
     /**
      * 组件
