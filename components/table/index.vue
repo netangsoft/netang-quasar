@@ -12,26 +12,29 @@
             v-if="hasChildren"
         >
             <q-td
+                class="row no-wrap items-center "
                 :style="{ paddingLeft: (meta[props.key].level * 16) + 'px' }"
                 :props="props"
             >
                 <!-- 旋转器 -->
                 <q-spinner
                     class="q-tree__spinner q-ml-sm"
-                    :color="controlColor"
+                    :color="iconColor"
                     v-if="meta[props.key].lazy === 'loading'"
                 />
 
                 <!-- 箭头 -->
-                <q-icon
-                    class="q-tree__arrow q-ml-sm"
-                    :name="computedIcon"
-                    :color="iconColor"
-                    :class="`${meta[props.key].expanded ? 'q-tree__arrow--rotate' : ''}`"
-                    @click="onExpandClick(props, $event)"
-                    v-if="meta[props.key].isParent"
-                />
-                <span class="q-icon n-table__arrow-noop q-ml-sm" style="" v-else></span>
+                <template v-else>
+                    <q-icon
+                        class="q-tree__arrow q-ml-sm"
+                        :name="computedIcon"
+                        :color="iconColor"
+                        :class="`${meta[props.key].expanded ? 'q-tree__arrow--rotate' : ''}`"
+                        @click="onExpandClick(props, $event)"
+                        v-if="meta[props.key].isParent || meta[props.key].lazy === true"
+                    />
+                    <span class="q-icon n-table__arrow-noop q-ml-sm" v-else></span>
+                </template>
 
                 <!-- 如果有插槽 -->
                 <slot
@@ -41,11 +44,6 @@
                 />
                 <!-- 否则显示值 -->
                 <span v-else>{{getCellValue(props.col, props.row)}}</span>
-
-                <q-icon
-                    name="add"
-                    @click="onExpandClick(props, $event)"
-                />
             </q-td>
         </template>
 
@@ -77,12 +75,11 @@
 </template>
 
 <script>
-import { computed, ref, getCurrentInstance, nextTick } from 'vue'
+import { ref, watch, computed, getCurrentInstance, nextTick } from 'vue'
 import { stopAndPrevent } from 'quasar/src/utils/event'
 
 import $n_has from 'lodash/has'
 
-import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_indexOf from '@netang/utils/indexOf'
 import $n_forIn from '@netang/utils/forIn'
@@ -128,8 +125,10 @@ export default {
             default: 'children'
         },
         icon: String,
-        iconColor: String,
-        controlColor: String,
+        iconColor: {
+            type: String,
+            default: 'grey'
+        },
     },
 
     /**
@@ -269,7 +268,7 @@ export default {
 
             $n_forIn(slots, function (value, key) {
                 if (key.startsWith('body-cell-')) {
-                    if (hasExpandSlot && key !== expandName) {
+                    if (! hasExpandSlot || key !== expandName) {
                         bodyCell.push(key)
                     }
                 } else {
@@ -287,6 +286,29 @@ export default {
                 // 其他插槽标识
                 other,
             }
+        })
+
+        // ==========【监听数据】=========================================================================================
+
+        /**
+         * 监听已展开节点数据
+         */
+        watch(() => props.expanded, val => {
+            innerExpanded.value = val
+        })
+
+        /**
+         * 监听行数据
+         */
+        watch(()=>props.rows, () => {
+            if (props.defaultExpandAll) {
+                expandAll()
+            }
+        }, {
+            // 深度监听
+            deep: true,
+            // 立即执行
+            immediate: true,
         })
 
         // ==========【方法】=============================================================================================
@@ -479,16 +501,12 @@ export default {
             // 插槽标识
             slotNames,
             computedIcon,
+            meta,
+
             onExpandClick,
             expandAll,
             collapseAll,
-            // meta
-            meta,
             getCellValue,
-            getTest(props) {
-                console.log(props)
-                return ''
-            }
         }
     },
 }

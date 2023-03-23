@@ -1003,9 +1003,7 @@ export default {
             }
         }
 
-        /**
-         * 默认展开全部
-         */
+        // 默认展开全部
         props.defaultExpandAll === true && expandAll()
 
         // expose public methods
