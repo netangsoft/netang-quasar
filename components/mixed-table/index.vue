@@ -205,7 +205,7 @@ export default {
     /**
      * 标识
      */
-    name: 'NTable',
+    name: 'NMixedTable',
 
     /**
      * 关闭组件 attribute 透传行为

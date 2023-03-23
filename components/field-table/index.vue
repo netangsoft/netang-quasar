@@ -168,7 +168,7 @@
         v-bind="dialogProps"
     >
         <q-page>
-            <n-table />
+            <n-mixed-table />
         </q-page>
     </n-dialog>
 </template>

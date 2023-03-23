@@ -14,7 +14,7 @@
     >
         <!-- 表格 -->
         <template v-slot:before="{ after, toggleAfter }">
-            <n-table
+            <n-mixed-table
                 v-bind="$attrs"
             >
                 <!-- 工具栏右边插槽(手机端不显示) -->
@@ -53,7 +53,7 @@
                     />
                 </template>
 
-            </n-table>
+            </n-mixed-table>
         </template>
 
         <!-- 渲染详情页面(手机端不显示) -->
