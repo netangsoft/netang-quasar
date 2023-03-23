@@ -570,8 +570,17 @@ function create(options) {
             const moveLists = []
 
             // 当前拖拽节点在新列表中的索引
-            const dropIndex = $n_findIndex(children, e => e.id === draggingNode.id)
+            let dropIndex = $n_findIndex(children, e => e.id === draggingNode.id)
             if (dropIndex > -1) {
+
+                if (
+                    // 如果拖拽到目标节点下方
+                    dropType === 'bottom'
+                    // 并且拖拽节点当前的位置不是第一个
+                    && dropIndex > 0
+                ) {
+                    dropIndex--
+                }
 
                 for (let i = dropIndex; i < children.length; i++) {
                     const { attr } = children[i]
