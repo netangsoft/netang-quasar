@@ -902,7 +902,7 @@ function create(options) {
             data: getTableRequestData(props, isRequestSummary),
             // ~~~~~~ 先开启防抖, 如果后期遇到表格加载不出来的情况, 再关闭防抖
             // 关闭防抖(允许重复请求)
-            // debounce: false,
+            debounce: false,
         }, o.httpSettings)
 
         const { status, data: res } = $n_isFunction(o.request)
