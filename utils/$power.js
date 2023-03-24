@@ -963,6 +963,8 @@ async function request(options) {
 
     // 请求数据
     let requestData = {}
+    // 请求之前数据
+    let _formDataClone = null
 
     // 如果是提交表单
     // --------------------------------------------------
@@ -1007,6 +1009,7 @@ async function request(options) {
 
         // 合并请求原始表单数据
         if ($n_isValidObject(o.$form.requestRawFormData.value)) {
+            _formDataClone = $n_cloneDeep(o.$form.formData.value)
             Object.assign(requestData, {
                 n__raw: o.$form.requestRawFormData.value
             })
@@ -1157,6 +1160,11 @@ async function request(options) {
                             break
                     }
                 }
+            }
+
+            // 设置原始数据
+            if (_formDataClone !== null) {
+                o.$form.setRaw(_formDataClone)
             }
 
             // 请求成功执行
