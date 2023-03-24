@@ -1113,7 +1113,7 @@ async function request(options) {
 
                             // 如果是渲染页面
                             // 说明该页面在 <table-splitter> 组件内部被渲染, 则不需要关闭当前窗口
-                            if ($n_has($route.query, 'n_renderpage') && $route.query.n_renderpage === 1) {
+                            if ($n_has($route.query, 'n_render_page') && $route.query.n_render_page === 1) {
                                 // 则无任何操作
                                 return
                             }
