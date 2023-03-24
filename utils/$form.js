@@ -28,12 +28,16 @@ function create(params) {
     const resForm = {
         // 表单节点
         formRef: ref(null),
-        // 原始表单数据(用于业务使用)
+        // 初始表单数据, 该数据不会更新
+        initFormData: o.formData,
+        // 原始表单数据(初始时为 formData, 使用 setRaw 会更新该数据)
         rawFormData: ref(o.formData),
-        // 请求服务器的原始表单数据(只有执行 setRaw 方法才会生成, 用于请求接口使用)
+        // 请求服务器的原始表单数据(初始时为 null, 只有执行 setRaw 方法才会生成, 用于请求接口使用)
         requestRawFormData: ref(null),
         // 表单数据
         formData: ref(o.formData),
+        // 表单参数
+        options: o,
     }
 
     /**
@@ -44,7 +48,7 @@ function create(params) {
         resForm.requestRawFormData.value = resForm.rawFormData.value
         return value
     }
-    
+
     if ($power) {
         $power.update(function(data, _data) {
             _data.$form = resForm

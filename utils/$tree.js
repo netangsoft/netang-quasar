@@ -79,8 +79,8 @@ function create(options) {
         expanded,
         // 菜单参数
         menu: menuOptions,
-        // 原始表单数据
-        rawFormData,
+        // 初始表单数据
+        initFormData,
         // 表单数据
         formData,
         // 重新加载
@@ -282,7 +282,7 @@ function create(options) {
             // 添加下级
             case 'update':
                 // 更新表单数据
-                formData.value = Object.assign({}, rawFormData.value, {
+                formData.value = Object.assign({}, initFormData, {
                     pid: o.node.attr.id,
                 })
                 break
