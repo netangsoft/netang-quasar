@@ -789,7 +789,7 @@ export default {
                     }
                 ),
                 // 是否开启防抖(防止重复请求)
-                // debounce: false,
+                debounce: false,
             }
 
             // 请求数据
