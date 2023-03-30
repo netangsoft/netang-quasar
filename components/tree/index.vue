@@ -12,7 +12,7 @@
         <div
             :class="item.classes"
             :key="item.key"
-            :style="{ paddingLeft: (item.level * 16) + 'px' }"
+            :style="{ paddingLeft: (item.level * arrowSize) + 'px' }"
             @mousedown.self="onMouseDown($event, item)"
             @mouseup="onDragEnd"
             @dragstart.stop="onDragStart($event, item)"
@@ -36,10 +36,19 @@
                 class="q-tree__arrow q-ml-sm"
                 :name="computedIcon"
                 :class="`${item.m.expanded ? 'q-tree__arrow--rotate' : ''}`"
+                :size="arrowSize + 'px'"
                 @click="onExpandClick(item.node, item.m, $event)"
+                v-bind="iconProps"
                 v-if="item.isParent === true"
             />
-            <div class="n-tree__arrow--noop q-ml-sm" v-else></div>
+            <div
+                class="n-tree__arrow--noop q-ml-sm"
+                :style="{
+                    width: arrowSize + 'px',
+                    height: arrowSize + 'px',
+                }"
+                v-else
+            ></div>
 
             <!-- 复选框-->
             <q-checkbox
@@ -138,6 +147,7 @@ export default {
         selectedColor: String,
 
         icon: String,
+        iconProps: Object,
 
         tickStrategy: {
             type: String,
@@ -192,6 +202,12 @@ export default {
         },
         // 虚拟滚动声明
         virtualScrollProps: Object,
+
+        // 箭头大小
+        arrowSize: {
+            type: Number,
+            default: 16,
+        },
     },
 
     /**
@@ -1491,8 +1507,8 @@ export default {
 
     // 空箭头
     &__arrow--noop {
-        width: 16px;
-        height: 16px;
+        //width: 16px;
+        //height: 16px;
         margin-right: 4px;
     }
 
