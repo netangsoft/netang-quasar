@@ -1607,7 +1607,9 @@ export default {
         // 拖拽内容
         &-content {
             position: relative;
+            display: flex;
             flex: 1;
+            align-items: center;
             padding: 2px 5px;
             margin-left: -5px;
             border-top: 2px transparent solid;
