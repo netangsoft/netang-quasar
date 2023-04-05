@@ -1519,7 +1519,7 @@ export default {
 
         // 已选
         &--selected:not(.drag-over--inner) {
-            .q-focus-helper {
+            > .q-focus-helper {
                 background: currentColor;
                 opacity: 0.15 !important;
             }
@@ -1527,14 +1527,14 @@ export default {
 
         // 拖拽前
         &.dragging--before {
-            .q-focus-helper {
+            > .q-focus-helper {
                 display: none;
             }
         }
 
         // 拖拽中
         &.dragging {
-            .q-focus-helper {
+            > .q-focus-helper {
                 background: transparent !important;
                 opacity: 1 !important;
                 border: 1px solid var(--q-primary);
@@ -1554,16 +1554,18 @@ export default {
             .n-tree__node-content {
                 &:before {
                     top: 0;
-                    margin-top: -5px;
+                    margin-top: -3px;
                 }
-                border-top-color: var(--q-primary);
+                &:after {
+                    border-top-color: var(--q-primary);
+                }
             }
         }
 
         // 拖拽至内部
         &.drag-over--inner {
             color: rgba(255, 255, 255, 0.6);
-            .q-focus-helper {
+            > .q-focus-helper {
                 background-color: var(--q-primary) !important;
                 opacity: 1;
             }
@@ -1577,9 +1579,11 @@ export default {
             .n-tree__node-content {
                 &:before {
                     bottom: 0;
-                    margin-bottom: -5px;
+                    margin-bottom: -3px;
                 }
-                border-bottom-color: var(--q-primary);
+                &:after {
+                    border-bottom-color: var(--q-primary);
+                }
             }
         }
 
@@ -1598,7 +1602,7 @@ export default {
                 }
             }
 
-            .q-focus-helper {
+            > .q-focus-helper {
                 background-color: var(--q-primary);
                 opacity: 0.15;
             }
@@ -1610,11 +1614,22 @@ export default {
             display: flex;
             flex: 1;
             align-items: center;
-            padding: 2px 5px;
+            padding: 4px 5px;
             margin-left: -5px;
-            border-top: 2px transparent solid;
-            border-bottom: 2px transparent solid;
+            //border-top: 2px transparent solid;
+            //border-bottom: 2px transparent solid;
             color: #000000;
+
+            &:after {
+                content: "";
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-top: 2px transparent solid;
+                border-bottom: 2px transparent solid;
+            }
         }
     }
 
@@ -1627,14 +1642,14 @@ export default {
 
             // 已选
             &--selected:not(.drag-over--inner) {
-                .q-focus-helper {
+                > .q-focus-helper {
                     opacity: 0.3 !important;
                 }
             }
 
             // 拖拽中
             &.dragging {
-                .q-focus-helper {
+                > .q-focus-helper {
                     &:before {
                         opacity: 0.3 !important;
                     }
@@ -1643,7 +1658,7 @@ export default {
 
             &.drag-over--top,
             &.drag-over--bottom {
-                .q-focus-helper {
+                > .q-focus-helper {
                     opacity: 0.3 !important;
                 }
             }
