@@ -1599,6 +1599,7 @@ export default {
                     width: 8px;
                     height: 8px;
                     border: 2px solid var(--q-primary);
+                    pointer-events: none;
                 }
             }
 
@@ -1616,8 +1617,6 @@ export default {
             align-items: center;
             padding: 4px 5px;
             margin-left: -5px;
-            //border-top: 2px transparent solid;
-            //border-bottom: 2px transparent solid;
             color: #000000;
 
             &:after {
@@ -1629,6 +1628,7 @@ export default {
                 right: 0;
                 border-top: 2px transparent solid;
                 border-bottom: 2px transparent solid;
+                pointer-events: none;
             }
         }
     }
