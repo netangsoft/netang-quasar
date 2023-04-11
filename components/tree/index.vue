@@ -183,6 +183,9 @@ export default {
 
         // 【覆盖声明】-------------------------------------------------------
 
+        // 是否选择的是树节点数据(false:节点键值, true:节点数据)
+        selectedNode: Boolean,
+
         // 是否开启拖拽
         draggable: Boolean,
         // 是否禁止上下推拽
@@ -304,6 +307,13 @@ export default {
         const computedControlColor = computed(() => props.controlColor || props.color)
 
         /**
+         * 当前已选数据键值
+         */
+        const currentSelectedKey = computed(function () {
+            return props.selectedNode ? props.selected[props.nodeKey] : props.selected
+        })
+
+        /**
          * 文本颜色类名
          */
         // const textColorClass = computed(() => (
@@ -374,7 +384,7 @@ export default {
                     children: [],
                     matchesFilter: props.filter ? computedFilterMethod.value(node, props.filter) : true,
 
-                    selected: key === props.selected && selectable === true,
+                    selected: key === currentSelectedKey.value && selectable === true,
                     selectable,
                     expanded: isParent === true ? innerExpanded.value.includes(key) : false,
                     expandable,
@@ -879,10 +889,14 @@ export default {
             if (hasSelection.value && meta.selectable) {
 
                 if (props.noSelectionUnset === false) {
-                    emit('update:selected', meta.key !== props.selected ? meta.key : null)
+                    emit('update:selected', meta.key !== currentSelectedKey.value ? (
+                        props.selectedNode ? node : meta.key
+                    ) : null)
 
-                } else if (meta.key !== props.selected) {
-                    emit('update:selected', meta.key === void 0 ? null : meta.key)
+                } else if (meta.key !== currentSelectedKey.value) {
+                    emit('update:selected', meta.key === void 0 ? null : (
+                        props.selectedNode ? node : meta.key
+                    ))
                 }
 
             } else {
