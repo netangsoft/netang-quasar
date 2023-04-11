@@ -86,11 +86,23 @@
                     :ticked="item.m.indeterminate === true ? null : item.m.ticked"
                     :key="item.key"
                     :dark="isDark"
-                    v-if="hasSlotDefault"
+                    v-if="hasSlots.defaultHeader"
                 />
                 <!-- 否则为文字 -->
                 <span v-else>{{ item.label }}</span>
             </div>
+
+            <!-- 节点插槽 -->
+            <slot
+                name="node"
+                :node="item.node"
+                :expanded="item.m.expanded"
+                :ticked="item.m.indeterminate === true ? null : item.m.ticked"
+                :key="item.key"
+                :dark="isDark"
+                v-if="hasSlots.node"
+            />
+
         </div>
     </q-virtual-scroll>
 </template>
@@ -1077,10 +1089,13 @@ export default {
         // ==========【覆盖部分】=========================================================================================
 
         /**
-         * 是否有默认头部插槽
+         * 是否有默认插槽
          */
-        const hasSlotDefault = computed(function () {
-            return $n_has(slots, 'default-header')
+        const hasSlots = computed(function () {
+            return {
+                defaultHeader: $n_has(slots, 'default-header'),
+                node: $n_has(slots, 'node'),
+            }
         })
 
         /**
@@ -1522,7 +1537,7 @@ export default {
             collapseAll,
             stopAndPrevent,
 
-            hasSlotDefault,
+            hasSlots,
             currentChildren,
 
             onNode,
