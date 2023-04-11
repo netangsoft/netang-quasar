@@ -12,7 +12,6 @@
         <div
             :class="item.classes"
             :key="item.key"
-            :style="{ paddingLeft: (item.level * arrowSize) + 'px' }"
             @mousedown.self="onMouseDown($event, item)"
             @mouseup="onDragEnd"
             @dragstart.stop="onDragStart($event, item)"
@@ -24,31 +23,40 @@
         >
             <div class="q-focus-helper" @click="onClick(item.node, item.m, $event)"></div>
 
-            <!-- 旋转器 -->
-            <q-spinner
-                class="q-tree__spinner q-ml-sm"
-                :color="computedControlColor"
-                v-if="item.m.lazy === 'loading'"
-            />
-
-            <!-- 箭头 -->
-            <q-icon
-                class="q-tree__arrow q-ml-sm"
-                :name="computedIcon"
-                :class="`${item.m.expanded ? 'q-tree__arrow--rotate' : ''}`"
-                :size="arrowSize + 'px'"
-                @click="onExpandClick(item.node, item.m, $event)"
-                v-bind="iconProps"
-                v-if="item.isParent === true"
-            />
+            <!-- 前置容器 -->
             <div
-                class="n-tree__arrow--noop q-ml-sm"
-                :style="{
-                    width: arrowSize + 'px',
-                    height: arrowSize + 'px',
-                }"
-                v-else
-            ></div>
+                class="n-tree__node__prepend"
+                :style="{ paddingLeft: (item.level * arrowSize) + 'px' }"
+                @click="onNode(item, $event)"
+            >
+                <!-- 旋转器 -->
+                <q-spinner
+                    class="q-tree__spinner q-ml-sm"
+                    :color="computedControlColor"
+                    v-if="item.m.lazy === 'loading'"
+                />
+
+                <!-- 箭头图标 -->
+                <q-icon
+                    class="q-tree__arrow q-ml-sm"
+                    :name="computedIcon"
+                    :class="`${item.m.expanded ? 'q-tree__arrow--rotate' : ''}`"
+                    :size="arrowSize + 'px'"
+                    v-bind="iconProps"
+                    v-else-if="item.isParent === true"
+                />
+
+                <!-- 空白占位符 -->
+                <div
+                    class="n-tree__arrow--noop q-ml-sm"
+                    :style="{
+                        width: arrowSize + 'px',
+                        height: arrowSize + 'px',
+                    }"
+                    v-else
+                ></div>
+
+            </div>
 
             <!-- 复选框-->
             <q-checkbox
@@ -1062,6 +1070,20 @@ export default {
         })
 
         /**
+         * 点击节点
+         */
+        function onNode(item, $event) {
+            if (
+                item.m.lazy !== 'loading'
+                && item.isParent === true
+            ) {
+                onExpandClick(item.node, item.m, $event)
+            } else {
+                onClick(item.node, item.m, $event)
+            }
+        }
+
+        /**
          * 获取节点
          */
         function getNode(nodes, level, parents) {
@@ -1090,7 +1112,7 @@ export default {
                 const dragCss = $n_get(dragClasses.value, key)
 
                 // 当前节点类名
-                const classes = 'n-tree__node relative-position row no-wrap items-center q-tree__node--link q-hoverable'
+                const classes = 'n-tree__node relative-position row no-wrap q-tree__node--link q-hoverable'
                         // + (m.link === true ? ' q-tree__node--link q-hoverable q-focusable' : '')
                         + (m.selected === true || props.multiple && m.ticked === true ? ' n-tree__node--selected' : '')
                         + (m.disabled === true ? ' q-tree__node--disabled' : '')
@@ -1489,6 +1511,7 @@ export default {
             hasSlotDefault,
             currentChildren,
 
+            onNode,
             onMouseDown,
             onDragStart,
             onDragEnter,
@@ -1512,10 +1535,21 @@ export default {
         margin-right: 4px;
     }
 
+    // 树节点
     &__node {
         margin: 4px;
         border-radius: 4px;
         //transition: all .3s;
+        //background-color: green;
+
+        // 前置容器
+        &__prepend {
+            position: relative;
+            //height: 100% !important;
+            display: flex;
+            align-items: center;
+            //background-color: red;
+        }
 
         // 已选
         &--selected:not(.drag-over--inner) {

@@ -119,6 +119,8 @@ export default {
         },
         // 是否点击放大预览
         preview: Boolean,
+        // 预览参数
+        previewProps: Object,
     },
 
     /**
@@ -173,9 +175,16 @@ export default {
          * 预览
          */
         function onPreview() {
+
             // 预览图片
-            $n_previewImage(props.src)
+            $n_previewImage(Object.assign({
+                images: [
+                    props.src,
+                ],
+            }, props.previewProps))
         }
+
+        // ==========【返回】=============================================================================================
 
         return {
             // 当前图片地址

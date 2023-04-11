@@ -42,8 +42,6 @@ export default function getImage(src, options) {
             // 如果为对象定义的规格
             if ($n_isValidObject(options)) {
 
-                // 是否自动缩放
-                // --------------------------------------------------
                 // 如果有定义 w
                 if ($n_has(options, 'w')) {
 
@@ -56,10 +54,13 @@ export default function getImage(src, options) {
                     // 先设为 0
                     options.w = 0
 
-                    // 如果开启缩放 && 有宽度
-                    if (zoom && w) {
+                    // 如果有宽度
+                    if (w) {
 
-                        if (! $n_isNumeric(w) && $n_isString(w)) {
+                        if (
+                            ! $n_isNumeric(w)
+                            && $n_isString(w)
+                        ) {
                             w = w.replace('px', '')
                         }
 
@@ -69,9 +70,12 @@ export default function getImage(src, options) {
 
                                 // 获取设备像素比
                                 /* #if IS_WEB */
-                                const devicePixelRatio = window.devicePixelRatio || 1
-                                if (devicePixelRatio > 2) {
-                                    w *= 2
+                                // 如果开启缩放
+                                if (zoom) {
+                                    const devicePixelRatio = window.devicePixelRatio || 1
+                                    if (devicePixelRatio > 2) {
+                                        w *= 2
+                                    }
                                 }
                                 /* #endif */
 
@@ -93,32 +97,42 @@ export default function getImage(src, options) {
                 }
                 // --------------------------------------------------
 
-                const {
-                    type,
-                    domain,
-                } = $n_config('uploader.upload')
+            } else {
+                options = {}
+            }
 
-                // 判断图片上传方式
-                switch (type) {
+            const {
+                type,
+                domain,
+            } = $n_config('uploader.upload')
 
-                    // 七牛云
-                    case 'qiniu':
+            // 判断图片上传方式
+            switch (type) {
 
-                        const {
-                            w,
-                            h,
-                            q,
-                            format,
-                        } = Object.assign({
-                            // 宽
-                            w: 0,
-                            // 高
-                            h: 0,
-                            // 质量
-                            q: 75,
-                            // 格式
-                            format: 'webp',
-                        }, options)
+                // 七牛云
+                case 'qiniu':
+
+                    const {
+                        compress,
+                        w,
+                        h,
+                        q,
+                        format,
+                    } = Object.assign({
+                        // 是否压缩
+                        compress: true,
+                        // 宽
+                        w: 0,
+                        // 高
+                        h: 0,
+                        // 质量
+                        q: 75,
+                        // 格式
+                        format: 'webp',
+                    }, options)
+
+                    // 如果压缩
+                    if (compress) {
 
                         // 裁剪图片方式
                         src += '?imageView2/2'
@@ -142,9 +156,9 @@ export default function getImage(src, options) {
                         if (format) {
                             src += '/format/' + format
                         }
+                    }
 
-                        return $n_slash(domain, 'end', true) + src
-                }
+                    return $n_slash(domain, 'end', true) + src
             }
         }
     }
