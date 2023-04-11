@@ -1143,7 +1143,7 @@ export default {
                 // 当前节点类名
                 const classes = 'n-tree__node relative-position row no-wrap q-tree__node--link q-hoverable'
                         // + (m.link === true ? ' q-tree__node--link q-hoverable q-focusable' : '')
-                        + (m.selected === true || props.multiple && m.ticked === true ? ' n-tree__node--selected' : '')
+                        + (! dragging.value && (m.selected === true || props.multiple && m.ticked === true) ? ' n-tree__node--selected' : '')
                         + (m.disabled === true ? ' q-tree__node--disabled' : '')
                         + (dragCss ? ' ' + dragCss : '')
 
