@@ -10,10 +10,7 @@
         v-bind="$attrs"
         @hide="onDialogHide"
     >
-        <div class="absolute-full">
-
-            <!-- 遮蔽 -->
-            <div class="absolute-full" @click="onDialogCancel" v-if="! noBackdropDismiss"></div>
+        <div class="absolute-full" @click.self="onMask">
 
             <!-- 关闭 -->
             <q-btn
@@ -110,6 +107,7 @@
                 :key="`${item.src}-${i}`"
                 :href="item.origin"
                 target="_blank"
+                class="non-selectable no-outline"
             >
                 <img
                     :ref="(el) => (imgRefs[i] = el)"
@@ -289,7 +287,7 @@ export default {
                     })
                 }
             })
-            
+
             return lists
         })
 
@@ -510,6 +508,15 @@ export default {
             transform.value.enableTransition = enableTransition
         }
 
+        /**
+         * 点击遮蔽
+         */
+        function onMask() {
+            if (! props.noBackdropDismiss) {
+                onDialogCancel()
+            }
+        }
+
         // ==========【声明周期】=========================================================================================
 
         /**
@@ -572,6 +579,8 @@ export default {
             next,
             // 操作
             handleActions,
+            // 点击遮蔽
+            onMask,
         }
     }
 }

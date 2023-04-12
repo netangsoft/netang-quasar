@@ -945,7 +945,11 @@ function create(options) {
     function previewImage(fileItem) {
         // 预览图片
         if (fileItem.type === FilE_TYPE.image) {
-            $n_previewImage($n_has(fileItem, '__img') ? fileItem.__img : fileItem.hash)
+            $n_previewImage({
+                images: [
+                    $n_has(fileItem, '__img') ? fileItem.__img : fileItem.hash,
+                ],
+            })
         }
     }
 
