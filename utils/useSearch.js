@@ -114,13 +114,16 @@ function setItemCompare(item) {
     // 值2 比较类型条件
     item.compareOptions2 = []
 
-    // 如果比较类型有 >
-    if ($n_findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GT }) > -1) {
-        item.compareOptions2.push({ label: '<', value: dicts.SEARCH_COMPARE_TYPE__LT })
-
-    // 如果比较类型有 >=
-    } else if ($n_findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GTE }) > -1) {
-        item.compareOptions2.push({ label: '≤', value: dicts.SEARCH_COMPARE_TYPE__LTE })
+    if (
+        // 如果比较类型有 >
+        $n_findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GT }) > -1
+        // 如果比较类型有 >=
+        || $n_findIndex(opts1, { value: dicts.SEARCH_COMPARE_TYPE__GTE }) > -1
+    ) {
+        item.compareOptions2.push(
+            { label: '<', value: dicts.SEARCH_COMPARE_TYPE__LT },
+            { label: '≤', value: dicts.SEARCH_COMPARE_TYPE__LTE },
+        )
     }
 }
 

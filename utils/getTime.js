@@ -1,3 +1,5 @@
+import $n_get from 'lodash/get'
+
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_toDate from '@netang/utils/toDate'
 import $n_indexOf from '@netang/utils/indexOf'
@@ -15,6 +17,9 @@ export default function getTime(time, options, defaultValue = '') {
         return $n_isValidString(options) ? options : defaultValue
     }
 
+    // 分隔符
+    const separator = $n_get(options, 'separator', '-')
+
     let {
         hideCurrentYear,
         showSecond,
@@ -25,7 +30,7 @@ export default function getTime(time, options, defaultValue = '') {
 
     } = Object.assign({
         // 默认格式化
-        format: 'MM-DD HH:mm',
+        format: `MM${separator}DD HH:mm`,
         // 是否显示秒
         showSecond: false,
         // 是否隐藏当前年份
@@ -58,14 +63,16 @@ export default function getTime(time, options, defaultValue = '') {
         // 如果是今年
         if (quasarDate.formatDate(date, 'YYYY') === quasarDate.formatDate(now, 'YYYY')) {
 
+            const formatYmd = `YYYY${separator}MM${separator}DD`
+
             // 如果是今天
-            const resDay = quasarDate.formatDate(date, 'YYYY-MM-DD')
-            if (resDay === quasarDate.formatDate(now, 'YYYY-MM-DD')) {
+            const resDay = quasarDate.formatDate(date, formatYmd)
+            if (resDay === quasarDate.formatDate(now, formatYmd)) {
                 return showCalendarToday ? '今天' : quasarDate.formatDate(date, 'HH:mm' + (showSecond ? ':ss' : ''))
             }
 
             // 判断是否是昨天
-            if (resDay === quasarDate.formatDate(quasarDate.subtractFromDate(now, { days: 1 }), 'YYYY-MM-DD')) {
+            if (resDay === quasarDate.formatDate(quasarDate.subtractFromDate(now, { days: 1 }), formatYmd)) {
                 time = '昨天'
 
             // 是否为本周(判断日期在本年是第几周 如果相同, 则是本周)
@@ -99,7 +106,7 @@ export default function getTime(time, options, defaultValue = '') {
             || quasarDate.formatDate(date, 'YYYY') !== quasarDate.formatDate(now, 'YYYY')
         )
     ) {
-        format = 'YYYY-' + format
+        format = 'YYYY' + separator + format
     }
 
     return quasarDate.formatDate(date, format + (showSecond ? ':ss' : ''))
