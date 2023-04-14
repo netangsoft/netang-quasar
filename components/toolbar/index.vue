@@ -1,7 +1,7 @@
 <template>
     <container
         :header="header"
-        v-if="toolbarPowerBtns.length"
+        v-if="show || toolbarPowerBtns.length"
     >
         <q-toolbar>
 
@@ -93,6 +93,8 @@ export default {
     props: {
         // 是否头部工具栏
         header: Boolean,
+        // 是否强制显示
+        show: Boolean,
     },
 
     /**

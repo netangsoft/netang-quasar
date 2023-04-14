@@ -312,15 +312,15 @@ function create(options) {
             if ($n_has(item, 'time')) {
                 item.format = val => $n_getTime(val, { format: item.time === true ? `YYYY-MM-DD HH:mm` : item.time }, '-')
 
-                // 如果有数据字典
+            // 如果有数据字典
             } else if ($n_has(item, 'dict')) {
                 item.format = val => $n_dict(item.dict, val)
 
-                // 如果有图片
+            // 如果有图片
             } else if ($n_has(item, 'img') && item.img === true) {
                 tableImgNames.value.push(item.name)
 
-                // 如果有价格
+            // 如果有价格
             } else if ($n_has(item, 'price')) {
                 item.format = val => $n_price(val)
             }

@@ -4,6 +4,7 @@ import $power from './$power'
 import $render from './$render'
 import $rule from './$rule'
 import $ruleValid from './$ruleValid'
+import $search from './$search'
 import $table from './$table'
 import $tree from './$tree'
 
@@ -33,8 +34,10 @@ export default {
     $auth,
     $form,
     $power,
+    $render,
     $rule,
     $ruleValid,
+    $search,
     $table,
     $tree,
 

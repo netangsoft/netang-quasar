@@ -267,18 +267,15 @@ export default {
 
             const lists = []
 
-            if ($n_isValidObject(treeAll.value)) {
+            const hasTreeAll = $n_isValidObject(treeAll.value)
 
-                for (const treeKey of treeTicked.value) {
-
-                    // 获取树选择的节点
-                    if ($n_has(treeAll.value, treeKey)) {
-                        lists.push({
-                            id: treeKey,
-                            label: treeAll.value[treeKey][props.showAllLevels ? 'path' : 'label'],
-                        })
-                    }
-                }
+            for (const treeKey of treeTicked.value) {
+                lists.push({
+                    id: treeKey,
+                    label: hasTreeAll && $n_has(treeAll.value, treeKey) ?
+                        treeAll.value[treeKey][props.showAllLevels ? 'path' : 'label']
+                        : treeKey
+                })
             }
 
             return lists
