@@ -340,7 +340,7 @@ function create(options) {
 
         // 表格可见列
         const _tableVisibleColumns = o.showVisibleColumns && isCache ?
-            $n_cb($n_storage.get('table:visible_columns:' + cacheName), e => $n_isValidArray(e) ? e : [])
+            $n_cb($n_storage.get('table:visible_columns:' + cacheName), e => Array.isArray(e) ? e : $n_uniq([...o.visibleColumns]))
             : $n_uniq([...o.visibleColumns])
 
         // 表格翻页参数
