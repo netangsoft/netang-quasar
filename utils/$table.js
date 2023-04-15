@@ -26,6 +26,7 @@ import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_slash from '@netang/utils/slash'
 import $n_http from '@netang/utils/http'
+import $n_cb from '@netang/utils/cb'
 
 import $n_$power from './$power'
 import $n_dict from './dict'
@@ -146,8 +147,8 @@ function create(options) {
     let tableColumns
     let tableImgNames
 
-    // 获取可见列缓存
-    let visibleColumnsCache
+    // 是否显示可见列
+    let tableShowVisibleColumns
     // 表格可见列
     let tableVisibleColumns
     // 表格加载状态
@@ -337,11 +338,10 @@ function create(options) {
             }
         })
 
-        // 获取可见列缓存
-        visibleColumnsCache = o.showVisibleColumns && isCache ? $n_storage.get('table:visible_columns:' + cacheName) : []
-
         // 表格可见列
-        const _tableVisibleColumns = Array.isArray(visibleColumnsCache) ? visibleColumnsCache : $n_uniq([...o.visibleColumns])
+        const _tableVisibleColumns = o.showVisibleColumns && isCache ?
+            $n_cb($n_storage.get('table:visible_columns:' + cacheName), e => $n_isValidArray(e) ? e : [])
+            : $n_uniq([...o.visibleColumns])
 
         // 表格翻页参数
         const _tablePagination = $route.fullPath ? o.pagination : {}
@@ -367,6 +367,9 @@ function create(options) {
 
             // 表格列
             tableColumns.value = _tableColumns
+
+            // 表格是否显示可见列
+            tableShowVisibleColumns.value = o.showVisibleColumns
 
             // 表格可见列
             tableVisibleColumns.value = _tableVisibleColumns
@@ -402,6 +405,9 @@ function create(options) {
 
             // 表格列
             tableColumns = ref(_tableColumns)
+
+            // 表格是否显示可见列
+            tableShowVisibleColumns = ref(o.showVisibleColumns)
 
             // 表格可见列
             tableVisibleColumns = ref(_tableVisibleColumns)
@@ -1081,6 +1087,8 @@ function create(options) {
         tableSeparator,
         // 表格列数据(对象数组)
         tableColumns,
+        // 表格是否显示可见列
+        tableShowVisibleColumns,
         // 表格可见列
         tableVisibleColumns,
         // 表格行数据

@@ -36,6 +36,7 @@
                     v-for="item in tableColumns"
                     clickable
                     @click="onTableVisible(item)"
+                    v-if="tableShowVisibleColumns"
                 >
                     <q-item-section>{{item.label}}</q-item-section>
                     <q-item-section side>
@@ -71,6 +72,8 @@ export default {
         const {
             // 表格列数据(对象数组)
             tableColumns,
+            // 表格是否显示可见列
+            tableShowVisibleColumns,
             // 表格可见列
             tableVisibleColumns,
             // 表格宫格
@@ -94,6 +97,8 @@ export default {
         return {
             // 表格列数据(对象数组)
             tableColumns,
+            // 表格是否显示可见列
+            tableShowVisibleColumns,
             // 表格可见列
             tableVisibleColumns,
             // 表格宫格
