@@ -6,6 +6,9 @@
         >
             <div class="n-search q-pa-sm q-pt-sm q-gutter-sm">
 
+                <!-- 内部前置插槽 -->
+                <slot name="prepend" />
+
                 <template
                     v-for="(item, itemIndex) in options"
                 >
@@ -133,6 +136,10 @@
                         </n-search-item>
                     </template>
                 </template>
+
+                <!-- 内部后置插槽 -->
+                <slot name="append" />
+
             </div>
         </q-scroll-area>
 
