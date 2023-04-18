@@ -6,6 +6,7 @@ import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_isNumeric from '@netang/utils/isNumeric'
 import $n_slash from '@netang/utils/slash'
+import $n_split from '@netang/utils/split'
 
 import $n_config from './config'
 
@@ -15,6 +16,13 @@ import $n_config from './config'
 export default function getImage(src, options) {
 
     if (src) {
+
+        // 如果是字符串
+        if ($n_isValidString(src)) {
+
+            // 则按照逗号隔开转为数租
+            src = $n_split(src, ',')
+        }
 
         // 如果为数组, 则获取第一个
         if ($n_isValidArray(src)) {

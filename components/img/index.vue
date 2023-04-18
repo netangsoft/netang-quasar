@@ -134,6 +134,7 @@ export default {
          * 当前图片地址
          */
         const currentSrc = computed(function () {
+            console.log('---props.src', props.src)
             const res = $n_getImage(props.src, { w: props.width, zoom: true })
             if (res) {
                 return res
