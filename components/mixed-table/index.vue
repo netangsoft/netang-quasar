@@ -44,12 +44,10 @@
                         dense
                         outlined
                         clearable
-
                     />
                 </div>
 
                 <!-- 分类树 -->
-                <!--selected-color="primary"-->
                 <n-tree
                     color="grey-5"
                     ref="treeRef"
@@ -61,7 +59,18 @@
                     no-selection-unset
                     default-expand-all
                     v-bind="treeProps"
-                />
+                >
+                    <!-- 插槽 -->
+                    <template
+                        v-for="slotName in slotNames.search"
+                        v-slot:[slotName]="props"
+                    >
+                        <slot
+                            :name="`tree-${slotName}`"
+                            v-bind="props"
+                        />
+                    </template>
+                </n-tree>
 
             </q-scroll-area>
         </n-drawer>
@@ -352,6 +361,8 @@ export default {
                 for (const key in slots) {
                     if (key.startsWith('toolbar-')) {
                         toolbar.push(key.replace('toolbar-', ''))
+                    } else if (key.startsWith('tree-')) {
+                        search.push(key.replace('tree-', ''))
                     } else if (key.startsWith('search-')) {
                         search.push(key.replace('search-', ''))
                     } else if (key === 'left-drawer') {
