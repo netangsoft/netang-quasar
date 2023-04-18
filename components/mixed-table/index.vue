@@ -106,6 +106,7 @@
                         <n-thumbnail
                             :src="props.row[imgName]"
                             preview
+                            v-if="props.row[imgName]"
                         />
                     </template>
 
