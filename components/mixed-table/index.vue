@@ -184,6 +184,7 @@ import $n_isFunction from 'lodash/isFunction'
 import $n_isNil from 'lodash/isNil'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_collection from '@netang/utils/collection'
 
@@ -420,6 +421,7 @@ export default {
                 if (
                     // 如果关闭选中第一个树节点
                     ! props.treeSelectFirstNode
+                    || ! $n_isValidArray(val)
                     || ! $n_isNil(treeSelected.value)
                 ) {
                     // 则无任何操作
