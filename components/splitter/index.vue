@@ -360,6 +360,13 @@ export default {
 <style lang="scss">
 .n-splitter {
 
+    &--narrow {
+        &.q-splitter--vertical > .q-splitter__separator > div {
+            left: -2px;
+            right: -2px;
+        }
+    }
+
     // 分离器激活背景色
     &.q-splitter--active .q-splitter__separator ,
     .q-splitter__separator:hover {

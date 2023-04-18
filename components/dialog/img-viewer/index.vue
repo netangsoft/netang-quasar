@@ -64,18 +64,18 @@
                         @click="handleActions('zoomIn')"
                     />
 
-                    <!-- 水平反转 -->
-                    <q-icon
-                        class="cursor-pointer"
-                        :name="flipHorizontalIcon"
-                        @click="handleActions('flipX')"
-                    />
-
                     <!-- 切换比例 -->
                     <q-icon
                         class="cursor-pointer"
                         :name="isContain ? fullscreenIcon : exitFullscreenIcon"
                         @click="toggleMode"
+                    />
+
+                    <!-- 水平反转 -->
+                    <q-icon
+                        class="cursor-pointer"
+                        :name="flipHorizontalIcon"
+                        @click="handleActions('flipX')"
                     />
 
                     <!-- 垂直反转 -->
@@ -98,20 +98,21 @@
                         :name="rotateRightIcon"
                         @click="handleActions('clockwise')"
                     />
+
                 </div>
             </div>
 
             <!-- 图片列表 -->
             <a
-                v-for="(item, i) in currentImages"
-                :key="`${item.src}-${i}`"
-                :href="item.origin"
+                v-for="(src, i) in currentImages"
+                :key="`${src}-${i}`"
+                :href="src"
                 target="_blank"
                 class="non-selectable no-outline"
             >
                 <img
                     :ref="(el) => (imgRefs[i] = el)"
-                    :src="item.src"
+                    :src="src"
                     :style="imgStyle"
                     @load="handleImgLoad"
                     @error="handleImgError"
@@ -281,10 +282,11 @@ export default {
             $n_forEach(props.images, function (url) {
                 const origin = $n_getImage(url, { compress: false })
                 if (origin) {
-                    lists.push({
-                        src: $n_getImage(url, { w: 1000 }),
-                        origin,
-                    })
+                    lists.push($n_getImage(url, { w: 1000 }))
+                    // lists.push({
+                    //     src: $n_getImage(url, { w: 1000 }),
+                    //     origin,
+                    // })
                 }
             })
 
