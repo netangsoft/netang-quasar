@@ -1,5 +1,6 @@
 <template>
-    <virtual-scroll
+    <component
+        :is="isNVirtualScroll ? NVirtualScroll : QVirtualScroll"
         :class="classes"
         :items="currentChildren"
         :virtual-scroll-item-size="virtualScrollItemSize"
@@ -101,7 +102,7 @@
             />
 
         </div>
-    </virtual-scroll>
+    </component>
 </template>
 
 <script>
@@ -112,7 +113,8 @@ import {
 
 import { stopAndPrevent } from 'quasar/src/utils/event'
 
-import VirtualScroll from './virtual-scroll'
+import QVirtualScroll from 'quasar/src/components/virtual-scroll/QVirtualScroll'
+import NVirtualScroll from '../virtual-scroll'
 
 const tickStrategyOptions = [ 'none', 'strict', 'leaf', 'leaf-filtered' ]
 
@@ -132,13 +134,6 @@ export default {
      * 标识
      */
     name: 'NTree',
-
-    /**
-     * 组件
-     */
-    components: {
-        VirtualScroll,
-    },
 
     /**
      * 声明属性
@@ -1544,6 +1539,9 @@ export default {
             onDragEnter,
             onDragLeave,
             onDragEnd,
+
+            NVirtualScroll,
+            QVirtualScroll,
         }
     }
 }
