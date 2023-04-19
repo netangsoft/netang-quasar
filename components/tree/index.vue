@@ -1,11 +1,8 @@
 <template>
-    <q-virtual-scroll
+    <virtual-scroll
         :class="classes"
         :items="currentChildren"
-        :virtual-scroll-slice-ratio-before="virtualScrollSliceRatioBefore"
-        :virtual-scroll-slice-ratio-after="virtualScrollSliceRatioAfter"
         :virtual-scroll-item-size="virtualScrollItemSize"
-        separator
         v-bind="virtualScrollProps"
         v-slot="{ item, index }"
     >
@@ -104,7 +101,7 @@
             />
 
         </div>
-    </q-virtual-scroll>
+    </virtual-scroll>
 </template>
 
 <script>
@@ -114,6 +111,8 @@ import {
 } from 'vue'
 
 import { stopAndPrevent } from 'quasar/src/utils/event'
+
+import VirtualScroll from './virtual-scroll'
 
 const tickStrategyOptions = [ 'none', 'strict', 'leaf', 'leaf-filtered' ]
 
@@ -133,6 +132,13 @@ export default {
      * 标识
      */
     name: 'NTree',
+
+    /**
+     * 组件
+     */
+    components: {
+        VirtualScroll,
+    },
 
     /**
      * 声明属性
@@ -208,16 +214,6 @@ export default {
         allowDrop: Function,
         // 是否多选
         multiple: Boolean,
-        // 可见区域中要在其之前渲染的行数的比率
-        virtualScrollSliceRatioBefore: {
-            type: [ Number, String ],
-            default: 1,
-        },
-        // 可见区域中要在其之后渲染的行数的比率
-        virtualScrollSliceRatioAfter: {
-            type: [ Number, String ],
-            default: 1,
-        },
         // 以像素为单位的默认行大小
         virtualScrollItemSize: {
             type: [ Number, String ],
@@ -225,6 +221,8 @@ export default {
         },
         // 虚拟滚动声明
         virtualScrollProps: Object,
+        // 是否为自定义虚拟滚动
+        isNVirtualScroll: Boolean,
 
         // 箭头大小
         arrowSize: {
