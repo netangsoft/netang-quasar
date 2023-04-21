@@ -1,6 +1,9 @@
 <template>
-    <container
-        :header="header"
+    <component
+        :is="header ? QHeader : QFooter"
+        class="n-toolbar"
+        :dark="$q.dark.isActive"
+        bordered
         v-if="show || toolbarPowerBtns.length"
     >
         <q-toolbar>
@@ -61,13 +64,15 @@
             />
 
         </q-toolbar>
-    </container>
+    </component>
 </template>
 
 <script>
 import { inject } from 'vue'
 
-import Container from './container'
+import QHeader from 'quasar/src/components/header/QHeader'
+import QFooter from 'quasar/src/components/footer/QFooter'
+
 import TableVisibleColumnsButton from '../private/table-visible-columns-button'
 
 import { NPowerKey, NTableKey } from '../../utils/symbols'
@@ -83,7 +88,6 @@ export default {
      * 容器
      */
     components: {
-        Container,
         TableVisibleColumnsButton,
     },
 
@@ -117,6 +121,9 @@ export default {
             ...$power,
             // 是否有表格
             hasTable: !! $table,
+
+            QHeader,
+            QFooter,
         }
     },
 }
