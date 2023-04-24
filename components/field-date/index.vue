@@ -575,7 +575,7 @@ export default {
                     if (props.showSecond) {
                         format += ':ss'
                     } else {
-                        from += ':59'
+                        from += ':00'
                         to += ':59'
                     }
 
