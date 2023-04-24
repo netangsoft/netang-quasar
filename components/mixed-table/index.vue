@@ -10,6 +10,7 @@
         <!-- 头部 -->
         <n-toolbar
             :dense="dense"
+            :show="showToolbar"
             header
         >
             <!-- 插槽 -->
@@ -290,6 +291,8 @@ export default {
         hideRightDrawer: Boolean,
         // 右边侧滑菜单声明属性
         rightDrawerProps: Object,
+        // 是否强制显示工具栏
+        showToolbar: Boolean,
     },
 
     /**
