@@ -7,6 +7,7 @@ import $n_toLower from 'lodash/toLower'
 import $n_findIndex from 'lodash/findIndex'
 import $n_uniq from 'lodash/uniq'
 import $n_find from 'lodash/find'
+import $n_isFunction from 'lodash/isFunction'
 
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
@@ -22,6 +23,7 @@ import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_copy from '@netang/utils/copy'
 import $n_http from '@netang/utils/http'
 import $n_getThrowMessage from '@netang/utils/getThrowMessage'
+import $n_runAsync from '@netang/utils/runAsync'
 
 import $n_toast from './toast'
 import $n_confirm from './confirm'
@@ -30,6 +32,8 @@ import $n_previewImage from './previewImage'
 import $n_getImage from './getImage'
 import $n_getFile from './getFile'
 import $n_config from './config'
+
+import { configs } from './config'
 
 import {
     // 文件类型映射
@@ -525,37 +529,59 @@ function create(options) {
                     loadNext()
 
                 } else {
+
                     // 获取文件 hash
                     const hash = spark.end(false)
 
-                    if (
-                        // 如果开启去重
-                        props.unique
-                        // 如果该文件 hash 在上传文件列表中
-                        && $n_findIndex(uploadFileLists.value, { hash }) > -1
-                    ) {
-                        // 轻提示
-                        $n_toast({
-                            message: '该文件已存在，不可重复上传',
-                        })
+                    // 下一步
+                    function next(hash) {
+                        if (
+                            // 如果开启去重
+                            props.unique
+                            // 如果该文件 hash 在上传文件列表中
+                            && $n_findIndex(uploadFileLists.value, { hash }) > -1
+                        ) {
+                            // 轻提示
+                            $n_toast({
+                                message: '该文件已存在，不可重复上传',
+                            })
 
-                        // 设置文件上传失败
-                        setFileFail(fileItem, '已存在')
+                            // 设置文件上传失败
+                            setFileFail(fileItem, '已存在')
 
-                        // 删除单个文件
-                        deleteFileItem(fileItem)
+                            // 删除单个文件
+                            deleteFileItem(fileItem)
 
-                    } else {
-                        // 设置文件 hash
-                        fileItem.hash = hash
-                        // 设置文件状态
-                        fileItem.status = UPLOAD_STATUS.hashChecked
-                        // 设置文件检查进度
-                        fileItem.progress = 100
+                        } else {
+                            // 设置文件 hash
+                            fileItem.hash = hash
+                            // 设置文件状态
+                            fileItem.status = UPLOAD_STATUS.hashChecked
+                            // 设置文件检查进度
+                            fileItem.progress = 100
+                        }
+
+                        // 完成回调
+                        resolve()
                     }
 
-                    // 完成回调
-                    resolve()
+                    // 格式化上传文件 hash
+                    // --------------------------------------------------
+                    const {
+                        formatUploadFileHash,
+                    } = configs
+                    if ($n_isFunction(formatUploadFileHash)) {
+                        $n_runAsync(formatUploadFileHash)(hash, fileItem)
+                            .then(function (newHash) {
+                                // 下一步
+                                next($n_isValidString(newHash) ? newHash : hash)
+                            })
+                        return
+                    }
+                    // --------------------------------------------------
+
+                    // 下一步
+                    next(hash)
                 }
             }
 

@@ -1,8 +1,9 @@
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidString from '@netang/utils/isValidString'
-import $n_slash from '@netang/utils/slash'
 
 import $n_config from './config'
+
+import useFileUrl from './useFileUrl'
 
 /**
  * 获取文件
@@ -31,7 +32,7 @@ export default function getFile(src) {
             switch (type) {
                 // 七牛云
                 case 'qiniu':
-                    return $n_slash(domain, 'end', true) + src
+                    return useFileUrl(domain, src)
             }
         }
     }

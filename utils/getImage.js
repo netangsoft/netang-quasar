@@ -5,10 +5,11 @@ import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_isNumeric from '@netang/utils/isNumeric'
-import $n_slash from '@netang/utils/slash'
 import $n_split from '@netang/utils/split'
 
 import $n_config from './config'
+
+import useFileUrl from './useFileUrl'
 
 /**
  * 获取图片
@@ -166,7 +167,7 @@ export default function getImage(src, options) {
                         }
                     }
 
-                    return $n_slash(domain, 'end', true) + src
+                    return useFileUrl(domain, src)
             }
         }
     }
