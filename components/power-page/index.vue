@@ -4,6 +4,7 @@
         <n-empty
             :description="emptyDescription"
             fit
+            html
             v-if="pageStatus === false"
         />
         <!-- 插槽 -->
@@ -21,6 +22,7 @@
         <n-empty
             :description="emptyDescription"
             fit
+            html
             v-if="pageStatus === false"
         />
         <!-- 插槽 -->

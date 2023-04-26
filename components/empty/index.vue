@@ -13,10 +13,17 @@
         />
 
         <!-- 描述文字 -->
-        <div
-            :class="descriptionClass"
-            v-if="description"
-        >{{description}}</div>
+        <template v-if="!! description">
+            <div
+                :class="descriptionClass"
+                v-html="description"
+                v-if="html"
+            ></div>
+            <div
+                :class="descriptionClass"
+                v-else
+            >{{description}}</div>
+        </template>
     </div>
 </template>
 
@@ -53,6 +60,8 @@ export default {
         description: String,
         // 撑满全屏
         fit: Boolean,
+        // 是否开启 html
+        html: Boolean,
     },
 
     /**
