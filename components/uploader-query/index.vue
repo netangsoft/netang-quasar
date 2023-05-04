@@ -83,6 +83,9 @@
                         :height="toPx(currentSize)"
                         fit="fill"
                     >
+                        <!-- 如果是外链 -->
+                        <span class="n-uploader-query__item__net" v-if="fileItem.isNet">链接</span>
+
                         <!-- 内容 -->
                         <div
                             class="n-uploader-query__item__inner absolute-full flex flex-center no-padding transparent"
@@ -151,6 +154,7 @@
                                 v-if="! noDelete && ! disable && ! readonly"
                             />
                         </div>
+
                     </n-img>
                 </div>
 
@@ -202,6 +206,9 @@
                     @dragenter="dragEnter($event, fileItemIndex)"
                     @dragend="dragEnd"
                 >
+                    <!-- 如果是外链 -->
+                    <span class="n-uploader-query__item__net" v-if="fileItem.isNet">链接</span>
+
                     <!-- 图标 -->
                     <div
                         class="n-uploader-query__item__icon"
@@ -659,6 +666,18 @@ export default {
                     color: $negative;
                 }
             }
+        }
+
+        // 外链
+        &__net {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            color: #ffffff;
+            padding: 1px 3px;
+            border-radius: 3px;
+            background-color: var(--q-primary);
+            transform: scale(0.7);
         }
 
         //操作
