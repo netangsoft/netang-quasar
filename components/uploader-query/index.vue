@@ -134,6 +134,12 @@
                             class="n-uploader-query__item__settings transparent no-padding"
                             v-if="fileItem.status !== UPLOAD_STATUS.uploading"
                         >
+                            <!-- 操作插槽-->
+                            <slot
+                                name="settings"
+                                :file="fileItem"
+                            />
+
                             <!-- 预览 -->
                             <q-icon
                                 class="n-uploader-query__item__settings__icon cursor-pointer"
@@ -141,6 +147,7 @@
                                 size="xs"
                                 title="预览"
                                 @click="uploader.previewImage(fileItem)"
+                                v-bind="settingsIconProps"
                                 v-if="! noPreview && getImage(fileItem)"
                             />
 
@@ -151,8 +158,10 @@
                                 size="xs"
                                 title="删除"
                                 @click="uploader.deleteFileItem(fileItem)"
+                                v-bind="settingsIconProps"
                                 v-if="! noDelete && ! disable && ! readonly"
                             />
+
                         </div>
 
                     </n-img>
@@ -274,6 +283,12 @@
                     <!-- 操作 -->
                     <div class="n-uploader-query__item__settings">
 
+                        <!-- 操作插槽-->
+                        <slot
+                            name="settings"
+                            :file="fileItem"
+                        />
+
                         <template v-if="fileItem.status === UPLOAD_STATUS.success">
 
                             <!-- 复制地址 -->
@@ -284,6 +299,7 @@
                                 size="xs"
                                 title="复制地址"
                                 @click="uploader.copyUrl(fileItem)"
+                                v-bind="settingsIconProps"
                             />
 
                             <!-- 修改 -->
@@ -293,6 +309,7 @@
                                 color="white"
                                 size="xs"
                                 title="修改"
+                                v-bind="settingsIconProps"
                                 v-if="! noEdit && ! disable && ! readonly && ! fileItem.isNet"
                             >
                                 <q-popup-edit
@@ -326,6 +343,7 @@
                             size="xs"
                             title="删除"
                             @click="uploader.deleteFileItem(fileItem)"
+                            v-bind="settingsIconProps"
                             v-if="! noDelete && ! disable && ! readonly"
                         />
                     </div>
@@ -336,7 +354,7 @@
 </template>
 
 <script>
-import { onMounted, computed, inject } from 'vue'
+import { computed, inject } from 'vue'
 import { useQuasar } from 'quasar'
 
 import $n_has from 'lodash/has'
@@ -407,6 +425,8 @@ export default {
         autoShowSquareButton: Boolean,
         // 方块按钮在右边显示
         rightSquareButton: Boolean,
+        // 设置图标传参
+        settingsIconProps: Object,
     },
 
     /**
@@ -503,14 +523,6 @@ export default {
             return fileItem.title + ($n_get(fileItem, 'ext') ? '.' + fileItem.ext : '')
         }
 
-        // ==========【生命周期】=========================================================================================
-
-        /**
-         * 实例被挂载后调用
-         */
-        onMounted( async function() {
-
-        })
 
         // ==========【返回】=============================================================================================
 
