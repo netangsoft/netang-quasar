@@ -678,6 +678,7 @@ export default {
             border-radius: 3px;
             background-color: var(--q-primary);
             transform: scale(0.7);
+            pointer-events: none;
         }
 
         //操作
