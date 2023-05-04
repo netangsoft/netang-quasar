@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { onMounted, ref, provide, inject } from 'vue'
+import { onMounted, ref, watch, provide, inject } from 'vue'
 
 import $n_uploader from '../../utils/uploader'
 
@@ -92,6 +92,9 @@ export default {
         // 上传文件列表
         const uploadFileLists = ref([])
 
+        // 停止观察值
+        let stopValueWatcher = false
+
         // 创建上传器
         const uploader = $n_uploader.create({
             type: props.type,
@@ -103,6 +106,9 @@ export default {
             uploadFileLists,
             // 更新值方法
             onUpdateModelValue({ value }) {
+                // 停止观察值
+                stopValueWatcher = true
+                // 触发更新已选数据
                 emit('update:modelValue', value)
             },
             // 更新方法
@@ -114,6 +120,28 @@ export default {
         // 更新布局数据
         $power.update(function(data) {
             data.uploader.push(uploader)
+        })
+
+        // ==========【监听数据】==============================================================================================
+
+        /**
+         * 监听上传文件列表
+         */
+        watch(()=>props.modelValue, function() {
+
+            // 如果停止观察值
+            if (stopValueWatcher === true) {
+                // 取消停止观察值
+                stopValueWatcher = false
+                return
+            }
+
+            // 初始化上传列表
+            uploader.initUploadFileLists()
+                .finally()
+        }, {
+            // 深度监听
+            deep: true,
         })
 
         // ==========【注入】=============================================================================================

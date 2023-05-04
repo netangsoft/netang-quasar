@@ -286,8 +286,7 @@
                                 color="white"
                                 size="xs"
                                 title="修改"
-                                @click="uploader.previewImage(fileItem)"
-                                v-if="! noEdit && ! disable && ! readonly"
+                                v-if="! noEdit && ! disable && ! readonly && ! fileItem.isNet"
                             >
                                 <q-popup-edit
                                     :model-value="fileItem.title"

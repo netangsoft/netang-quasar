@@ -1,4 +1,4 @@
-import { ref, isRef } from 'vue'
+import { ref, isRef, watch } from 'vue'
 import SparkMD5 from 'spark-md5'
 
 import $n_has from 'lodash/has'
@@ -94,6 +94,9 @@ function create(options) {
         confirm: false,
     }, $n_get(options, 'props'))
 
+    // options 中是否存在 props.modelValue
+    const hasPropsModelValue = $n_has(options, 'props.modelValue')
+
     // 上传文件列表
     const uploadFileLists = $n_has(options, 'uploadFileLists') && isRef(options.uploadFileLists) ? options.uploadFileLists : ref([])
 
@@ -135,6 +138,13 @@ function create(options) {
     /**
      * 监听上传文件列表
      */
+    // if (props.watchModelValue && hasPropsModelValue) {
+    //     watch(()=>options.props.modelValue, function() {
+    //         // 初始化上传列表
+    //         initUploadFileLists()
+    //             .finally()
+    //     })
+    // }
 
     // ==========【方法】=================================================================================================
 
@@ -190,49 +200,127 @@ function create(options) {
      * 初始化上传列表
      */
     async function initUploadFileLists() {
-        if ($n_isRequired(props.modelValue)) {
 
-            // 获取值数组
-            const hashs = props.valueArray ? props.modelValue : $n_split(props.modelValue, ',')
+        const modelValue = hasPropsModelValue ? options.props.modelValue : props.modelValue
 
-            // 如果类型不是图片 || 初始加载文件信息, 则请求文件信息
-            if (props.type !== 'image' || props.loadInfo) {
+        if (! $n_isRequired(modelValue)) {
+            return
+        }
 
-                // 请求 - 获取文件
-                const { status, data: resExisted } = await $n_http({
-                    url: $n_config('apiFileUrl') + 'get_file',
-                    data: {
-                        hashs,
-                    },
-                    // 关闭错误
-                    warn: false,
-                })
-                if (status) {
+        // 值数组
+        const hashs = []
 
-                    $n_forEach(resExisted, function (existedItem) {
+        // hash all
+        const hashAll = {}
 
-                        // 创建原始单个文件
-                        const fileItem = createRawFileItem()
+        // 新上传文件列表
+        const newUploadFileLists = []
 
-                        // 设置已存在文件
-                        setExistedFileItem(fileItem, existedItem)
+        // 获取值数组
+        const lists = props.valueArray ? modelValue : $n_split(modelValue, ',')
 
-                        // 添加至上传文件列表
-                        uploadFileLists.value.push(Object.assign(fileItem, {
-                            key: fileItem.hash,
-                        }))
-                    })
+        // 新列表
+        const newLists = []
 
-                    // 更新
-                    update()
-                }
-                return
+        // 是否更新
+        let isUpdate = false
+
+        // 合并当前上传列表中未上传成功的文件
+        for (const fileItem of uploadFileLists.value) {
+            if (fileItem.status !== UPLOAD_STATUS.success) {
+                newUploadFileLists.push(fileItem)
+                hashAll[fileItem.hash] = fileItem
             }
+        }
 
-            $n_forEach(hashs, function(hash) {
+        $n_forEach(lists, function(hash) {
+            if ($n_isValidString(hash)) {
 
-                // 添加至上传文件列表
-                uploadFileLists.value.push(Object.assign(createRawFileItem(), {
+                const hasItem = $n_find(uploadFileLists.value, { hash })
+
+                // 如果在当前上传文件列表中已存在
+                if (hasItem) {
+                    hashAll[hash] = hasItem
+
+                } else if (! $n_has(hashAll, 'hash')) {
+
+                    // 如果是 http(s):// 开头的地址
+                    if (/^http(s)?:\/\//i.test(hash)) {
+                        hashs.push(hash)
+                        hashAll[hash] = {
+                            hash,
+                            isNet: true,
+                        }
+
+                    // 否则为 hash 文件
+                    } else {
+                        hashs.push(hash)
+                        hashAll[hash] = {
+                            hash,
+                            isNet: false,
+                        }
+                    }
+                }
+
+                // 新列表
+                newLists.push(hash)
+            }
+        })
+
+        // 如果类型不是图片 || 初始加载文件信息, 则请求文件信息
+        if (
+            (props.type !== 'image' || props.loadInfo)
+            && hashs.length
+        ) {
+            // 请求 - 获取文件
+            const { status, data: resExisted } = await $n_http({
+                url: $n_config('apiFileUrl') + 'get_file',
+                data: {
+                    hashs: $n_uniq(hashs),
+                },
+                // 关闭错误
+                warn: false,
+            })
+            if (status) {
+
+                $n_forEach(resExisted, function (existedItem) {
+
+                    // 创建原始单个文件
+                    const fileItem = createRawFileItem()
+
+                    // 设置已存在文件
+                    setExistedFileItem(fileItem, existedItem)
+
+                    // 添加至 hash all
+                    hashAll[fileItem.hash] = Object.assign(fileItem, {
+                        key: fileItem.hash,
+                    })
+                })
+
+                // 需要更新
+                isUpdate = true
+            }
+        }
+
+        for (const hash of newLists) {
+
+            let hasItem = hashAll[hash]
+
+            // 如果该 hash 已存在
+            if ($n_has(hasItem, 'id')) {
+
+                // 如果新列表中存在 该 id
+                if ($n_findIndex(newUploadFileLists, { id: hasItem.id }) > -1) {
+
+                    // 更新 id
+                    hasItem = Object.assign({}, hasItem, {
+                        id: ++_fileNum
+                    })
+                }
+
+            // 否则该 hash 不存在
+            } else {
+                hasItem = Object.assign(createRawFileItem(), hasItem, {
                     // 文件唯一 key
                     key: hash,
                     // hash
@@ -243,8 +331,20 @@ function create(options) {
                     progress: 100,
                     // 信息
                     msg: '',
-                }))
-            })
+                })
+                hashAll[hash] = hasItem
+            }
+
+            // 添加至新列表中
+            newUploadFileLists.push(hasItem)
+        }
+
+        // 更新上传文件列表
+        uploadFileLists.value = newUploadFileLists
+
+        if (isUpdate) {
+            // 更新
+            update()
         }
     }
 
@@ -785,6 +885,8 @@ function create(options) {
             progress: 0,
             // 信息
             msg: '待上传',
+            // 是否为网络文件
+            isNet: false,
             // 中断上传
             abort() {},
         }
