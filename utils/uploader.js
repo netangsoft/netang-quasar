@@ -1,4 +1,4 @@
-import { ref, isRef, watch } from 'vue'
+import { ref, isRef, } from 'vue'
 import SparkMD5 from 'spark-md5'
 
 import $n_has from 'lodash/has'
@@ -12,15 +12,14 @@ import $n_isFunction from 'lodash/isFunction'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
-import $n_isRequired from '@netang/utils/isRequired'
 import $n_forEach from '@netang/utils/forEach'
+import $n_indexOf from '@netang/utils/indexOf'
 import $n_json from '@netang/utils/json'
 import $n_join from '@netang/utils/join'
 import $n_split from '@netang/utils/split'
 import $n_trimString from '@netang/utils/trimString'
 import $n_run from '@netang/utils/run'
 import $n_isValidValue from '@netang/utils/isValidValue'
-import $n_copy from '@netang/utils/copy'
 import $n_http from '@netang/utils/http'
 import $n_getThrowMessage from '@netang/utils/getThrowMessage'
 import $n_runAsync from '@netang/utils/runAsync'
@@ -34,6 +33,8 @@ import $n_getFile from './getFile'
 import $n_config from './config'
 
 import { configs } from './config'
+
+import copy from './copy'
 
 import {
     // 文件类型映射
@@ -71,6 +72,8 @@ function create(options) {
         onUpdate: null,
     }, options)
 
+    const optionsProps = $n_get(options, 'props')
+
     // 声明属性
     const props = Object.assign({
         // 值
@@ -92,13 +95,16 @@ function create(options) {
         loadInfo: false,
         // 单文件上传提示
         confirm: false,
-    }, $n_get(options, 'props'))
+    }, optionsProps)
 
     // options 中是否存在 props.modelValue
-    const hasPropsModelValue = $n_has(options, 'props.modelValue')
+    const hasPropsModelValue = $n_has(optionsProps, 'modelValue')
 
     // 上传文件列表
     const uploadFileLists = $n_has(options, 'uploadFileLists') && isRef(options.uploadFileLists) ? options.uploadFileLists : ref([])
+
+    // 上传网络外链回调
+    let uploadNetCallback
 
     /**
      * 上传配置
@@ -170,6 +176,7 @@ function create(options) {
             hashsString,
             hashs,
             files,
+            query: uploadFileLists,
         }
     }
 
@@ -186,6 +193,9 @@ function create(options) {
 
         // 更新
         $n_run(onUpdate)(result)
+
+        // 上传网络外链回调
+        $n_run(uploadNetCallback)()
     }
 
     /**
@@ -203,21 +213,28 @@ function create(options) {
 
         const modelValue = hasPropsModelValue ? options.props.modelValue : props.modelValue
 
-        if (! $n_isRequired(modelValue)) {
-            return
-        }
-
         // 值数组
         const hashs = []
 
         // hash all
         const hashAll = {}
 
-        // 新上传文件列表
-        const newUploadFileLists = []
-
         // 获取值数组
         const lists = props.valueArray ? modelValue : $n_split(modelValue, ',')
+
+        if (
+            // 如果只能上传一个
+            props.count === 1
+            // 如果为空
+            && ! $n_isValidArray(lists)
+        ) {
+            // 更新上传文件列表
+            uploadFileLists.value = []
+            return
+        }
+
+        // 新上传文件列表
+        const newUploadFileLists = []
 
         // 新列表
         const newLists = []
@@ -249,6 +266,7 @@ function create(options) {
                         hashs.push(hash)
                         hashAll[hash] = {
                             hash,
+                            __img: hash,
                             isNet: true,
                         }
 
@@ -280,6 +298,8 @@ function create(options) {
                 },
                 // 关闭错误
                 warn: false,
+                // 关闭防抖(可以重复请求)
+                debounce: false,
             })
             if (status) {
 
@@ -346,6 +366,181 @@ function create(options) {
             // 更新
             update()
         }
+    }
+
+    /**
+     * 初始化上传网络外链列表
+     */
+    function initUploadNetLists(callback) {
+
+        // 如果提交时禁止上传网络外链文件
+        if ($n_get(optionsProps, 'submitUploadNet') !== true) {
+            return
+        }
+
+        uploadNetCallback = callback
+
+        for (const fileItem of uploadFileLists.value) {
+            if (
+                fileItem.isNet
+                && fileItem.status === UPLOAD_STATUS.success
+            ) {
+                // 将文件状态修改为: 等待上传中
+                fileItem.status = UPLOAD_STATUS.waiting
+            }
+        }
+    }
+
+    /**
+     * 上传网络外链文件
+     */
+    async function uploadNet() {
+
+        // 如果提交时禁止上传网络外链文件
+        if ($n_get(optionsProps, 'submitUploadNet') !== true) {
+            return
+        }
+
+        const promises = []
+
+        for (const fileItem of uploadFileLists.value) {
+            if (
+                fileItem.isNet
+                && fileItem.status === UPLOAD_STATUS.waiting
+            ) {
+                // 设置网络图片 file
+                promises.push(setNetFile(fileItem))
+            }
+        }
+
+        if (! promises.length) {
+            return
+        }
+        await Promise.all(promises)
+
+        // 检查待上传文件在服务器上是否存在
+        // --------------------------------------------------
+        if (! await checkWaitUploadFileExists()) {
+            return
+        }
+
+        // 上传
+        await upload()
+    }
+
+    /**
+     * 设置网络图片 file
+     */
+    async function setNetFile(fileItem) {
+
+        // 设置文件状态
+        fileItem.status = UPLOAD_STATUS.hashChecking
+        // 设置文件检查进度
+        fileItem.progress = 0
+
+        try {
+            const r = await fetch(fileItem.__img, {
+                method: 'GET',
+            })
+            const arrayBuffer = await r.arrayBuffer()
+            const blob = new Blob([arrayBuffer], { type: r.headers.get('Content-Type') })
+
+            // -------- axios
+            // const r = await axios({
+            //     method: 'GET',
+            //     url: fileItem.__img,
+            //     responseType: 'arraybuffer'
+            // })
+            // console.log(r)
+            // const arrayBuffer = r.data
+            // const blob = new Blob([arrayBuffer], { type: r.headers['content-type'] })
+            // -------- axios
+
+            // 如果有类型
+            if (blob.type) {
+
+                // 后缀名
+                let ext = ''
+
+                // 如果为图片
+                if (
+                    props.type === 'image'
+                    || $n_indexOf(blob.type, 'image/') > -1
+                ) {
+                    switch (blob.type) {
+                        case 'image/png':
+                            ext = 'png'
+                            break
+                        case 'image/gif':
+                            ext = 'gif'
+                            break
+                        default:
+                            ext = 'jpg'
+                            break
+                    }
+
+                // 如果为视频
+                } else if (props.type === 'video') {
+                    ext = 'mp4'
+
+                // 如果为音频
+                } else if (props.type === 'audio') {
+                    ext = 'mp3'
+
+                // 否则为文件
+                } else {
+                    const arr = $n_split(props.type, '/')
+                    if (arr.length > 0) {
+                        ext = arr[1]
+                    }
+                }
+
+                // 如果有后缀名
+                if (ext) {
+                    // 设置文件
+                    fileItem.file = new File([blob], '', { type: blob.type })
+                    // 设置后缀名
+                    fileItem.ext = ext
+
+                    const {
+                        size,
+                    } = fileItem.file
+
+                    // 文件大小
+                    fileItem.size = size
+
+                    // 检查文件错误
+                    const errMsg = checkFileError(fileItem)
+                    if (errMsg) {
+                        // 设置文件上传失败
+                        setFileFail(fileItem, errMsg)
+                        return
+                    }
+
+                    // 初始化 SparkMD5
+                    const spark = new SparkMD5.ArrayBuffer()
+                    spark.append(arrayBuffer)
+
+                    // 获取文件 hash
+                    const hash = spark.end(false)
+                    if (hash) {
+                        // 设置文件 hash
+                        fileItem.hash = hash
+                        // 标题
+                        fileItem.title = fileItem.hash
+                        // 设置文件状态
+                        fileItem.status = UPLOAD_STATUS.hashChecked
+                        // 设置文件检查进度
+                        fileItem.progress = 100
+                        return
+                    }
+                }
+            }
+
+        } catch (e) {}
+
+        // 设置文件上传失败
+        setFileFail(fileItem)
     }
 
     /**
@@ -482,7 +677,10 @@ function create(options) {
                 }
             }
         }
-        await Promise.all(promises)
+
+        if (promises.length) {
+            await Promise.all(promises)
+        }
 
         // 检查待上传文件在服务器上是否存在
         // --------------------------------------------------
@@ -555,6 +753,8 @@ function create(options) {
         fileItem.msg = ''
         // 设置文件检查进度
         fileItem.progress = 0
+        // 设置文件为非网络外链
+        fileItem.isNet = false
 
         // // 单个文件上传结束回调
         // uploadQueryCallback(fileItem)
@@ -580,6 +780,9 @@ function create(options) {
 
         // // 单个文件上传结束回调
         // uploadQueryCallback(fileItem)
+
+        // 上传网络外链回调
+        $n_run(uploadNetCallback)()
     }
 
     /**
@@ -632,6 +835,13 @@ function create(options) {
 
                     // 获取文件 hash
                     const hash = spark.end(false)
+                    if (! hash) {
+                        // 设置文件上传失败
+                        setFileFail(fileItem)
+                        // 完成回调
+                        resolve()
+                        return
+                    }
 
                     // 下一步
                     function next(hash) {
@@ -689,6 +899,8 @@ function create(options) {
             fileReader.onerror = function() {
                 // 设置文件上传失败
                 setFileFail(fileItem)
+                // 完成回调
+                resolve()
             }
 
             /**
@@ -784,6 +996,8 @@ function create(options) {
             },
             // 关闭错误
             warn: false,
+            // 关闭防抖(可以重复请求)
+            debounce: false,
         })
 
         // 如果请求失败
@@ -820,6 +1034,9 @@ function create(options) {
 
                         // 设置已存在文件
                         setExistedFileItem(fileItem, existedItem)
+
+                        // 设置文件为非网络外链
+                        fileItem.isNet = false
 
                         // 单个文件上传结束回调
                         // uploadQueryCallback(fileItem)
@@ -1139,16 +1356,18 @@ function create(options) {
     /**
      * 复制地址
      */
-    function copyUrl(fileItem) {
+    function copyUrl({ type, hash, url, isNet }) {
 
-        const url = fileItem.type === FilE_TYPE.image ?
-            // 如果是图片
-            $n_getImage(fileItem.hash)
-            // 否则是文件
-            : $n_getFile(fileItem.hash)
+        const _url = isNet ? url : (
+            type === FilE_TYPE.image ?
+                // 如果是图片
+                $n_getImage(hash)
+                // 否则是文件
+                : $n_getFile(hash)
+        )
 
-        if ($n_isValidString(url)) {
-            $n_copy(url, '复制地址成功')
+        if ($n_isValidString(_url)) {
+            copy(_url, '复制地址成功')
         }
     }
 
@@ -1159,6 +1378,12 @@ function create(options) {
         updateValue,
         // 初始化上传列表
         initUploadFileLists,
+
+        // 初始化上传网络外链列表
+        initUploadNetLists,
+        // 上传网络外链文件
+        uploadNet,
+
         // 检查是否正在上传文件
         checkUploading,
         // 选择文件上传

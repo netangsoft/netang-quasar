@@ -65,8 +65,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
     // 批量上传
     for (const fileItem of waitUploadFileLists) {
         // 上传单个文件
-        uploadFileItem(fileItem, token)
-            .finally()
+        await uploadFileItem(fileItem, token)
     }
 
     /**

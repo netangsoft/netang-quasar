@@ -34,6 +34,7 @@
                                 :outline="item.color === 'default'"
                                 :label="item.title"
                                 :icon="item.icon"
+                                :loading="item.loading"
                                 v-if="! item.hidden"
                                 v-show="item.show"
                                 @click="powerBtnClick(item, tableSelected)"

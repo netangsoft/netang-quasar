@@ -79,6 +79,8 @@ function create(options) {
         leftDrawerIcon: 'format_list_bulleted',
         // 右边侧滑菜单图标
         rightDrawerIcon: 'search',
+        // 请求上传网络外链
+        requestUploadNet: null,
         // 请求前执行
         requestBefore: null,
         // 请求成功执行
@@ -175,11 +177,68 @@ function create(options) {
      */
     function checkUploading() {
         for (const uploader of data.uploader) {
+            // 检查是否上传中
             if (uploader.checkUploading()) {
                 return true
             }
         }
         return false
+    }
+
+    /**
+     * 上传网络外链
+     */
+    async function uploadNet(callback) {
+
+        // 是否全部完成
+        let isFinish = false
+
+        // 回调
+        function cb() {
+
+            // 如果没有回调方法
+            if (! $n_isFunction(callback)) {
+                return
+            }
+
+            // 是否上传中
+            const uploading = checkUploading()
+
+            // 如果全部完成
+            if (isFinish) {
+                // 则无任何操作
+                return
+            }
+
+            if (
+                // 上传完成
+                ! uploading
+                // 未完成
+                && ! isFinish
+            ) {
+                // 全部完成
+                isFinish = true
+            }
+
+            // 回调
+            callback({
+                uploading,
+                uploader: data.uploader,
+            })
+        }
+
+        for (const uploader of data.uploader) {
+            // 初始化上传网络外链列表
+            uploader.initUploadNetLists(cb)
+        }
+
+        for (const uploader of data.uploader) {
+            // 上传网络外链文件
+            await uploader.uploadNet()
+        }
+
+        // 执行回调
+        cb()
     }
 
     const _data = {
@@ -251,6 +310,8 @@ function create(options) {
         uploader: [],
         // 检查是否上传中
         checkUploading,
+        // 上传网络外链
+        uploadNet,
     }
 
     // 如果是权限页面
@@ -267,7 +328,7 @@ function create(options) {
             // 当前页面权限
             data.powerPage = res.page
             // 当前页面权限按钮
-            data.powerBtns = ref(o.showPowerBtns ? res.btns : [])
+            data.powerBtns = ref(o.showPowerBtns ? res.btns.map(e => { e.loading = false; return e }) : [])
             // 当前页面工具栏权限按钮
             data.toolbarPowerBtns = computed(function() {
 
@@ -329,6 +390,14 @@ function create(options) {
                 return []
             })
 
+            if (o.requestUploadNet === true) {
+                o.requestUploadNet = function ({ uploading, next }) {
+                    if (! uploading) {
+                        next()
+                    }
+                }
+            }
+
             // 权限按钮点击
             data.powerBtnClick = async function (powerBtn, tableSelected) {
 
@@ -350,7 +419,14 @@ function create(options) {
                     $form: _data.$form,
                     // 检查是否正在上传文件
                     checkUploading,
-
+                    // 加载中
+                    loading(status) {
+                        powerBtn.loading = status
+                    },
+                    // 上传网络外链
+                    uploadNet,
+                    // 请求上传网络外链
+                    requestUploadNet: o.requestUploadNet,
                     // 请求前执行
                     requestBefore: o.requestBefore,
                     // 请求成功执行
@@ -860,6 +936,12 @@ async function request(options) {
         tableSelected: [],
         // 检查是否正在上传文件
         checkUploading: null,
+        // 加载中
+        loading: null,
+        // 上传网络外链
+        uploadNet: null,
+        // 请求上传网络外链
+        requestUploadNet: null,
         // 请求前执行
         requestBefore: null,
         // 请求成功执行
@@ -946,6 +1028,7 @@ async function request(options) {
         const resBefore = await $n_runAsync(o.requestBefore)({
             options: o,
             requestData: query,
+            next: nextBefore,
         })
         if (resBefore !== void 0) {
             if (resBefore === false) {
@@ -954,10 +1037,13 @@ async function request(options) {
             query = resBefore
         }
 
-        $n_router.push({
-            path: o.powerBtn.data.url,
-            query,
-        })
+        function nextBefore() {
+            $n_router.push({
+                path: o.powerBtn.data.url,
+                query,
+            })
+        }
+        nextBefore()
         return
     }
 
@@ -968,11 +1054,11 @@ async function request(options) {
 
     // 如果是提交表单
     // --------------------------------------------------
-    if (o.powerBtn.data.type === dicts.POWER_DATA_TYPE__FORM) {
+    const isForm = o.powerBtn.data.type === dicts.POWER_DATA_TYPE__FORM
+    if (isForm) {
 
         // 获取表单注入
         o.$form = $n_has(options, '$form') ? options.$form : inject(NFormKey)
-
         if (! o.$form) {
             throw new Error('没有创建表单实例')
         }
@@ -1004,25 +1090,11 @@ async function request(options) {
             return
         }
 
-        // 获取请求数据
-        requestData = $n_merge({}, formatQuery(query, false), o.$form.formData.value)
-
-        // 合并请求原始表单数据
-        if ($n_isValidObject(o.$form.requestRawFormData.value)) {
-            _formDataClone = $n_cloneDeep(o.$form.formData.value)
-            Object.assign(requestData, {
-                n__raw: o.$form.requestRawFormData.value
-            })
-        }
-
     // 如果是请求数据
     // --------------------------------------------------
     } else {
         // 获取表格注入
         o.$table = $n_has(options, '$table') ? options.$table : inject(NTableKey)
-
-        // 获取请求数据
-        requestData = formatQuery(query, false)
     }
 
     // 判断是否有确认框
@@ -1042,14 +1114,78 @@ async function request(options) {
                 message: $n_isValidString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
             })
                 // 点击确认执行
-                .onOk(onRequest)
+                .onOk(onConfirmRequest)
 
             return
         }
     }
 
-    // 否则执行请求
-    await onRequest()
+    // 否则执行确认请求事件
+    await onConfirmRequest()
+
+    /**
+     * 确认请求事件
+     */
+    function onConfirmRequest() {
+
+        // 下一步
+        function next() {
+
+            // 如果是表单
+            if (isForm) {
+
+                // 获取请求数据
+                requestData = $n_merge({}, formatQuery(query, false), o.$form.formData.value)
+
+                // 合并请求原始表单数据
+                if ($n_isValidObject(o.$form.requestRawFormData.value)) {
+                    _formDataClone = $n_cloneDeep(o.$form.formData.value)
+                    Object.assign(requestData, {
+                        n__raw: o.$form.requestRawFormData.value
+                    })
+                }
+
+            // 如果是请求数据
+            // --------------------------------------------------
+            } else {
+                // 获取请求数据
+                requestData = formatQuery(query, false)
+            }
+
+            // 执行请求
+            onRequest()
+                .finally()
+        }
+
+        // 如果是表单
+        if (isForm) {
+
+            if (
+                // 如果有请求上传网络外链方法
+                $n_isFunction(o.requestUploadNet)
+                // 如果有上传网络外链方法
+                && $n_isFunction(o.uploadNet)
+            ) {
+                // 上传网络外链
+                o.uploadNet(function(e) {
+                    o.requestUploadNet(Object.assign(e, { next }))
+                }).finally()
+                return
+            }
+
+            // 否则检查是否正在上传文件
+            if ($n_isFunction(o.checkUploading) && o.checkUploading()) {
+                // 轻提示
+                $n_toast({
+                    message: '文件上传中，请耐心等待',
+                })
+                return
+            }
+        }
+
+        // 下一步
+        next()
+    }
 
     /**
      * 请求事件
@@ -1060,6 +1196,7 @@ async function request(options) {
         const resBefore = await $n_runAsync(o.requestBefore)({
             options: o,
             requestData,
+            next: nextBefore,
         })
         if (resBefore !== void 0) {
             if (resBefore === false) {
@@ -1068,117 +1205,125 @@ async function request(options) {
             requestData = resBefore
         }
 
-        // 请求
-        const res = await $n_http({
-            // 请求地址
-            url: o.powerBtn.data.url,
-            // 请求数据
-            data: requestData,
-        })
+        async function nextBefore() {
 
-        // 返回结果数据
-        const resultData = Object.assign({
-            // 参数
-            options: o,
-            // 请求数据
-            requestData,
-        }, res)
+            // 请求
+            const res = await $n_http({
+                // 请求地址
+                url: o.powerBtn.data.url,
+                // 请求数据
+                data: requestData,
+                // 加载中
+                loading: o.loading,
+            })
 
-        // 请求后执行
-        if (await $n_runAsync(o.requestAfter)(resultData) === false) {
-            return
-        }
+            // 返回结果数据
+            const resultData = Object.assign({
+                // 参数
+                options: o,
+                // 请求数据
+                requestData,
+            }, res)
 
-        // 如果请求成功
-        if (res.status) {
-
-            // 下一步
-            function next(isNotify = true) {
-
-                // 轻提示
-                if (isNotify) {
-                    $n_toast({
-                        type: 'positive',
-                        message: '恭喜您，操作成功',
-                    })
-                }
-
-                // 判断是否有请求成功后的操作动作
-                if ($n_has(o.powerBtn.data, 'requestSuccess.type')) {
-                    switch (o.powerBtn.data.requestSuccess.type) {
-
-                        // 关闭当前页面
-                        case 'close':
-                        // 关闭窗口并跳转页面
-                        case 'closePush':
-                        // 关闭窗口、跳转并刷新页面
-                        case 'closePushRefresh':
-
-                            // 如果是渲染页面
-                            // 说明该页面在 <table-splitter> 组件内部被渲染, 则不需要关闭当前窗口
-                            if ($n_has($route.query, 'n_render_page') && $route.query.n_render_page === 1) {
-                                // 则无任何操作
-                                return
-                            }
-
-                            const opts = {
-                                type: 'closeCurrentTab',
-                            }
-
-                            if (
-                                // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
-                                o.powerBtn.data.requestSuccess.type !== 'close'
-                                // 如果有来源页面
-                                && $n_has($route.query, 'n_from_page')
-                                && $n_isValidString($route.query.n_from_page)
-                            ) {
-                                Object.assign(opts, {
-                                    // 跳转页面地址
-                                    pushPage: decodeURIComponent($route.query.n_from_page),
-                                    // 是否跳转并刷新页面
-                                    isPushRefresh: o.powerBtn.data.requestSuccess.type === 'closePushRefresh',
-                                })
-
-                                // 否则如果定义了跳转页面
-                                // else if ($n_has(o.powerBtn.data, 'requestSuccess.params') && $n_isValidString(o.powerBtn.data.requestSuccess.params)) {
-                                //     pushPage = o.powerBtn.data.requestSuccess.params
-                                // }
-                            }
-
-                            // 关闭当前标签页
-                            $n_bus.emit('main', opts)
-                            break
-
-                        // 重置表单
-                        case 'resetForm':
-                            $n_run(o.$form?.resetForm)()
-                            break
-
-                        // 刷新列表
-                        case 'refreshList':
-                            $n_run(o.$table?.tableRefresh)()
-                            break
-                    }
-                }
-            }
-
-            // 设置原始数据
-            if (_formDataClone !== null) {
-                o.$form.setRaw(_formDataClone)
-            }
-
-            // 请求成功执行
-            if (await $n_runAsync(o.requestSuccess)(Object.assign({ next }, resultData)) === false) {
+            // 请求后执行
+            if (await $n_runAsync(o.requestAfter)(resultData) === false) {
                 return
             }
 
-            // 下一步
-            next()
+            // 如果请求成功
+            if (res.status) {
 
-        } else {
-            // 请求失败执行
-            $n_run(o.requestFail)(resultData)
+                // 下一步
+                function next(isNotify = true) {
+
+                    // 轻提示
+                    if (isNotify) {
+                        $n_toast({
+                            type: 'positive',
+                            message: '恭喜您，操作成功',
+                        })
+                    }
+
+                    // 判断是否有请求成功后的操作动作
+                    if ($n_has(o.powerBtn.data, 'requestSuccess.type')) {
+                        switch (o.powerBtn.data.requestSuccess.type) {
+
+                            // 关闭当前页面
+                            case 'close':
+                            // 关闭窗口并跳转页面
+                            case 'closePush':
+                            // 关闭窗口、跳转并刷新页面
+                            case 'closePushRefresh':
+
+                                // 如果是渲染页面
+                                // 说明该页面在 <table-splitter> 组件内部被渲染, 则不需要关闭当前窗口
+                                if ($n_has($route.query, 'n_render_page') && $route.query.n_render_page === 1) {
+                                    // 则无任何操作
+                                    return
+                                }
+
+                                const opts = {
+                                    type: 'closeCurrentTab',
+                                }
+
+                                if (
+                                    // 如果不是关闭当前页面, 则为关闭窗口并跳转页面
+                                    o.powerBtn.data.requestSuccess.type !== 'close'
+                                    // 如果有来源页面
+                                    && $n_has($route.query, 'n_from_page')
+                                    && $n_isValidString($route.query.n_from_page)
+                                ) {
+                                    Object.assign(opts, {
+                                        // 跳转页面地址
+                                        pushPage: decodeURIComponent($route.query.n_from_page),
+                                        // 是否跳转并刷新页面
+                                        isPushRefresh: o.powerBtn.data.requestSuccess.type === 'closePushRefresh',
+                                    })
+
+                                    // 否则如果定义了跳转页面
+                                    // else if ($n_has(o.powerBtn.data, 'requestSuccess.params') && $n_isValidString(o.powerBtn.data.requestSuccess.params)) {
+                                    //     pushPage = o.powerBtn.data.requestSuccess.params
+                                    // }
+                                }
+
+                                // 关闭当前标签页
+                                $n_bus.emit('main', opts)
+                                break
+
+                            // 重置表单
+                            case 'resetForm':
+                                $n_run(o.$form?.resetForm)()
+                                break
+
+                            // 刷新列表
+                            case 'refreshList':
+                                $n_run(o.$table?.tableRefresh)()
+                                break
+                        }
+                    }
+                }
+
+                // 设置原始数据
+                if (_formDataClone !== null) {
+                    o.$form.setRaw(_formDataClone)
+                }
+
+                // 请求成功执行
+                if (await $n_runAsync(o.requestSuccess)(Object.assign({ next }, resultData)) === false) {
+                    return
+                }
+
+                // 下一步
+                next()
+
+            } else {
+                // 请求失败执行
+                $n_run(o.requestFail)(resultData)
+            }
         }
+
+        nextBefore()
+            .finally()
     }
 }
 

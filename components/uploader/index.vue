@@ -63,6 +63,8 @@ export default {
         loadInfo: Boolean,
         // 单文件上传提示(true: 提示上传替换, false: 不提示直接替换)
         confirm: Boolean,
+        // 提交时上传网络外链文件
+        submitUploadNet: Boolean,
     },
 
     /**

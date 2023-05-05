@@ -144,7 +144,7 @@
                             <q-icon
                                 class="n-uploader-query__item__settings__icon cursor-pointer"
                                 name="search"
-                                size="xs"
+                                :size="settingsIconSize"
                                 title="预览"
                                 @click="uploader.previewImage(fileItem)"
                                 v-bind="settingsIconProps"
@@ -155,7 +155,7 @@
                             <q-icon
                                 class="n-uploader-query__item__settings__icon cursor-pointer"
                                 name="close"
-                                size="xs"
+                                :size="settingsIconSize"
                                 title="删除"
                                 @click="uploader.deleteFileItem(fileItem)"
                                 v-bind="settingsIconProps"
@@ -296,7 +296,7 @@
                                 class="n-uploader-query__item__settings__icon cursor-pointer"
                                 name="content_copy"
                                 color="white"
-                                size="xs"
+                                :size="settingsIconSize"
                                 title="复制地址"
                                 @click="uploader.copyUrl(fileItem)"
                                 v-bind="settingsIconProps"
@@ -307,7 +307,7 @@
                                 class="n-uploader-query__item__settings__icon cursor-pointer"
                                 name="edit"
                                 color="white"
-                                size="xs"
+                                :size="settingsIconSize"
                                 title="修改"
                                 v-bind="settingsIconProps"
                                 v-if="! noEdit && ! disable && ! readonly && ! fileItem.isNet"
@@ -340,7 +340,7 @@
                             class="n-uploader-query__item__settings__icon cursor-pointer"
                             name="close"
                             color="white"
-                            size="xs"
+                            :size="settingsIconSize"
                             title="删除"
                             @click="uploader.deleteFileItem(fileItem)"
                             v-bind="settingsIconProps"
@@ -425,6 +425,11 @@ export default {
         autoShowSquareButton: Boolean,
         // 方块按钮在右边显示
         rightSquareButton: Boolean,
+        // 设置图标尺寸
+        settingsIconSize: {
+            type: String,
+            default: 'xs',
+        },
         // 设置图标传参
         settingsIconProps: Object,
     },
@@ -701,7 +706,7 @@ export default {
             visibility: hidden;
 
             &__icon {
-                background-color: rgba(0,0,0,0.5);
+                background-color: rgba(0,0,0,0.5) !important;
                 border-radius: 50%;
                 padding: 5px;
 
