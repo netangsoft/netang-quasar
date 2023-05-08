@@ -1,4 +1,5 @@
 import { ref, isRef, } from 'vue'
+import { useQuasar } from 'quasar'
 import SparkMD5 from 'spark-md5'
 
 import $n_has from 'lodash/has'
@@ -56,6 +57,9 @@ let _fileNum = 0
 function create(options) {
 
     // ==========【数据】=========================================================================================
+
+    // quasar 对象
+    const $q = useQuasar()
 
     const {
         // 上传文件输入框节点
@@ -1387,25 +1391,50 @@ function create(options) {
     /**
      * 播放
      */
-    function play(fileItem) {
-        // 轻提示
-        $n_toast({
-            message: '播放还没做',
+    function play({ hash, __img }) {
+
+        const src = __img ? __img : $n_getFile(hash)
+
+        let width
+        let height
+        let fullWidth = false
+        let fullHeight = false
+        let ok = true
+        let style = ''
+
+        if ($q.platform.is.mobile) {
+            width = $q.screen.width - 48 - 32
+            height = $q.screen.height - 48 - 32 - 6 - 52
+            fullWidth = true
+            fullHeight = true
+        } else {
+            width = 800 - 32
+            height = 400 - 32 - 6
+            ok = false
+            style = 'width:800px;max-width:800px;height:400px;max-height:400px;'
+        }
+
+        $q.dialog({
+            message: `<video style="width:${width}px;height:${height}px;" playsinline autoplay controls src="${src}" type="video/mp4" muted="muted"></video>`,
+            style,
+            html: true,
+            dark: true,
+            ok,
+            fullWidth,
+            fullHeight,
         })
     }
 
     /**
      * 复制地址
      */
-    function copyUrl({ type, hash, url, isNet }) {
+    function copyUrl({ type, hash }) {
 
-        const _url = isNet ? url : (
-            type === FilE_TYPE.image ?
-                // 如果是图片
-                $n_getImage(hash)
-                // 否则是文件
-                : $n_getFile(hash)
-        )
+        const _url = type === FilE_TYPE.image ?
+            // 如果是图片
+            $n_getImage(hash)
+            // 否则是文件
+            : $n_getFile(hash)
 
         if ($n_isValidString(_url)) {
             copy(_url, '复制地址成功')
