@@ -210,6 +210,10 @@ function create(options) {
                 return
             }
 
+            // let loaded = 0
+            // let total = 0
+            // let progress = 0
+
             if (
                 // 上传完成
                 ! uploading
@@ -218,12 +222,26 @@ function create(options) {
             ) {
                 // 全部完成
                 isFinish = true
+                // 进度
+                // progress = 100
+
             }
+            // else {
+            //     for (const uploader of data.uploader) {
+            //         const p = uploader.getUploadNetProgress()
+            //         loaded += p.loaded
+            //         total += p.total
+            //     }
+            //     progress = Math.round(loaded * 100 / total)
+            // }
 
             // 回调
             callback({
                 uploading,
                 uploader: data.uploader,
+                // loaded,
+                // total,
+                // progress,
             })
         }
 
@@ -389,14 +407,6 @@ function create(options) {
 
                 return []
             })
-
-            if (o.requestUploadNet === true) {
-                o.requestUploadNet = function ({ uploading, next }) {
-                    if (! uploading) {
-                        next()
-                    }
-                }
-            }
 
             // 权限按钮点击
             data.powerBtnClick = async function (powerBtn, tableSelected) {
@@ -1079,15 +1089,6 @@ async function request(options) {
         // 验证表单数据
         if (! $n_isValidObject(o.$form.formData.value)) {
             throw new Error('没有获取到表单数据')
-        }
-
-        // 检查是否正在上传文件
-        if ($n_isFunction(o.checkUploading) && o.checkUploading()) {
-            // 轻提示
-            $n_toast({
-                message: '文件上传中，请耐心等待',
-            })
-            return
         }
 
     // 如果是请求数据

@@ -261,13 +261,14 @@ function create(options) {
 
                 } else if (! $n_has(hashAll, 'hash')) {
 
-                    // 如果是 http(s):// 开头的地址
+                    // 如果是外链
                     if (/^http(s)?:\/\//i.test(hash)) {
                         hashs.push(hash)
                         hashAll[hash] = {
                             hash,
                             __img: hash,
                             isNet: true,
+                            isNetUploaded: false,
                         }
 
                     // 否则为 hash 文件
@@ -427,6 +428,42 @@ function create(options) {
         // 上传
         await upload()
     }
+
+    /**
+     * 获取上传网络外链进度
+     */
+    // function getUploadNetProgress() {
+    //
+    //     let total = 0
+    //     let loaded = 0
+    //
+    //     // 如果提交时允许上传网络外链文件
+    //     if ($n_get(optionsProps, 'submitUploadNet') === true) {
+    //
+    //         for (const fileItem of uploadFileLists.value) {
+    //             if (fileItem.isNet && fileItem.status <= UPLOAD_STATUS.success) {
+    //                 total++
+    //                 if (fileItem.isNetUploaded) {
+    //                     loaded++
+    //                 }
+    //             }
+    //         }
+    //
+    //         // if (total && loaded < total) {
+    //         //     return {
+    //         //         loaded,
+    //         //         total,
+    //         //         // progress: Math.round(loaded * 100 / total),
+    //         //     }
+    //         // }
+    //     }
+    //
+    //     return {
+    //         loaded,
+    //         total,
+    //         // progress: 100,
+    //     }
+    // }
 
     /**
      * 设置网络图片 file
@@ -753,8 +790,10 @@ function create(options) {
         fileItem.msg = ''
         // 设置文件检查进度
         fileItem.progress = 0
-        // 设置文件为非网络外链
-        fileItem.isNet = false
+        // 是否网络文件已上传
+        if (fileItem.isNet) {
+            fileItem.isNetUploaded = true
+        }
 
         // // 单个文件上传结束回调
         // uploadQueryCallback(fileItem)
@@ -1104,6 +1143,8 @@ function create(options) {
             msg: '待上传',
             // 是否为网络文件
             isNet: false,
+            // 是否网络文件已上传
+            isNetUploaded: false,
             // 中断上传
             abort() {},
         }
@@ -1383,6 +1424,8 @@ function create(options) {
         initUploadNetLists,
         // 上传网络外链文件
         uploadNet,
+        // 获取上传网络外链进度
+        // getUploadNetProgress,
 
         // 检查是否正在上传文件
         checkUploading,

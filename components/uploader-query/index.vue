@@ -84,7 +84,7 @@
                         fit="fill"
                     >
                         <!-- 如果是外链 -->
-                        <span class="n-uploader-query__item__net" v-if="fileItem.isNet">链接</span>
+                        <span class="n-uploader-query__item__net" v-if="fileItem.isNet && ! fileItem.isNetUploaded">链接</span>
 
                         <!-- 内容 -->
                         <div
@@ -216,7 +216,7 @@
                     @dragend="dragEnd"
                 >
                     <!-- 如果是外链 -->
-                    <span class="n-uploader-query__item__net" v-if="fileItem.isNet">链接</span>
+                    <span class="n-uploader-query__item__net" v-if="fileItem.isNet && ! fileItem.isNetUploaded">链接</span>
 
                     <!-- 图标 -->
                     <div
