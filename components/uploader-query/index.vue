@@ -77,7 +77,7 @@
                     @dragend="dragEnd"
                 >
                     <n-img
-                        :src="getImage(fileItem)"
+                        :src="currentQuery[fileItemIndex].src"
                         :spinner-size="toPx(currentSize / 2)"
                         :width="toPx(currentSize)"
                         :height="toPx(currentSize)"
@@ -146,9 +146,9 @@
                                 name="search"
                                 :size="settingsIconSize"
                                 title="预览"
-                                @click="uploader.previewImage(fileItem)"
+                                @click="previewImage(fileItemIndex)"
                                 v-bind="settingsIconProps"
-                                v-if="! noPreview && getImage(fileItem)"
+                                v-if="! noPreview && currentQuery[fileItemIndex].preview_src"
                             />
 
                             <!-- 删除 -->
@@ -361,10 +361,12 @@ import $n_has from 'lodash/has'
 import $n_get from 'lodash/get'
 
 import $n_px from '@netang/utils/px'
+import $n_forEach from '@netang/utils/forEach'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidString from '@netang/utils/isValidString'
 
 import $n_getImage from '../../utils/getImage'
+import $n_previewImage from '../../utils/previewImage'
 
 import NDragger from '../dragger'
 
@@ -464,11 +466,54 @@ export default {
         // ==========【计算属性】=========================================================================================
 
         /**
+         * 当前上传文件队列
+         */
+        const currentQuery = computed(function () {
+
+            // 如果不是图片
+            if (uploaderProps.type !== 'image') {
+                if ($n_isValidArray(query.value)) {
+                    return query.value
+                }
+                return []
+            }
+
+            const lists = []
+
+            $n_forEach(query.value, function (fileItem) {
+                const newItem = Object.assign({}, fileItem)
+
+                let src = ''
+                let preview_src = ''
+
+                if ($n_has(fileItem, '__img')) {
+                    src = fileItem.__img
+                    preview_src = src
+                } else if ($n_isValidString(fileItem.hash)) {
+                    src = $n_getImage(fileItem.hash, { w: $q.platform.is.mobile ? currentSize.value * 2 : currentSize.value })
+                    if (src) {
+                        // 预览地址
+                        preview_src = fileItem.hash
+                    }
+                }
+
+                lists.push(Object.assign(newItem, {
+                    // 图片地址
+                    src,
+                    // 预览地址
+                    preview_src,
+                }))
+            })
+
+            return lists
+        })
+
+
+        /**
          * 当前是否开启拖拽
          */
         const currentDrag = computed(function() {
             return props.drag
-                && $n_isValidArray(query.value)
                 && query.value.length > 1
                 && ! props.readonly
                 && ! props.disable
@@ -500,8 +545,8 @@ export default {
         const showSquareButton = computed(function () {
             // 自动显示方块按钮 && 有上传文件限制数量
             return props.autoShowSquareButton && uploaderProps.count > 0 ?
-                // 如果 上传文件列表数量 < 上传文件限制数量
-                 query.value.length < uploaderProps.count
+                // 如果 当前上传文件队列数量 < 上传文件限制数量
+                currentQuery.value.length < uploaderProps.count
                 // 始终显示
                 : true
         })
@@ -509,16 +554,15 @@ export default {
         // ==========【方法】=============================================================================================
 
         /**
-         * 获取图片地址
+         * 预览图片
          */
-        function getImage(fileItem) {
-            return $n_has(fileItem, '__img') ?
-                fileItem.__img
-                : (
-                    $n_isValidString(fileItem.hash) ?
-                        $n_getImage(fileItem.hash, { w: $q.platform.is.mobile ? currentSize.value * 2 : currentSize.value })
-                        : ''
-                )
+        function previewImage(startPosition) {
+            $n_previewImage({
+                // 需要预览的图片 URL 数组
+                images: currentQuery.value.map(e => e.preview_src),
+                // 图片预览起始位置索引
+                startPosition,
+            })
         }
 
         /**
@@ -538,8 +582,10 @@ export default {
             type: uploaderProps.type,
             // 上传文件数量(0:不限)
             count: uploaderProps.count,
-            // 上传文件队列
+            // 文件队列
             query,
+            // 当前上传文件队列
+            currentQuery,
 
             // 当前是否开启拖拽
             currentDrag,
@@ -553,8 +599,8 @@ export default {
             // 上传器
             uploader,
 
-            // 获取图片地址
-            getImage,
+            // 预览图片
+            previewImage,
             // 获取文件名称
             getFileName,
 

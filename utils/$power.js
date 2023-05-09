@@ -1359,6 +1359,36 @@ function getPageData($route) {
 }
 
 /**
+ * 新窗口
+ */
+function routerPush({ path, query, pageTitle, fromPage }) {
+
+    if (! $n_isValidObject(query)) {
+        query = {}
+    }
+
+    // 如果有标题
+    pageTitle = $n_trimString(pageTitle)
+    if (pageTitle) {
+        query.n_page_title = pageTitle
+    }
+
+    // 来源页面
+    if (fromPage) {
+        if (fromPage === true) {
+            fromPage = $n_router.getRoute().fullPath
+        }
+        // 来源页面是指定路由的完整路径
+        query.n_from_page = encodeURIComponent(fromPage)
+    }
+
+    $n_router.push({
+        path,
+        query,
+    })
+}
+
+/**
  * 权限业务
  */
 const $power = {
@@ -1374,6 +1404,8 @@ const $power = {
     formatBtns,
     // 请求
     request,
+    // 新窗口
+    routerPush,
 }
 
 export default $power
