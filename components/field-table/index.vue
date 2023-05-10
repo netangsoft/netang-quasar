@@ -119,16 +119,26 @@
             >
                 <!-- 图片 -->
                 <template
-                    v-for="imgName in tableImgNames"
-                    v-slot:[`body-cell-${imgName}`]="props"
+                    v-for="imgItem in tableImgs"
+                    v-slot:[`body-cell-${imgItem.name}`]="props"
                 >
-                    <q-td :props="props">
+                    <n-data
+                        :data="formatImg(props.row[imgItem.name], imgItem)"
+                        v-slot="{ data }"
+                    >
                         <!-- 缩略图 -->
                         <n-thumbnail
-                            :src="props.row[imgName]"
+                            v-for="(item, index) in data"
+                            :key="`thumbnail-item-${item}`"
+                            class="n-table__thumbnail"
+                            :src="item"
                             preview
+                            :preview-props="{
+                                startPosition: index,
+                                images: data,
+                            }"
                         />
-                    </q-td>
+                    </n-data>
                 </template>
 
                 <!-- 插槽 -->
@@ -200,6 +210,8 @@ import $n_$power from '../../utils/$power'
 import $n_$table from '../../utils/$table'
 
 import { configs } from '../../utils/config'
+
+import $n_getImage from '../../utils/getImage'
 
 const {
     // 字典常量
@@ -407,14 +419,14 @@ export default {
             // 刷新后清空已选数据
             refreshResetSelected: false,
             // 自定义请求方法
-            async request({ httpOptions, props }) {
+            async request({ httpOptions, props: httpProps }) {
                 return $n_isFunction(props.request) ?
                     // 如果有自定义请求方法
                     await $n_runAsync(props.request)({
                         // http 请求参数
                         httpOptions,
                         // 对话框是否已显示
-                        showDialog: $n_get(props, 'showDialog') === 1 ? true : showDialog.value,
+                        showDialog: $n_get(httpProps, 'showDialog') === 1 ? true : showDialog.value,
                     }) :
                     // 否则请求数据
                     await $n_http(httpOptions)
@@ -1137,6 +1149,32 @@ export default {
             }
         }
 
+        /**
+         * 格式化图片
+         */
+        function formatImg(img, { count }) {
+
+            // 图片数组
+            const imgs = []
+
+            // 转为图片数组
+            const arr = $n_split(img, ',')
+            for (const item of arr) {
+                const src = $n_getImage(item)
+                if (src) {
+                    imgs.push(item)
+                    if (
+                        count > 0
+                        && imgs.length === count
+                    ) {
+                        break
+                    }
+                }
+            }
+
+            return imgs
+        }
+
         // ==========【生命周期】=========================================================================================
 
         /**
@@ -1210,6 +1248,8 @@ export default {
 
             // 触发更新值
             emitModelValue,
+            // 格式化图片
+            formatImg,
         }
     },
 }

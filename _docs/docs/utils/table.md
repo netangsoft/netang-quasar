@@ -156,7 +156,7 @@ const $table = $n.$table.create({
 | tableSelected           | 表格已选数据           | `ref(Array)`   | v-model:selected="tableSelected"                 |
 | tableFixedPowerBtns     | 固定在右边的权限按钮列表     | `computed`     | -                                                |
 | showTableFixed          | 是否显示固定在右边的权限按钮列表 | `computed`     | -                                                |
-| tableImgNames           | 表格图片标识           | `ref(Array)`   | 可在插槽中使用                                          |
+| tableImgs               | 表格图片             | `ref(Object)`  | 可在插槽中使用                                          |
 | tableGrid               | 表格宫格             | `ref(Boolean)` | :grid="tableGrid"                                |
 | tableSummary            | 表格合计             | `ref(Object)`  | 可在插槽中使用                                          |
 | tableSearchValue        | 表格搜索数据           | `ref(Array)`   | -                                                |

@@ -145,7 +145,7 @@ function create(options) {
     let isCache
     let cacheName
     let tableColumns
-    let tableImgNames
+    let tableImgs
 
     // 是否显示可见列
     let tableShowVisibleColumns
@@ -279,11 +279,11 @@ function create(options) {
             })
         }
 
-        // 表格图片标识数组
+        // 表格图片
         if (_isCreated) {
-            tableImgNames.value = []
+            tableImgs.value = []
         } else {
-            tableImgNames = ref([])
+            tableImgs = ref([])
         }
 
         // 设置表格列数据
@@ -318,8 +318,11 @@ function create(options) {
                 item.format = val => $n_dict(item.dict, val)
 
             // 如果有图片
-            } else if ($n_has(item, 'img') && item.img === true) {
-                tableImgNames.value.push(item.name)
+            } else if ($n_has(item, 'img')) {
+                tableImgs.value.push({
+                    name: item.name,
+                    count: item.img === true ? 1 : item.img,
+                })
 
             // 如果有价格
             } else if ($n_has(item, 'price')) {
@@ -1110,8 +1113,8 @@ function create(options) {
         tableFixedPowerBtns,
         // 是否显示固定在右边的权限按钮列表
         showTableFixed,
-        // 表格图片标识
-        tableImgNames,
+        // 表格图片
+        tableImgs,
 
         // 表格宫格
         tableGrid,

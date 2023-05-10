@@ -28,6 +28,13 @@ $dark-td-bg-color: $dark;
         margin-right: 4px;
     }
 
+    // 缩略图
+    &__thumbnail {
+        + .n-table__thumbnail {
+            margin-left: 4px;
+        }
+    }
+
     &.q-table {
         &--dense {
             // 复选框

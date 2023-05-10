@@ -123,6 +123,7 @@ import $n_get from 'lodash/get'
 import $n_isFunction from 'lodash/isFunction'
 import $n_findIndex from 'lodash/findIndex'
 
+import $n_trimString from '@netang/utils/trimString'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_indexOf from '@netang/utils/indexOf'
 import $n_on from '@netang/utils/on'
@@ -342,8 +343,8 @@ export default {
             props.filterMethod !== void 0
                 ? props.filterMethod
                 : function (node, filter) {
-                    return node[ props.labelKey ]
-                        && node[ props.labelKey ].toLowerCase().indexOf(filter.toLowerCase()) > -1
+                    const label = $n_trimString(node[ props.labelKey ])
+                    return label && label.toLowerCase().indexOf(filter.toLowerCase()) > -1
                 }
         ))
 

@@ -109,15 +109,26 @@
                 >
                     <!-- 图片 -->
                     <template
-                        v-for="imgName in tableImgNames"
-                        v-slot:[`body-cell-${imgName}`]="props"
+                        v-for="imgItem in tableImgs"
+                        v-slot:[`body-cell-${imgItem.name}`]="props"
                     >
-                        <!-- 缩略图 -->
-                        <n-thumbnail
-                            :src="props.row[imgName]"
-                            preview
-                            v-if="props.row[imgName]"
-                        />
+                        <n-data
+                            :data="formatImg(props.row[imgItem.name], imgItem)"
+                            v-slot="{ data }"
+                        >
+                            <!-- 缩略图 -->
+                            <n-thumbnail
+                                v-for="(item, index) in data"
+                                :key="`thumbnail-item-${item}`"
+                                class="n-table__thumbnail"
+                                :src="item"
+                                preview
+                                :preview-props="{
+                                    startPosition: index,
+                                    images: data,
+                                }"
+                            />
+                        </n-data>
                     </template>
 
                     <!-- 插槽 -->
@@ -194,6 +205,7 @@ import { ref, watch, computed, inject, onMounted } from 'vue'
 import $n_isFunction from 'lodash/isFunction'
 import $n_isNil from 'lodash/isNil'
 
+import $n_split from '@netang/utils/split'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidValue from '@netang/utils/isValidValue'
@@ -208,6 +220,8 @@ import NTableColumnFixed from '../table-column-fixed'
 import NTableSummary from '../table-summary'
 import NTablePagination from '../table-pagination'
 import NSearch from '../search'
+
+import $n_getImage from '../../utils/getImage'
 
 export default {
 
@@ -451,6 +465,32 @@ export default {
             })
         }
 
+        /**
+         * 格式化图片
+         */
+        function formatImg(img, { count }) {
+
+            // 图片数组
+            const imgs = []
+
+            // 转为图片数组
+            const arr = $n_split(img, ',')
+            for (const item of arr) {
+                const src = $n_getImage(item)
+                if (src) {
+                    imgs.push(item)
+                    if (
+                        count > 0
+                        && imgs.length === count
+                    ) {
+                        break
+                    }
+                }
+            }
+
+            return imgs
+        }
+
         // ==========【生命周期】=========================================================================================
 
         /**
@@ -484,6 +524,8 @@ export default {
 
             // 当前双击表格行
             currentTableRowDblclick,
+            // 格式化图片
+            formatImg,
         }
     },
 }
