@@ -733,7 +733,7 @@ function create(options) {
     /**
      * 表格重新加载
      */
-    async function tableReload() {
+    async function tableReload(params = null) {
 
         // 表格已加载
         _isTableLoaded = true
@@ -751,9 +751,10 @@ function create(options) {
         // $tableRef?.requestServerInteraction({
         //     pagination: o.pagination,
         // })
-        await tableRequest({
+
+        await tableRequest(Object.assign({
             pagination: o.pagination,
-        })
+        }, params))
 
         // 清空表格已选数据
         if (o.refreshResetSelected) {
@@ -790,7 +791,7 @@ function create(options) {
     /**
      * 表格搜索重置
      */
-    function tableSearchReset(reload = true) {
+    function tableSearchReset(reload = true, params = null) {
 
         const newValue = []
 
@@ -809,7 +810,8 @@ function create(options) {
 
         // 表格重新加载
         if (reload) {
-            tableReload().finally()
+            tableReload(params)
+                .finally()
         }
     }
 
@@ -1059,11 +1061,18 @@ function create(options) {
     }
 
     /**
+     * 获取表格搜索值
+     */
+    function getTableSearchValue() {
+        return formatValue(rawSearchOptions, tableSearchValue.value)
+    }
+
+    /**
      * 是否有表格搜索值
      */
-    function hasTableSearchValue() {
-        return !! formatValue(rawSearchOptions, tableSearchValue.value).length
-    }
+    // function hasTableSearchValue() {
+    //     return !! formatValue(rawSearchOptions, tableSearchValue.value).length
+    // }
 
     // ==========【返回】=================================================================================================
 
@@ -1136,8 +1145,10 @@ function create(options) {
         // 设置表格搜索参数
         setTableSearchOptions,
 
+        // 获取表格搜索值
+        getTableSearchValue,
         // 是否有表格搜索值
-        hasTableSearchValue,
+        // hasTableSearchValue,
 
         // 获取当前路由
         getRoute() {

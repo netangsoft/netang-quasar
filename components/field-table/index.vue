@@ -183,6 +183,7 @@ import $n_isFunction from 'lodash/isFunction'
 import $n_findIndex from 'lodash/findIndex'
 import $n_get from 'lodash/get'
 
+import $n_indexOf from '@netang/utils/indexOf'
 import $n_forEach from '@netang/utils/forEach'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_join from '@netang/utils/join'
@@ -406,14 +407,14 @@ export default {
             // 刷新后清空已选数据
             refreshResetSelected: false,
             // 自定义请求方法
-            async request({ httpOptions }) {
+            async request({ httpOptions, props }) {
                 return $n_isFunction(props.request) ?
                     // 如果有自定义请求方法
                     await $n_runAsync(props.request)({
                         // http 请求参数
                         httpOptions,
                         // 对话框是否已显示
-                        showDialog: showDialog.value,
+                        showDialog: $n_get(props, 'showDialog') === 1 ? true : showDialog.value,
                     }) :
                     // 否则请求数据
                     await $n_http(httpOptions)
@@ -996,7 +997,6 @@ export default {
          */
         let _dialogShowed = false
         function onDialogShow() {
-
             if ($n_isFunction(props.request)) {
 
                 if (_dialogShowed) {
@@ -1037,10 +1037,20 @@ export default {
                 isReload = false
             }
 
-            // 如果有表格搜索值
-            if ($table.hasTableSearchValue()) {
+            // 获取表格搜索值
+            let searchValue = $table.getTableSearchValue()
+            if (searchValue.length) {
+
+                // 如果有隐藏搜索字段数组
+                if ($n_isValidArray(props.hideSearchKeys)) {
+                    // 从搜索值数组中去除隐藏搜索字段的数组
+                    searchValue = searchValue.filter(e => $n_indexOf(e.field, props.hideSearchKeys) === -1)
+                }
+
                 // 表格搜索重置
-                $table.tableSearchReset(isReload)
+                $table.tableSearchReset(isReload && searchValue.length, {
+                    showDialog: 1,
+                })
             }
         }
 
