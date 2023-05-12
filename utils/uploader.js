@@ -613,12 +613,7 @@ function create(options) {
             style: 'min-width:600px;',
             // message: `添加网络${FilE_NAME[FilE_TYPE[props.type]]}`,
             prompt: {
-                model: `https://cbu01.alicdn.com/img/ibank/O1CN01NE5HY828MxD3YM0oA_!!2208678797919-0-cib.jpg?__r__=1656040399416,https://cbu01.alicdn.com/img/ibank/O1CN01ggNX5I28MxCw8YJDU_!!2208678797919-0-cib.jpg?__r__=1656040399416，    https://cbu01.alicdn.com/img/ibank/O1CN01JiA7qa28MxD0hCcE4_!!2208678797919-0-cib.jpg?__r__=1656040479177
-abcsadfasdfasdf,sdfasf,dd asdf,d  asdf,as,df  dsd
-
-https://gd2.alicdn.com/imgextra/i2/739319155/O1CN010nlI0o2HV2osEGuaX_!!739319155.jpg_50x50.jpg_.webp
-https://cbu01.alicdn.com/img/ibank/O1CN01Ukaviz28MxAuXVuQR_!!2208678797919-0-cib.jpg`,
-                // model: '',
+                model: '',
                 isValid: $n_$ruleValid('required'),
                 type: 'textarea',
                 placeholder: '多个链接，使用中英文逗号、空格、换行隔开',
@@ -665,9 +660,11 @@ https://cbu01.alicdn.com/img/ibank/O1CN01Ukaviz28MxAuXVuQR_!!2208678797919-0-cib
 
                 // 添加上传网络外链至文件列表
                 function addFileNetItem(hash) {
-                    uploadFileLists.value.push({
+                    uploadFileLists.value.push(Object.assign(createRawFileItem(), {
                         // id
                         id: ++_fileNum,
+                        // 文件唯一 key
+                        key: hash,
                         // hash
                         hash,
                         // 将文件状态修改为: 等待上传中
@@ -676,10 +673,11 @@ https://cbu01.alicdn.com/img/ibank/O1CN01Ukaviz28MxAuXVuQR_!!2208678797919-0-cib
                         progress: 100,
                         // 信息
                         msg: '',
+
                         __img: hash,
                         isNet: true,
                         isNetUploaded: false,
-                    })
+                    }))
                 }
 
                 // 遍历选择的文件列表
@@ -711,6 +709,7 @@ https://cbu01.alicdn.com/img/ibank/O1CN01Ukaviz28MxAuXVuQR_!!2208678797919-0-cib
                                         uploadNet(true)
                                             .finally()
                                     })
+                                return
                             }
 
                             // 删除所有文件
