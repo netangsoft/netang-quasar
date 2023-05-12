@@ -35,6 +35,8 @@ export const configs = {
     dialogComponents: {},
     // 格式化上传文件 hash
     formatUploadFileHash: null,
+    // 格式化上传网络链接
+    formatUploadNet: null,
     // 获取文件地址
     getFileUrl: null,
 }

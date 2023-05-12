@@ -12,16 +12,32 @@
             class="n-uploader-query__button--button"
             v-else-if="! noButton && currentButtonType === 'button'"
         >
-            <q-btn
-                class="n-button-icon"
-                :label="buttonText || '上传'"
-                @click="uploader.chooseUpload"
-                color="primary"
-                outline
-                :disable="disable || readonly"
-                unelevated
-                v-bind="buttonProps"
-            />
+            <!-- 按钮组-->
+            <q-btn-group outline>
+                <!-- 上传本地图片 -->
+                <q-btn
+                    class="n-button-icon"
+                    :label="buttonText || '上传'"
+                    @click="uploader.chooseUpload"
+                    color="primary"
+                    outline
+                    :disable="disable || readonly"
+                    unelevated
+                    v-bind="buttonProps"
+                />
+                <!-- 上传网络图片 -->
+                <q-btn
+                    class="n-button-icon q-px-sm"
+                    icon="cloud_upload"
+                    @click="uploader.chooseUploadNet"
+                    color="primary"
+                    outline
+                    :disable="disable || readonly"
+                    unelevated
+                    v-bind="buttonProps"
+                    v-if="showUploadNetButton"
+                />
+            </q-btn-group>
         </div>
 
         <!-- 拖拽器 -->
@@ -44,20 +60,38 @@
                         v-if="$slots['square-button']"
                     />
                     <div
-                        class="n-uploader-query__button--square cursor-pointer"
+                        class="n-uploader-query__button--square"
                         :style="{
                             width: toPx(currentSize),
                             height: toPx(currentSize),
                         }"
-                        @click="uploader.chooseUpload"
                         v-show="showSquareButton"
                         v-else-if="! noButton && currentButtonType === 'square'"
                     >
-                        <q-icon
-                            name="add"
-                            :size="toPx(currentSize / 2)"
-                        />
-                        <div class="n-uploader-query__button--square__text" v-if="buttonText">{{buttonText}}</div>
+                        <!-- 上传本地图片 -->
+                        <div
+                            class="n-uploader-query__button--square-button cursor-pointer"
+                            @click="uploader.chooseUpload"
+                        >
+                            <q-icon
+                                name="add"
+                                :size="toPx(currentSize / 2)"
+                            />
+                            <div class="n-uploader-query__button--square-button__text" v-if="buttonText">{{buttonText}}</div>
+                        </div>
+
+                        <!-- 上传网络图片 -->
+                        <div
+                            class="n-uploader-query__button--square-button q-mt-xs cursor-pointer"
+                            @click="uploader.chooseUploadNet"
+                            v-if="showUploadNetButton"
+                        >
+                            <q-icon
+                                name="cloud_upload"
+                                :size="toPx(currentSize / 3)"
+                            />
+                            <div class="n-uploader-query__button--square-button__text" v-if="buttonText">{{buttonText}}</div>
+                        </div>
                     </div>
                 </template>
 
@@ -434,6 +468,8 @@ export default {
         },
         // 设置图标传参
         settingsIconProps: Object,
+        // 是否显示上传网络外链按钮
+        showUploadNetButton: Boolean,
     },
 
     /**
@@ -622,22 +658,29 @@ export default {
         // 方块
         &--square {
             display: inline-flex;
-            vertical-align: middle;
             overflow: hidden;
-            border: 1px dashed rgba(var(--n-reverse-color-rgb), 0.2);
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: rgba(var(--n-reverse-color-rgb), 0.4);
-            border-radius: 4px;
 
-            &:hover {
-                border-color: $primary;
-            }
+            &-button {
+                flex: 1;
+                display: flex;
+                vertical-align: middle;
+                border: 1px dashed rgba(var(--n-reverse-color-rgb), 0.2);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: rgba(var(--n-reverse-color-rgb), 0.4);
+                border-radius: 4px;
+                overflow: hidden;
 
-            // 文字
-            &__text {
-                font-size: 12px;
+                &:hover {
+                    border-color: $primary;
+                }
+
+                // 文字
+                &__text {
+                    font-size: 12px;
+                }
             }
         }
 

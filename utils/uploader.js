@@ -25,6 +25,7 @@ import $n_http from '@netang/utils/http'
 import $n_getThrowMessage from '@netang/utils/getThrowMessage'
 import $n_runAsync from '@netang/utils/runAsync'
 
+import $n_$ruleValid from './$ruleValid'
 import $n_toast from './toast'
 import $n_confirm from './confirm'
 import $n_alert from './alert'
@@ -399,38 +400,37 @@ function create(options) {
     /**
      * 上传网络外链文件
      */
-    async function uploadNet() {
+    async function uploadNet(submitUploadNet = false) {
 
         // 如果提交时禁止上传网络外链文件
-        if ($n_get(optionsProps, 'submitUploadNet') !== true) {
-            return
-        }
+        if (submitUploadNet === true || $n_get(optionsProps, 'submitUploadNet') === true) {
 
-        const promises = []
+            const promises = []
 
-        for (const fileItem of uploadFileLists.value) {
-            if (
-                fileItem.isNet
-                && fileItem.status === UPLOAD_STATUS.waiting
-            ) {
-                // 设置网络图片 file
-                promises.push(setNetFile(fileItem))
+            for (const fileItem of uploadFileLists.value) {
+                if (
+                    fileItem.isNet
+                    && fileItem.status === UPLOAD_STATUS.waiting
+                ) {
+                    // 设置网络图片 file
+                    promises.push(setNetFile(fileItem))
+                }
             }
-        }
 
-        if (! promises.length) {
-            return
-        }
-        await Promise.all(promises)
+            if (! promises.length) {
+                return
+            }
+            await Promise.all(promises)
 
-        // 检查待上传文件在服务器上是否存在
-        // --------------------------------------------------
-        if (! await checkWaitUploadFileExists()) {
-            return
-        }
+            // 检查待上传文件在服务器上是否存在
+            // --------------------------------------------------
+            if (! await checkWaitUploadFileExists()) {
+                return
+            }
 
-        // 上传
-        await upload()
+            // 上传
+            await upload()
+        }
     }
 
     /**
@@ -602,6 +602,142 @@ function create(options) {
     function chooseUpload() {
         // 点击文件输入框
         fileRef.value.click()
+    }
+
+    /**
+     * 选择网络外链上传
+     */
+    function chooseUploadNet() {
+        $q.dialog({
+            title: `添加网络${FilE_NAME[FilE_TYPE[props.type]]}`,
+            style: 'min-width:600px;',
+            // message: `添加网络${FilE_NAME[FilE_TYPE[props.type]]}`,
+            prompt: {
+                model: `https://cbu01.alicdn.com/img/ibank/O1CN01NE5HY828MxD3YM0oA_!!2208678797919-0-cib.jpg?__r__=1656040399416,https://cbu01.alicdn.com/img/ibank/O1CN01ggNX5I28MxCw8YJDU_!!2208678797919-0-cib.jpg?__r__=1656040399416，    https://cbu01.alicdn.com/img/ibank/O1CN01JiA7qa28MxD0hCcE4_!!2208678797919-0-cib.jpg?__r__=1656040479177
+abcsadfasdfasdf,sdfasf,dd asdf,d  asdf,as,df  dsd
+
+https://gd2.alicdn.com/imgextra/i2/739319155/O1CN010nlI0o2HV2osEGuaX_!!739319155.jpg_50x50.jpg_.webp
+https://cbu01.alicdn.com/img/ibank/O1CN01Ukaviz28MxAuXVuQR_!!2208678797919-0-cib.jpg`,
+                // model: '',
+                isValid: $n_$ruleValid('required'),
+                type: 'textarea',
+                placeholder: '多个链接，使用中英文逗号、空格、换行隔开',
+                outlined: true,
+            },
+            cancel: true,
+            persistent: true,
+        })
+            .onOk(async function(value) {
+
+                let files = $n_isValidString(value)
+                    ? $n_uniq($n_split(value.replace(/\n|,|，/g, ','), ','))
+                        .map(e => $n_trimString(e))
+                        .filter(
+                            val => val && /^(http(s)?:\/\/)/i.test(val)
+                        )
+                    : []
+
+                if (! files.length) {
+                    // 轻提示
+                    $n_toast({
+                        message: '请输入正确的链接'
+                    })
+                    return
+                }
+
+                // 格式化上传网络链接
+                // --------------------------------------------------
+                const {
+                    formatUploadNet,
+                } = configs
+                if ($n_isFunction(formatUploadNet)) {
+                    files = formatUploadNet(files, props.type === 'image')
+                }
+                // --------------------------------------------------
+
+                if (! $n_isValidArray(files)) {
+                    // 轻提示
+                    $n_toast({
+                        message: '请输入正确的链接'
+                    })
+                    return
+                }
+
+                // 添加上传网络外链至文件列表
+                function addFileNetItem(hash) {
+                    uploadFileLists.value.push({
+                        // id
+                        id: ++_fileNum,
+                        // hash
+                        hash,
+                        // 将文件状态修改为: 等待上传中
+                        status: UPLOAD_STATUS.waiting,
+                        // 进度
+                        progress: 100,
+                        // 信息
+                        msg: '',
+                        __img: hash,
+                        isNet: true,
+                        isNetUploaded: false,
+                    })
+                }
+
+                // 遍历选择的文件列表
+                for (const file of files) {
+
+                    // 如果只能上传一个
+                    if (props.count === 1) {
+
+                        // 如果有上传文件列表
+                        if (uploadFileLists.value.length) {
+
+                            // 如果开启单文件上传提示
+                            if (props.confirm) {
+
+                                // 确认框
+                                $n_confirm({
+                                    message: '最多只能上传1个文件，确认上传并替换吗？',
+                                })
+                                    // 点击确认执行
+                                    .onOk(function () {
+
+                                        // 删除所有文件
+                                        deleteAll()
+
+                                        // 添加上传网络外链至文件列表
+                                        addFileNetItem(file)
+
+                                        // 上传网络外链文件
+                                        uploadNet(true)
+                                            .finally()
+                                    })
+                            }
+
+                            // 删除所有文件
+                            deleteAll()
+                        }
+
+                    } else if (
+                        // 如果有上传数量限制
+                        props.count > 1
+                        // 上传文件列表数量 === 上传数量限制
+                        && uploadFileLists.value.length >= props.count
+                    ) {
+                        // 轻提示
+                        $n_toast({
+                            message: `最多只能上传${props.count}个文件，请先删除后再上传`,
+                        })
+                        return
+                    }
+
+                    // 添加上传网络外链至文件列表
+                    addFileNetItem(file)
+                }
+
+                // 上传网络外链文件
+                uploadNet(true)
+                    .finally()
+            })
     }
 
     /**
@@ -1460,6 +1596,8 @@ function create(options) {
         checkUploading,
         // 选择文件上传
         chooseUpload,
+        // 选择网络外链上传
+        chooseUploadNet,
         // 文件输入框更新
         fileChange,
         // 删除所有文件
