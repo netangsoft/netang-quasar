@@ -115,6 +115,7 @@
                         :spinner-size="toPx(currentSize / 2)"
                         :width="toPx(currentSize)"
                         :height="toPx(currentSize)"
+                        @click="onFileItemClick(fileItem)"
                         fit="fill"
                     >
                         <!-- 如果是外链 -->
@@ -197,7 +198,6 @@
                             />
 
                         </div>
-
                     </n-img>
                 </div>
 
@@ -307,7 +307,7 @@
                     </div>
 
                     <!-- 信息 -->
-                    <div class="n-uploader-query__item__info">
+                    <div class="n-uploader-query__item__info" @click="onFileItemClick(fileItem)">
                         <!-- 标题 -->
                         <div class="n-uploader-query__item__info__title ellipsis">{{getFileName(fileItem)}}</div>
                         <!-- 错误提示 -->
@@ -477,12 +477,13 @@ export default {
      */
     emits: [
         'update:modelValue',
+        'itemClick',
     ],
 
     /**
      * 组合式
      */
-    setup(props) {
+    setup(props, { emit }) {
 
         // ==========【数据】============================================================================================
 
@@ -608,6 +609,12 @@ export default {
             return fileItem.title + ($n_get(fileItem, 'ext') ? '.' + fileItem.ext : '')
         }
 
+        /**
+         * 文件点击
+         */
+        function onFileItemClick(fileItem) {
+            emit('itemClick', fileItem)
+        }
 
         // ==========【返回】=============================================================================================
 
@@ -639,6 +646,8 @@ export default {
             previewImage,
             // 获取文件名称
             getFileName,
+            // 文件点击
+            onFileItemClick,
 
             toPx: $n_px,
         }
