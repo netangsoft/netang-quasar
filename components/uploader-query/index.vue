@@ -159,7 +159,7 @@
                                     class="cursor-pointer"
                                     name="pause"
                                     :size="toPx(currentSize / 3)"
-                                    @click="uploader.deleteFileItem(fileItem)"
+                                    @click.prevent.stop="uploader.deleteFileItem(fileItem)"
                                 />
                             </q-circular-progress>
                         </div>
@@ -181,7 +181,7 @@
                                 name="search"
                                 :size="settingsIconSize"
                                 title="预览"
-                                @click="previewImage(fileItemIndex)"
+                                @click.prevent.stop="previewImage(fileItemIndex)"
                                 v-bind="settingsIconProps"
                                 v-if="! noPreview && currentQuery[fileItemIndex].preview_src"
                             />
@@ -192,7 +192,7 @@
                                 name="close"
                                 :size="settingsIconSize"
                                 title="删除"
-                                @click="uploader.deleteFileItem(fileItem)"
+                                @click.prevent.stop="uploader.deleteFileItem(fileItem)"
                                 v-bind="settingsIconProps"
                                 v-if="! noDelete && ! disable && ! readonly"
                             />
@@ -283,7 +283,7 @@
                                 class="cursor-pointer"
                                 name="pause"
                                 :size="toPx(currentSize / 3)"
-                                @click="uploader.deleteFileItem(fileItem)"
+                                @click.prevent.stop="uploader.deleteFileItem(fileItem)"
                             />
                         </q-circular-progress>
 
@@ -301,7 +301,7 @@
                             name="play_circle"
                             title="播放"
                             :size="toPx(currentSize / 1.5)"
-                            @click="uploader.play(fileItem)"
+                            @click.prevent.stop="uploader.play(fileItem)"
                             v-else
                         />
                     </div>
@@ -332,7 +332,7 @@
                                 color="white"
                                 :size="settingsIconSize"
                                 title="复制地址"
-                                @click="uploader.copyUrl(fileItem)"
+                                @click.prevent.stop="uploader.copyUrl(fileItem)"
                                 v-bind="settingsIconProps"
                             />
 
@@ -376,7 +376,7 @@
                             color="white"
                             :size="settingsIconSize"
                             title="删除"
-                            @click="uploader.deleteFileItem(fileItem)"
+                            @click.prevent.stop="uploader.deleteFileItem(fileItem)"
                             v-bind="settingsIconProps"
                             v-if="! noDelete && ! disable && ! readonly"
                         />
