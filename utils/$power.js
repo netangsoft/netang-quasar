@@ -845,18 +845,18 @@ function getRequestQuery(o) {
     // 获取列表数据
     if (
         // 如果按钮参数有显示类型
-        $n_has(o.powerBtn.data, 'show')
+        // $n_has(o.powerBtn.data, 'show')
         // 按钮参数的显示类型必须是单选或多选
-        && $n_indexOf(['single', 'multiple'], o.powerBtn.data.show) > -1
+        // && $n_indexOf(['single', 'multiple'], o.powerBtn.data.show) > -1
         // 如果有请求传参的列表设置
-        && $n_has(o.powerBtn.data, 'requestQuery.list')
+        $n_has(o.powerBtn.data, 'requestQuery.list')
         // 如果有表格数据
         && $n_isValidArray(o.tableSelected)
     ) {
         let newQuery = {}
 
         // 如果是单选
-        if (o.powerBtn.data.show === 'single') {
+        if ($n_get(o.powerBtn.data, 'show') === 'single') {
             // 取表格选中第一条数据
             newQuery = o.tableSelected[0]
 
