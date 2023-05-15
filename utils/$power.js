@@ -10,6 +10,7 @@ import $n_isNumber from 'lodash/isNumber'
 import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_isFunction from 'lodash/isFunction'
 import $n_pick from 'lodash/pick'
+import $n_omit from 'lodash/omit'
 
 import $n_router from '@netang/utils/vue/router'
 
@@ -49,6 +50,21 @@ const {
     // 字典常量
     dicts,
 } = configs
+
+/**
+ * 获取来源页面完整地址
+ */
+function getFromPageFullUrl({ path, query }) {
+
+    const {
+        fullPath
+    } = $n_router.resolve({
+        path,
+        query: $n_omit(query, ['n_page_title', 'n_from_page']),
+    })
+
+    return encodeURIComponent(fullPath)
+}
 
 /**
  * 创建权限实例
@@ -1030,8 +1046,9 @@ async function request(options) {
 
         // 如果不是禁止添加来源页面参数
         if ($n_get(o.powerBtn.data, 'noFromPageQuery') !== true) {
+
             // 来源页面是当前路由的完整路径
-            query.n_from_page = encodeURIComponent($currentRoute.fullPath)
+            query.n_from_page = getFromPageFullUrl($currentRoute)
         }
 
         // 请求前执行
@@ -1376,10 +1393,10 @@ function routerPush({ path, query, pageTitle, fromPage }) {
     // 来源页面
     if (fromPage) {
         if (fromPage === true) {
-            fromPage = $n_router.getRoute().fullPath
+            fromPage = $n_router.getRoute()
         }
         // 来源页面是指定路由的完整路径
-        query.n_from_page = encodeURIComponent(fromPage)
+        query.n_from_page = getFromPageFullUrl(fromPage)
     }
 
     $n_router.push({
