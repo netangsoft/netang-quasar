@@ -231,15 +231,22 @@ function create(options) {
             }
         }
 
-        // 获取权限路由
-        $route = $n_isValidString(o.path) ?
-            // 如果为自定义路由
-            $n_router.resolve({
+        // 自定义参数
+        const optionsQuery = $n_isValidObject(o.query) ? o.query : {}
+
+        // 如果为自定义路由
+        if ($n_isValidString(o.path)) {
+            // 获取权限路由
+            $route = $n_router.resolve({
                 path: o.path,
-                query: $n_isValidObject(o.query) ? o.query : {},
+                query: optionsQuery,
             })
             // 否则获取当前路由
-            : (hasPowr ? $power.getRoute() : $n_router.getRoute())
+        } else {
+            // 获取权限路由
+            $route = hasPowr ? $power.getRoute() : $n_router.getRoute()
+            Object.assign($route.query, optionsQuery)
+        }
 
         // 是否有权限按钮
         const _hasPowerBtns = hasPowr ? $power.powerBtns.value.length : false

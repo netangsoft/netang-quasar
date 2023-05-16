@@ -145,6 +145,9 @@ function create(options) {
     // 权限路由
     let $route
 
+    // 自定义参数
+    const optionsQuery = $n_isValidObject(o.query) ? o.query : {}
+
     // 如果没有路由
     if (o.path === false) {
 
@@ -152,7 +155,7 @@ function create(options) {
         $route = {
             fullPath: '',
             path: '',
-            query: $n_isValidObject(o.query) ? o.query : {},
+            query: optionsQuery,
         }
 
     // 如果有自定义路径
@@ -161,19 +164,18 @@ function create(options) {
         // 获取自定义路由
         $route = $n_router.resolve({
             path: o.path,
-            query: $n_isValidObject(o.query) ? o.query : {},
+            query: optionsQuery,
         })
 
-    // 如果在渲染组件内 && 该渲染组件有自定义路由
-    } else if (hasRender && $n_has($render, 'getRoute')) {
-
-        // 设为渲染组件的路由
-        $route = $render.getRoute()
-
-    // 否则获取当前路由
     } else {
 
-        $route = $currentRoute
+        // 如果在渲染组件内 && 该渲染组件有自定义路由
+        $route = hasRender && $n_has($render, 'getRoute')
+            // 设为渲染组件的路由
+            ? $render.getRoute()
+            // 否则获取当前路由
+            : $currentRoute
+        Object.assign($route.query, optionsQuery)
     }
 
     // quasar 对象
