@@ -11,7 +11,7 @@ import $n_config from './config'
 
 /**
  * 获取公共数据
- * @param {String|Array} url 请求地址
+ * @param {String|Array|Object} url 请求地址
  * @param pageStatus 页面状态
  * @param emptyDescription 空状态描述
  * @param refValue 请求成功后设置值
