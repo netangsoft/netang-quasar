@@ -87,6 +87,14 @@
             />
         </template>
 
+        <!-- 默认插槽 -->
+        <template
+            v-for="slotName in slotNames.normal"
+            v-slot:[slotName]
+        >
+            <slot :name="slotName" />
+        </template>
+
         <!-- 弹出层代理 -->
         <q-popup-proxy
             ref="popupRef"
@@ -141,9 +149,9 @@
                     </n-data>
                 </template>
 
-                <!-- 插槽 -->
+                <!-- 表格插槽 -->
                 <template
-                    v-for="slotName in slotNames"
+                    v-for="slotName in slotNames.table"
                     v-slot:[slotName]="props"
                 >
                     <q-td :props="props">
@@ -333,7 +341,27 @@ export default {
          * 插槽标识
          */
         const slotNames = computed(function() {
-            return $n_isValidObject(slots) ? Object.keys(slots) : []
+
+            const table = []
+            const normal = []
+
+            // 如果有插槽
+            if ($n_isValidObject(slots)) {
+                for (const key in slots) {
+                    if (key !== 'append' && key !== 'control') {
+                        if (key.startsWith('table-')) {
+                            table.push(key.replace('table-', ''))
+                        } else {
+                            normal.push(key)
+                        }
+                    }
+                }
+            }
+
+            return {
+                table,
+                normal,
+            }
         })
 
         /**
