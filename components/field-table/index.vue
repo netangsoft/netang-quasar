@@ -925,7 +925,12 @@ export default {
          * 移除已选数据
          */
         function onRemoveSelected(index) {
-            selected.value.splice(index, 1)
+
+            const _selected = [...selected.value]
+            _selected.splice(index, 1)
+
+            // 触发更新值
+            emitModelValue(_selected)
         }
 
         /**
