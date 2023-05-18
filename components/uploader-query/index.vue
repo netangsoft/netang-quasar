@@ -805,6 +805,7 @@ export default {
 
             &__icon {
                 background-color: rgba(0,0,0,0.5) !important;
+                color: #ffffff !important;
                 border-radius: 50%;
                 padding: 5px;
 
