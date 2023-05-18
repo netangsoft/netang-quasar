@@ -54,7 +54,9 @@
                             dense
                             :removable="! readonly && ! disable"
                             @remove="onRemoveSelected(index)"
-                        />
+                        >
+                            <q-tooltip>{{currentFormatLabel(item)}}</q-tooltip>
+                        </q-chip>
                     </template>
                 </template>
 
