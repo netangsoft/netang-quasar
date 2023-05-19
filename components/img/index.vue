@@ -206,6 +206,34 @@ export default {
     &--round {
         border-radius: 50%;
     }
+
+    // 设置
+    &__settings {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        padding: 0 !important;
+        margin: 0 !important;
+        background-color: transparent !important;
+        visibility: hidden;
+    }
+
+    &:hover {
+        .n-img__settings {
+            visibility: visible;
+        }
+    }
+}
+
+/**
+ * 手机版
+ */
+body.mobile {
+    .n-img__settings {
+        visibility: visible;
+    }
 }
 </style>
 

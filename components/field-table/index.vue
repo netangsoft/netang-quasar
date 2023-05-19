@@ -322,6 +322,8 @@ export default {
         },
         // 自定义请求方法
         request: Function,
+        // 每次对话框显示都请求
+        requestEveryDialogShow: Boolean,
     },
 
     /**
@@ -1014,6 +1016,14 @@ export default {
             // 设置输入框焦点
             setInputFocus()
 
+            // 如果每次对话框显示都请求
+            if (props.requestEveryDialogShow) {
+                // 表格重新加载
+                $table.tableReload()
+                    .finally()
+                return
+            }
+
             // 表格加载(只加载一次)
             $table.tableLoad()
                 .finally()
@@ -1044,6 +1054,15 @@ export default {
          */
         let _dialogShowed = false
         function onDialogShow() {
+
+            // 如果每次对话框显示都请求
+            if (props.requestEveryDialogShow) {
+                // 表格重新加载
+                $table.tableReload()
+                    .finally()
+                return
+            }
+
             if ($n_isFunction(props.request)) {
 
                 if (_dialogShowed) {

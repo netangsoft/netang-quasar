@@ -2,6 +2,7 @@
     <div class="full-width">
 
         <q-chip
+            class="q-ma-none"
             square
             :label="label"
             :clickable="false"
