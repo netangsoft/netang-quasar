@@ -30,6 +30,7 @@
                         />
                         <component
                             :is="comp"
+                            :dialog-close="onDialogCancel"
                             v-bind="props"
                             v-else
                         />

@@ -627,6 +627,24 @@ export default {
             await $table.tableReload()
         })
 
+        /**
+         * 监听其他值
+         */
+        // watch([
+        //     ()=>props.path,
+        //     ()=>props.url,
+        //     ()=>props.query,
+        //     ()=>props.data,
+        //     ()=>props.showKeys,
+        //     ()=>props.hideSearchKeys,
+        // ], function () {
+        //     _dialogShowed = false
+        //     _popupShowed = false
+        //
+        // }, {
+        //     deep: true
+        // })
+
         // ==========【方法】=============================================================================================
 
         /**
@@ -1008,6 +1026,7 @@ export default {
         /**
          * 弹出层显示回调
          */
+        let _popupShowed = false
         function onPopupShow() {
 
             // 显示弹出层
@@ -1024,8 +1043,13 @@ export default {
                 return
             }
 
-            // 表格加载(只加载一次)
-            $table.tableLoad()
+            if (_popupShowed) {
+                return
+            }
+            _popupShowed = true
+
+            // 表格重新加载
+            $table.tableReload()
                 .finally()
         }
 
@@ -1063,22 +1087,13 @@ export default {
                 return
             }
 
-            if ($n_isFunction(props.request)) {
-
-                if (_dialogShowed) {
-                    return
-                }
-                _dialogShowed = true
-
-                // 表格重新加载
-                $table.tableReload()
-                    .finally()
-
+            if (_dialogShowed) {
                 return
             }
+            _dialogShowed = true
 
-            // 表格加载(只加载一次)
-            $table.tableLoad()
+            // 表格重新加载
+            $table.tableReload()
                 .finally()
         }
 
