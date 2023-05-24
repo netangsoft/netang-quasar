@@ -664,10 +664,11 @@ export default {
          * 加载已选数据
          */
         async function loadSelected() {
-
             if (
                 // 如果值类型不是数组对象
                 props.valueType !== 'objectArray'
+                // 如果初始加载已选数据
+                && ! props.noDefaultLoadSelected
                 // 如果有请求路由路径
                 && routePath
             ) {
@@ -689,7 +690,6 @@ export default {
                         // 触发更新值
                         emit('update:modelValue', _value)
                     }
-
                     // 初始化加载成功
                     emit('loaded', _selected)
                     return
@@ -778,41 +778,42 @@ export default {
                 return val
             }
 
-            // 如果为初始化
-            if (isFirst) {
-                if (
-                    // 如果初始加载已选数据方法
-                    ! props.noDefaultLoadSelected
-                    // 如果有初始加载已选数据数组
-                    && props.defaultLoadSelected !== void 0
-                    && $n_isValidArray(props.defaultLoadSelected)
-                ) {
-                    // 将值转为数组
-                    val = props.valueType === 'string' ? $n_split(val, props.valueSeparator) : val
+            if (
+                // 如果初始化
+                isFirst
+                // 如果初始加载已选数据方法
+                && ! props.noDefaultLoadSelected
+                // 如果有初始加载已选数据数组
+                && props.defaultLoadSelected !== void 0
+                && $n_isValidArray(props.defaultLoadSelected)
+            ) {
+                // 将值转为数组
+                val = props.valueType === 'string' ? $n_split(val, props.valueSeparator) : val
 
-                    // 如果是有效数组
-                    if ($n_isValidArray(val)) {
-                        val = val.filter(e => $n_isValidValue(e))
-                        if (val.length) {
-                            const _selected = []
-                            for (const item of props.defaultLoadSelected) {
-                                if (
-                                    $n_has(item, props.valueKey)
-                                    && $n_indexOf(val, item[props.valueKey]) > -1
-                                ) {
-                                    _selected.push($n_cloneDeep(item))
-                                }
+                // 如果是有效数组
+                if ($n_isValidArray(val)) {
+                    val = val.filter(e => $n_isValidValue(e))
+                    if (val.length) {
+                        const _selected = []
+                        for (const item of props.defaultLoadSelected) {
+                            if (
+                                $n_has(item, props.valueKey)
+                                && $n_indexOf(val, item[props.valueKey]) > -1
+                            ) {
+                                _selected.push($n_cloneDeep(item))
                             }
-
-                            return _selected
                         }
+
+                        return _selected
                     }
                 }
+            }
 
-            // 否则为非初始化
-            } else if (
-                // 初始不加载已选数据
-                props.noDefaultLoadSelected
+            if (
+                // 非初始化
+                ! isFirst
+                // 或初始不加载已选数据
+                || props.noDefaultLoadSelected
                 // 或没有路由路径
                 || ! routePath
             ) {
