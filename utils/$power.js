@@ -1227,10 +1227,13 @@ async function request(options) {
 
         async function nextBefore() {
 
+            // 请求地址
+            const requestUrl = o.powerBtn.data.url
+
             // 请求
             const res = await $n_http({
                 // 请求地址
-                url: o.powerBtn.data.url,
+                url: requestUrl,
                 // 请求数据
                 data: requestData,
                 // 加载中
@@ -1239,6 +1242,8 @@ async function request(options) {
 
             // 返回结果数据
             const resultData = Object.assign({
+                // 请求地址
+                requestUrl,
                 // 参数
                 options: o,
                 // 请求数据

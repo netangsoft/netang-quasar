@@ -120,9 +120,11 @@ export default {
         })
 
         // 更新布局数据
-        $power.update(function(data) {
-            data.uploader.push(uploader)
-        })
+        if ($power) {
+            $power?.update(function(data) {
+                data.uploader.push(uploader)
+            })
+        }
 
         // ==========【监听数据】==============================================================================================
 
