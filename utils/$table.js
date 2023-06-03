@@ -51,6 +51,8 @@ import { NRenderKey, NPowerKey, NTableKey } from './symbols'
 const {
     // 表格配置
     tablesConfig,
+    // 字典常量
+    dicts,
 } = configs
 
 /**
@@ -1194,6 +1196,52 @@ function config(routePath, path, defaultValue) {
 }
 
 /**
+ * 获取表格浏览数据
+ */
+async function getViewData(options) {
+
+    const {
+        url,
+        field,
+        value,
+    } = Object.assign({
+        field: 'id',
+        value: [],
+    }, options)
+
+    const _isValidValue = $n_isValidValue(value)
+    if (_isValidValue || $n_isValidArray(value)) {
+
+        const { status, data } = await $n_http({
+            url,
+            // 头部请求
+            headers: {
+                // 添加头部查看请求
+                Pview: 1,
+            },
+            data: {
+                n_search: [
+                    {
+                        field,
+                        compare: _isValidValue ? dicts.SEARCH_COMPARE_TYPE__EQUAL : dicts.SEARCH_COMPARE_TYPE__IN,
+                        value: _isValidValue ? value : $n_uniq(value),
+                    },
+                ],
+            },
+        })
+
+        if (
+            status
+            && $n_isValidArray($n.get(data, 'rows'))
+        ) {
+            return data.rows
+        }
+    }
+
+    return []
+}
+
+/**
  * 业务表格
  */
 const $table = {
@@ -1201,6 +1249,9 @@ const $table = {
     create,
     // 获取表格配置
     config,
+
+    // 获取表格浏览数据
+    getViewData,
 }
 
 export default $table
