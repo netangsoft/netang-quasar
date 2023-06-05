@@ -1203,14 +1203,30 @@ async function getViewData(options) {
     const {
         url,
         field,
-        value,
+        value: httpValue,
+        data: httpData,
     } = Object.assign({
         field: 'id',
         value: [],
+        data: {},
     }, options)
 
-    const _isValidValue = $n_isValidValue(value)
-    if (_isValidValue || $n_isValidArray(value)) {
+    const _isValidValue = $n_isValidValue(httpValue)
+    if (_isValidValue || $n_isValidArray(httpValue)) {
+
+        let per_page
+        let value
+        let compare
+
+        if (_isValidValue) {
+            compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
+            value = httpValue
+            per_page = 1
+        } else {
+            compare = dicts.SEARCH_COMPARE_TYPE__IN
+            value = $n_uniq(httpValue)
+            per_page = value.length
+        }
 
         const { status, data } = await $n_http({
             url,
@@ -1219,15 +1235,17 @@ async function getViewData(options) {
                 // 添加头部查看请求
                 Pview: 1,
             },
-            data: {
+            data: Object.assign({
                 n_search: [
                     {
                         field,
-                        compare: _isValidValue ? dicts.SEARCH_COMPARE_TYPE__EQUAL : dicts.SEARCH_COMPARE_TYPE__IN,
-                        value: _isValidValue ? value : $n_uniq(value),
+                        compare,
+                        value,
                     },
                 ],
-            },
+                page: 1,
+                per_page,
+            }, httpData),
         })
 
         if (
