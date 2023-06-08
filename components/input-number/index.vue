@@ -303,7 +303,10 @@ export default {
 
             // 如果当前值有变化
             if (val !== currentValue.value) {
+                // 更新当前值
                 currentValue.value = val
+                // 触发更新值
+                emitModelValue(formatToModelValue(val))
             }
         })
 
@@ -317,10 +320,8 @@ export default {
 
             // 如果当前值有变化
             if (val !== currentValue.value) {
-
                 // 更新当前值
                 currentValue.value = val
-
                 // 更新值
                 emitModelValue(formatToModelValue(val))
             }

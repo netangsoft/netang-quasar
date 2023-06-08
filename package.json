@@ -1,6 +1,6 @@
 {
   "name": "@netang/quasar",
-  "version": "0.1.88",
+  "version": "0.1.89",
   "description": "netang-quasar",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
