@@ -623,8 +623,6 @@ function create(options) {
 
                     // 移动成功
                     if (status) {
-                        // 移动失败, 还原数据
-                        nodes.value = nodesClone
                         return
                     }
                 }
