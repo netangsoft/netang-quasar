@@ -573,23 +573,41 @@ function create(options) {
             let dropIndex = $n_findIndex(children, e => e.id === draggingNode.id)
             if (dropIndex > -1) {
 
-                if (
-                    // 如果拖拽到目标节点下方
-                    dropType === 'bottom'
-                    // 并且拖拽节点当前的位置不是第一个
-                    && dropIndex > 0
-                ) {
-                    dropIndex--
-                }
+                // if (
+                //     // 如果拖拽到目标节点下方
+                //     dropType === 'bottom'
+                //     // 并且拖拽节点当前的位置不是第一个
+                //     && dropIndex > 0
+                // ) {
+                //     dropIndex--
+                // }
+                // for (let i = dropIndex; i < children.length; i++) {
+                //     const { attr } = children[i]
+                //     attr.sort = i + 1
+                //     moveLists.push({
+                //         id: attr.id,
+                //         pid: attr.pid,
+                //         sort: attr.sort,
+                //     })
+                // }
 
-                for (let i = dropIndex; i < children.length; i++) {
+                for (let i = 0, len = children.length; i < len; i++) {
                     const { attr } = children[i]
-                    attr.sort = i + 1
-                    moveLists.push({
-                        id: attr.id,
-                        pid: attr.pid,
-                        sort: attr.sort,
-                    })
+
+                    // 新排序号
+                    const newSort = i + 1
+
+                    if (
+                        i >= dropIndex
+                        || newSort !== attr.sort
+                    ) {
+                        attr.sort = newSort
+                        moveLists.push({
+                            id: attr.id,
+                            pid: attr.pid,
+                            sort: attr.sort,
+                        })
+                    }
                 }
 
                 // 如果有移动列表
@@ -605,6 +623,8 @@ function create(options) {
 
                     // 移动成功
                     if (status) {
+                        // 移动失败, 还原数据
+                        nodes.value = nodesClone
                         return
                     }
                 }
