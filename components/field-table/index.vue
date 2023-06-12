@@ -277,11 +277,11 @@ export default {
         query: Object,
         // 附加请求数据
         data: Object,
-        // 初始加载已选数据数组
+        // 加载已选数据数组
         // 如果有数组数据, 则初始化时从数组中选取已有的数据
-        defaultLoadSelected: Array,
+        loadSelected: [Array, Function],
         // 初始是否不加载已选数据
-        // true, 则初始时不加载数据(同时 defaultLoadSelected 无效)
+        // true, 则初始时不加载数据(同时 loadSelected 无效)
         noDefaultLoadSelected: Boolean,
         // 更新值时不加载已选数据
         noUpdateLoadSelected: Boolean,
@@ -503,7 +503,7 @@ export default {
         // 加载已选数据
         if (
             ! props.noDefaultLoadSelected
-            && props.defaultLoadSelected === void 0
+            && props.loadSelected === void 0
         ) {
             loadSelected()
                 .finally()
@@ -783,9 +783,8 @@ export default {
                 isFirst
                 // 如果初始加载已选数据方法
                 && ! props.noDefaultLoadSelected
-                // 如果有初始加载已选数据数组
-                && props.defaultLoadSelected !== void 0
-                && $n_isValidArray(props.defaultLoadSelected)
+                // 如果有初始加载已选数据
+                && props.loadSelected !== void 0
             ) {
                 // 将值转为数组
                 val = props.valueType === 'string' ? $n_split(val, props.valueSeparator) : val
@@ -794,19 +793,10 @@ export default {
                 if ($n_isValidArray(val)) {
                     val = val.filter(e => $n_isValidValue(e))
                     if (val.length) {
-                        const _selected = []
-                        for (const item of props.defaultLoadSelected) {
-                            if (
-                                $n_has(item, props.valueKey)
-                                && $n_indexOf(val, item[props.valueKey]) > -1
-                            ) {
-                                _selected.push($n_cloneDeep(item))
-                            }
-                        }
-
-                        return _selected
+                        return onLoadSelected(val, isFirst)
                     }
                 }
+                return []
             }
 
             if (
@@ -867,9 +857,67 @@ export default {
         }
 
         /**
+         * 加载已选数据
+         */
+        function onLoadSelected(values, isFirst) {
+
+            function next(lists) {
+                const _selected = []
+                $n_forEach(lists, function (item) {
+                    if (
+                        $n_has(item, props.valueKey)
+                        && $n_indexOf(values, item[props.valueKey]) > -1
+                    ) {
+                        _selected.push($n_cloneDeep(item))
+                    }
+                })
+                return _selected
+            }
+
+            // 如果是加载已选数据方法
+            if ($n_isFunction(props.loadSelected)) {
+                const res = props.loadSelected(values, next, isFirst)
+                if ($n_isValidArray(res)) {
+                    return res
+                }
+                return []
+            }
+
+            return next(props.loadSelected)
+        }
+
+        /**
          * 请求选择数据
          */
         async function onRequestSelected(value) {
+
+            let requestValues = value
+
+            const all = {}
+            let hasAll = false
+
+            // 如果有初始加载已选数据数组
+            if (props.loadSelected !== void 0) {
+                const rows = onLoadSelected(value, false)
+                if ($n.isValidArray(rows)) {
+
+                    requestValues = []
+
+                    for (const item of rows) {
+                        all[item[props.valueKey]] = item
+                    }
+                    for (const val of value) {
+                        if (! $n_has(all, val)) {
+                            requestValues.push(val)
+                        }
+                    }
+                    if (! requestValues.length) {
+                        return rows
+                    }
+
+                    hasAll = true
+                }
+            }
 
             // 请求参数
             const httpOptions = {
@@ -895,7 +943,7 @@ export default {
                             // 查看字段
                             field: props.valueKey,
                             // 查看值
-                            value,
+                            value: requestValues,
                         },
                     }
                 ),
@@ -915,7 +963,24 @@ export default {
                 // 否则请求数据
                 await $n_http(httpOptions)
 
-            return status && $n_isValidArray($n_get(data, 'rows')) ? data.rows : []
+            if (status) {
+                if ($n_isValidArray($n_get(data, 'rows'))) {
+                    if (! hasAll) {
+                        return data.rows
+                    }
+                    for (const item of data.rows) {
+                        all[item[props.valueKey]] = item
+                    }
+                }
+            }
+
+            const newRows = []
+            for (const val of value) {
+                if ($n_has(all, val)) {
+                    newRows.push(all[val])
+                }
+            }
+            return newRows
         }
 
         /**
