@@ -867,7 +867,7 @@ export default {
                     if (
                         $n_has(item, props.valueKey)
                         && $n_indexOf(values, item[props.valueKey]) > -1
-                        && $n_findIndex(_selected, e => e[props.valueKey] === item[props.valueKey]) === 0
+                        && $n_findIndex(_selected, e => e[props.valueKey] === item[props.valueKey]) === -1
                     ) {
                         _selected.push($n_cloneDeep(item))
                     }
