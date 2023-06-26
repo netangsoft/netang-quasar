@@ -1005,6 +1005,9 @@ async function request(options) {
     // 克隆按钮
     o.powerBtn = $n_cloneDeep(o.powerBtn)
 
+    // 是否为跳转页面
+    let isToPage = false
+
     // 判断 url
     o.powerBtn.data.url = $n_toLower($n_trimString(o.powerBtn.data.url))
     if (! o.powerBtn.data.url) {
@@ -1029,6 +1032,9 @@ async function request(options) {
         o.powerBtn.data = Object.assign({}, o.powerBtn.data, {
             url: o.powerBtn.data.toPage,
         })
+
+        // 设为跳转页面
+        isToPage = true
     }
 
     // 获取请求参数
@@ -1051,6 +1057,11 @@ async function request(options) {
 
             // 来源页面是当前路由的完整路径
             query.n_from_page = getFromPageFullUrl($currentRoute)
+
+            // 如果是跳转页面
+            if (isToPage) {
+                query.n_to_page = 1
+            }
         }
 
         // 请求前执行
@@ -1115,6 +1126,20 @@ async function request(options) {
     } else {
         // 获取表格注入
         o.$table = $n_has(options, '$table') ? options.$table : inject(NTableKey)
+    }
+
+    if (
+        // 如果为跳转页面
+        $n_has($route.query, 'n_to_page')
+        && $route.query.n_to_page === 1
+        // 如果有请求成功后的操作动作
+        && $n_has(o.powerBtn.data, 'requestSuccess.type')
+        // 如果为关闭窗口、跳转并刷新页面
+        && o.powerBtn.data.requestSuccess.type === 'closePushRefresh'
+    ) {
+        // 则改为 关闭窗口并跳转页面
+        // 跳转的页面, 说明是从别的页面进行跳转, 则不需要刷新来源页面
+        o.powerBtn.data.requestSuccess.type = 'closePush'
     }
 
     // 判断是否有确认框
