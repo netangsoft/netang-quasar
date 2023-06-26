@@ -6,6 +6,7 @@ import $n_trim from 'lodash/trim'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_http from '@netang/utils/http'
+import $n_trimString from '@netang/utils/trimString'
 
 import $n_toast from '../toast'
 import $n_config from '../config'
@@ -170,7 +171,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
         // vrotate: null
         // vduration: 57.291992
 
-        const {
+        let {
             format,
             width,
             height,
@@ -183,6 +184,11 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
             vrotate,
             vduration,
         } = res
+
+        format = $n_trimString(format)
+        if (format) {
+            format = format.toLowerCase()
+        }
 
         const query = {
             // 标题
@@ -244,7 +250,7 @@ export default async function ({ waitUploadFileLists, uploadFileLists, checkFile
             query.type = 2
 
             // 图片后缀名
-            query.ext = format === 'jpeg' ? 'jpg' : format
+            query.ext = format === 'png' || format === 'gif' ? format : 'jpg'
 
             // 如果大小 < 20M, 则为可用图片
             if (size < 20971520) {
