@@ -14,6 +14,7 @@ export default function useFileUrl(domain, src) {
     const {
         getFileUrl,
     } = configs
+
     if ($n_isFunction(getFileUrl)) {
         const res = getFileUrl(domain, src)
         if ($n_isValidString(res)) {

@@ -11,12 +11,7 @@ import $n_get from 'lodash/get'
 //     // 是否开启人民币分转元
 //     priceCentToYuan: false,
 //     // 上传器
-//     uploader: {
-//         upload: {
-//             type: '',
-//             domain: '',
-//         },
-//     },
+//     uploader: {},
 // },
 
 // 配置

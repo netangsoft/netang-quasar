@@ -1,3 +1,15 @@
+import $n_storage from '@netang/utils/storage'
+import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidString from '@netang/utils/isValidString'
+import $n_http from '@netang/utils/http'
+import $n_numberDeep from '@netang/utils/numberDeep'
+import $n_json from '@netang/utils/json'
+
+import { getUpload } from './uploader'
+
+import $n_toast from './toast'
+import $n_config from './config'
+
 /**
  * 文件类型映射
  */
@@ -41,13 +53,251 @@ export const UPLOAD_STATUS = {
 }
 
 /**
- * 上传器
+ * 获取上传参数
  */
-export const UPLOADERS = {
-    // 本地上传
-    'local': ()=>import('./uploader/local'),
-    // 七牛云上传
-    'qiniu': ()=>import('./uploader/qiniu'),
-    // 阿里云上传
-    'aliyun': ()=>import('./uploader/aliyun'),
+export async function getUploadParams(type, bucket = 'public') {
+
+    // 缓存名
+    const cacheName = `upload_params_${type}_${bucket}`
+
+    // 获取缓存
+    const cache = $n_storage.get(cacheName)
+    if (cache !== null) {
+        return cache
+    }
+
+    // 请求数据
+    const { status, data } = await $n_http({
+        url: $n_config('apiFileUrl') + 'get_upload_params',
+        data: {
+            // 类型
+            type,
+            // 空间名称
+            bucket,
+        },
+    })
+
+    // 如果成功
+    if (! status || ! $n_isValidObject(data)) {
+        return false
+    }
+
+    // 【生产模式】
+    // --------------------------------------------------
+    // #ifdef IS_PRO
+    // 保存缓存(6 小时)
+    $n_storage.set(cacheName, data, 21600000)
+    // #endif
+    // --------------------------------------------------
+
+    return data
+}
+
+/**
+ * 删除上传参数缓存
+ */
+export function deleteUploadParams(type, bucket = 'public') {
+    $n_storage.delete(`upload_params_${type}_${bucket}`)
+}
+
+/**
+ * 上传至服务器
+ */
+export async function uploadServer(params) {
+
+    const {
+        fileType,
+        configUpload,
+        waitUploadFileLists,
+        // uploadFileLists,
+        // checkFileError,
+        setFileSuccess,
+        setFileFail,
+    } = params
+
+    // 获取上传参数
+    const uploadParams = await getUploadParams(configUpload.type)
+    if (uploadParams === false) {
+        for (const fileItem of waitUploadFileLists) {
+            setFileFail(fileItem, '上传失败')
+        }
+        $n_toast({
+            message: `获取[${configUpload.type}]上传参数失败`,
+        })
+        return
+    }
+
+    // 是否上传 minio 备份
+    // --------------------------------------------------
+    let backupParams = null
+    let backupConfig = null
+    if (configUpload.type !== 'minio') {
+        backupConfig = getUpload(null, 'minio')
+        // 如果同步
+        if (backupConfig.sync === true) {
+            backupParams = await getUploadParams(backupConfig.type)
+            if (backupParams === false) {
+                for (const fileItem of waitUploadFileLists) {
+                    setFileFail(fileItem, '上传失败')
+                }
+                $n_toast({
+                    message: `获取[${backupConfig.type}]上传参数失败`,
+                })
+                return
+            }
+        }
+    }
+    // --------------------------------------------------
+
+    // 批量上传
+    for (const fileItem of waitUploadFileLists) {
+        // 上传单个文件
+        await uploadFileItem(fileItem)
+    }
+
+    /**
+     * 上传单个文件
+     */
+    async function uploadFileItem(fileItem) {
+
+        // 设置文件状态
+        fileItem.status = UPLOAD_STATUS.uploading
+
+        // 上传文件
+        const upload = async function(configUpload, uploadParams, startPercent, halfPercent) {
+
+            const {
+                // 上传地址
+                url,
+                // 文件名
+                fileName,
+                // 键值名
+                keyName,
+                // 上传数据
+                data,
+            } = uploadParams
+
+            // 请求数据
+            const httpData = Object.assign({}, data)
+            // 文件
+            httpData[fileName] = fileItem.file
+            // 自定义文件 key
+            httpData[keyName] = fileItem.hash
+
+            const { status, data: res } = await $n_http({
+                // 上传地址
+                url,
+                // 数据
+                data: httpData,
+                // 关闭错误提醒
+                warn: false,
+                // 关闭检查结果 code
+                checkCode: false,
+                // 不包含头部鉴权认证
+                token: false,
+                // 开启上传
+                upload: true,
+                // 取消请求
+                onCancel(cancel) {
+                    // 设置中断上传
+                    fileItem.abort = function(msg) {
+                        cancel($n_isValidString(msg) ? msg : '已取消')
+                    }
+                },
+                // 监听上传进度
+                onUploadProgress(percent) {
+                    // 设置上传进度
+                    fileItem.progress = Math.round(startPercent + (halfPercent ? percent / 2 : percent))
+                },
+            })
+
+            // 如果请求失败
+            if (! status) {
+                // 设置文件上传失败
+                setFileFail(fileItem, res.msg)
+                // 删除上传参数缓存
+                deleteUploadParams(configUpload.type)
+                return false
+            }
+
+            return res
+        }
+        const resUpload = await upload(configUpload, uploadParams, 0, !! backupParams)
+        if (resUpload === false) {
+            return false
+        }
+
+        // 是否已备份
+        let is_backup = 0
+
+        // 上传至备份服务器
+        // --------------------------------------------------
+        if (backupParams) {
+            const res = await upload(backupConfig, backupParams, 50, true)
+            if (res === false) {
+                return false
+            }
+            is_backup = 1
+        }
+        // --------------------------------------------------
+
+        const {
+            title,
+            type,
+            hash,
+            ext,
+            size,
+            json,
+        } = fileItem
+
+        // 请求 - 上传文件至 cdn
+        const { status: statusCallback, data: resCallback } = await $n_http({
+            url: $n_config('apiFileUrl') + 'upload_callback',
+            data: {
+                // 类型
+                type: configUpload.type,
+                // 需上传的文件类型
+                file_type: fileType,
+                // 文件
+                file: {
+                    // 标题
+                    title: title || '',
+                    // 类型
+                    type,
+                    // hash
+                    hash,
+                    // 后缀
+                    ext,
+                    // 文件大小
+                    size,
+                    // 文件 json
+                    json,
+                    // 是否已备份
+                    is_backup,
+                },
+                // 结果
+                result: $n_isValidObject(resUpload) ? resUpload : {},
+            },
+            // 关闭错误提示
+            warn: false,
+        })
+
+        // 请求失败
+        if (! statusCallback || ! $n_isValidObject(resCallback)) {
+            // 设置文件上传失败
+            setFileFail(fileItem, resCallback.msg || '上传失败')
+            return false
+        }
+
+        // 格式化 json
+        const _json = $n_json.parse(resCallback.json)
+        Object.assign(fileItem, resCallback, {
+            json: $n_isValidObject(_json) ? $n_numberDeep(_json) : {},
+        })
+
+        // 设置文件上传成功
+        setFileSuccess(fileItem)
+
+        return true
+    }
 }

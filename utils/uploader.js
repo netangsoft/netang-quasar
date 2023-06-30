@@ -45,8 +45,8 @@ import {
     FilE_NAME,
     // 上传状态
     UPLOAD_STATUS,
-    // 上传器
-    UPLOADERS,
+    // 上传至服务器
+    uploadServer,
 } from './useUploader'
 
 // 文件数量
@@ -114,12 +114,8 @@ function create(options) {
     /**
      * 上传配置
      */
-    const configUpload = Object.assign(
-        {
-            type: 'local',
-        },
-        $n_config('uploader.upload')
-    )
+    const configUpload = getUpload()
+
     const configLimit = Object.assign({
         maxSize: 100,
         exts: [],
@@ -871,23 +867,8 @@ function create(options) {
     /**
      * 上传
      */
-    let _upload = null
     async function upload() {
         try {
-            if (! _upload) {
-                const run = $n_get(UPLOADERS, configUpload.type)
-                if (run) {
-                    _upload = (await run()).default
-                }
-                if (! _upload) {
-                    // 错误提示
-                    $n_alert({
-                        message: '没有定义上传器',
-                    })
-                    return
-                }
-            }
-
             // 待上传文件列表
             const waitUploadFileLists = []
             for (const fileItem of uploadFileLists.value) {
@@ -900,12 +881,13 @@ function create(options) {
                 return
             }
 
-            // 上传
-            await _upload({
-                config: configUpload,
+            // 上传至服务器
+            await uploadServer({
+                fileType: FilE_TYPE[props.type],
+                configUpload,
                 waitUploadFileLists,
-                uploadFileLists,
-                checkFileError,
+                // uploadFileLists,
+                // checkFileError,
                 setFileSuccess,
                 setFileFail,
             })
@@ -1615,11 +1597,28 @@ function create(options) {
 }
 
 /**
+ * 获取上传方式
+ */
+export function getUpload(userConfig = null, defaultUpload = '') {
+    const uploadConfig = $n_get((userConfig ? userConfig : configs.userConfig), 'uploader.upload', {})
+    const type = defaultUpload ? defaultUpload : uploadConfig.default
+    return Object.assign(
+        {},
+        $n_get(uploadConfig, type, {}),
+        {
+            type,
+        }
+    )
+}
+
+/**
  * 上传器
  */
 const uploader = {
     // 创建对话框
     create,
+    // 获取上传方式
+    getUpload,
 }
 
 export default uploader

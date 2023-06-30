@@ -1,7 +1,7 @@
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidString from '@netang/utils/isValidString'
 
-import $n_config from './config'
+import $n_uploader from './uploader'
 
 import useFileUrl from './useFileUrl'
 
@@ -27,11 +27,13 @@ export default function getFile(src) {
             const {
                 type,
                 domain,
-            } = $n_config('uploader.upload')
+            } = $n_uploader.getUpload()
 
             switch (type) {
                 // 七牛云
                 case 'qiniu':
+                // minio
+                case 'minio':
                     return useFileUrl(domain, src)
             }
         }

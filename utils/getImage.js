@@ -7,7 +7,7 @@ import $n_isValidString from '@netang/utils/isValidString'
 import $n_isNumeric from '@netang/utils/isNumeric'
 import $n_split from '@netang/utils/split'
 
-import $n_config from './config'
+import $n_uploader from './uploader'
 
 import useFileUrl from './useFileUrl'
 
@@ -113,14 +113,16 @@ export default function getImage(src, options) {
             const {
                 type,
                 domain,
-            } = $n_config('uploader.upload')
+            } = $n_uploader.getUpload()
 
             // 判断图片上传方式
             switch (type) {
 
                 // 七牛云
                 case 'qiniu':
-
+                // minio
+                case 'minio':
+                    
                     const {
                         compress,
                         w,
