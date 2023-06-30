@@ -116,10 +116,13 @@ function create(options) {
      */
     const configUpload = getUpload()
 
-    const configLimit = Object.assign({
-        maxSize: 100,
-        exts: [],
-    },  $n_config('uploader.limit.' + props.type))
+    const configLimit = Object.assign(
+        {
+            maxSize: 100,
+            exts: [],
+        },
+        $n_config('uploader.limit.' + props.type, {})
+    )
 
     // 如果有单个文件的最大大小
     if (props.maxSize) {
