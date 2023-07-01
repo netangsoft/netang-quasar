@@ -1,3 +1,4 @@
+import $n_get from 'lodash/get'
 import $n_has from 'lodash/has'
 import $n_isString from 'lodash/isString'
 
@@ -6,6 +7,7 @@ import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
 import $n_isNumeric from '@netang/utils/isNumeric'
 import $n_split from '@netang/utils/split'
+import $n_slash from '@netang/utils/slash'
 
 import $n_uploader from './uploader'
 
@@ -113,7 +115,7 @@ export default function getImage(src, options) {
             const {
                 type,
                 domain,
-            } = $n_uploader.getUpload()
+            } = $n_uploader.getUpload(null, $n_get(options, 'upload', ''))
 
             // 判断图片上传方式
             switch (type) {
@@ -170,6 +172,15 @@ export default function getImage(src, options) {
                     }
                 break
             }
+
+            // 【调试模式】
+            // --------------------------------------------------
+            // #ifdef IS_DEBUG
+            if ($n_get(options, 'upload')) {
+                return $n_slash(domain, 'end', true) + src
+            }
+            // #endif
+            // --------------------------------------------------
 
             return useFileUrl(domain, src)
         }

@@ -1604,7 +1604,7 @@ function create(options) {
  */
 export function getUpload(userConfig = null, defaultUpload = '') {
     const uploadConfig = $n_get((userConfig ? userConfig : configs.userConfig), 'uploader.upload', {})
-    const type = defaultUpload ? defaultUpload : uploadConfig.default
+    const type = $n_isValidString(defaultUpload) ? defaultUpload : uploadConfig.default
     return Object.assign(
         {},
         $n_get(uploadConfig, type, {}),

@@ -116,8 +116,6 @@ export default {
          */
         watch(() => props.modelValue[0].compare, function(compare) {
 
-            console.log('compare', props.data, props.modelValue[0].compare)
-
             // 获取当前值
             const value = props.modelValue[0].value
 
