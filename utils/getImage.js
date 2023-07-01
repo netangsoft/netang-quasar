@@ -28,9 +28,10 @@ export default function getImage(src, options) {
         // 如果为数组, 则获取第一个
         if ($n_isValidArray(src)) {
             src = src[0]
+        }
 
         // 如果为对象
-        } else if ($n_isValidObject(src)) {
+        if ($n_isValidObject(src)) {
 
             if ($n_has(src, 'options')) {
                 options = src.options
@@ -77,10 +78,10 @@ export default function getImage(src, options) {
                             w = Number(w)
                             if (w > 0) {
 
-                                // 获取设备像素比
                                 /* #if IS_WEB */
                                 // 如果开启缩放
                                 if (zoom) {
+                                    // 获取设备像素比
                                     const devicePixelRatio = window.devicePixelRatio || 1
                                     if (devicePixelRatio > 2) {
                                         w *= 2
@@ -104,7 +105,6 @@ export default function getImage(src, options) {
                         }
                     }
                 }
-                // --------------------------------------------------
 
             } else {
                 options = {}
@@ -122,7 +122,7 @@ export default function getImage(src, options) {
                 case 'qiniu':
                 // minio
                 case 'minio':
-                    
+
                     const {
                         compress,
                         w,
@@ -168,9 +168,10 @@ export default function getImage(src, options) {
                             src += '/format/' + format
                         }
                     }
-
-                    return useFileUrl(domain, src)
+                break
             }
+
+            return useFileUrl(domain, src)
         }
     }
 
