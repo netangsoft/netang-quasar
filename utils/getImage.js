@@ -28,8 +28,14 @@ export default function getImage(src, options) {
                 return src
             }
 
-            // 则按照逗号隔开转为数租
-            src = $n_split(src, ',')
+            // 如果是 http(s):// 开头
+            if (/^(http(s)?:\/\/)/i.test(src)) {
+                src = $n_split(src.replace(/,http/gi, '_____http'), '_____')
+
+            // 否则则按照逗号隔开转为数组
+            } else {
+                src = $n_split(src, ',')
+            }
         }
 
         // 如果为数组, 则获取第一个
