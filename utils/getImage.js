@@ -23,6 +23,11 @@ export default function getImage(src, options) {
         // 如果是字符串
         if ($n_isValidString(src)) {
 
+            // data: 或 blob: 开头的地址
+            if (/^(data:|blob:)/i.test(src)) {
+                return src
+            }
+
             // 则按照逗号隔开转为数租
             src = $n_split(src, ',')
         }
