@@ -20,24 +20,6 @@ export default function getImage(src, options) {
 
     if (src) {
 
-        // 如果是字符串
-        if ($n_isValidString(src)) {
-
-            // data: 或 blob: 开头的地址
-            if (/^(data:|blob:)/i.test(src)) {
-                return src
-            }
-
-            // 如果是 http(s):// 开头
-            if (/^(http(s)?:\/\/)/i.test(src)) {
-                src = $n_split(src.replace(/,http/gi, '_____http'), '_____')
-
-            // 否则则按照逗号隔开转为数组
-            } else {
-                src = $n_split(src, ',')
-            }
-        }
-
         // 如果为数组, 则获取第一个
         if ($n_isValidArray(src)) {
             src = src[0]
@@ -55,7 +37,31 @@ export default function getImage(src, options) {
             }
         }
 
+        // 如果是字符串
         if ($n_isValidString(src)) {
+
+            // data: 或 blob: 开头的地址
+            if (/^(data:|blob:)/i.test(src)) {
+                return src
+            }
+
+            // 如果是 http(s):// 开头
+            if (/^(http(s)?:\/\/)/i.test(src)) {
+                src = $n_split(
+                    src.replace(/,https:\/\//gi, '___https://')
+                        .replace(/,http:\/\//gi, '___http://')
+                    , '___'
+                )
+
+            // 否则则按照逗号隔开转为数组
+            } else {
+                src = $n_split(src, ',')
+            }
+
+            // 如果为数组, 则获取第一个
+            if ($n_isValidArray(src)) {
+                src = src[0]
+            }
 
             // http(s):// 开头的地址
             // /^(http(s)?:\/\/|data:|blob:)/i.test(src)
