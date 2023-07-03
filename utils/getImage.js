@@ -63,8 +63,8 @@ export default function getImage(src, options) {
                         zoom,
                     } = options
 
-                    // 先设为 0
-                    options.w = 0
+                    // 先设为最大宽度
+                    options.w = maxWidth || 0
 
                     // 如果有宽度
                     if (w) {
@@ -86,7 +86,7 @@ export default function getImage(src, options) {
                                     // 获取设备像素比
                                     const devicePixelRatio = window.devicePixelRatio || 1
                                     if (devicePixelRatio > 2) {
-                                        w *= 2
+                                        w *= (devicePixelRatio > 3 ? 3 : devicePixelRatio)
                                     }
                                 }
                                 /* #endif */
@@ -98,7 +98,7 @@ export default function getImage(src, options) {
                                 }
 
                                 // 如果有最大宽度
-                                if (maxWidth && maxWidth > w) {
+                                if (maxWidth && w > maxWidth) {
                                     w = maxWidth
                                 }
 
@@ -121,25 +121,34 @@ export default function getImage(src, options) {
             switch (type) {
 
                 // 七牛云
+                // 文档: https://developer.qiniu.com/dora/1279/basic-processing-images-imageview2
                 case 'qiniu':
                 // minio
                 case 'minio':
 
                     const {
                         compress,
+                        mode,
                         w,
                         h,
                         q,
+                        ignoreError,
                         format,
                     } = Object.assign({
                         // 是否压缩
                         compress: true,
+                        // 模式
+                        mode: '2',
                         // 宽
                         w: 0,
                         // 高
                         h: 0,
                         // 质量
                         q: 75,
+                        // 是否忽略错误
+                        // 主要针对图片兼容性的问题导致无法处理, 取值为 1 时, 则处理失败时返回原图
+                        // 不设置此参数, 默认处理失败时返回错误信息
+                        ignoreError: false,
                         // 格式
                         format: 'webp',
                     }, options)
@@ -148,7 +157,7 @@ export default function getImage(src, options) {
                     if (compress) {
 
                         // 裁剪图片方式
-                        src += '?imageView2/2'
+                        src += `?imageView2/${mode}`
 
                         // 质量
                         if (q) {
@@ -163,6 +172,11 @@ export default function getImage(src, options) {
                         // 高
                         if (h) {
                             src += '/h/' + h
+                        }
+
+                        // 是否忽略错误
+                        if (ignoreError) {
+                            src += '/ignore-error/1'
                         }
 
                         // 格式
