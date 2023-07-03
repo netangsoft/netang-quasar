@@ -51,8 +51,9 @@ export default function getImage(src, options) {
 
         if ($n_isValidString(src)) {
 
-            // http(s):// 或 data: 或 blob: 开头的地址
-            if (/^(http(s)?:\/\/|data:|blob:)/i.test(src)) {
+            // http(s):// 开头的地址
+            // /^(http(s)?:\/\/|data:|blob:)/i.test(src)
+            if (/^(http(s)?:\/\/)/i.test(src)) {
                 return src
             }
 
