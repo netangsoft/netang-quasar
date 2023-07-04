@@ -33,6 +33,7 @@ import $n_previewImage from './previewImage'
 import $n_getImage from './getImage'
 import $n_getFile from './getFile'
 import $n_config from './config'
+import $n_timestamp from './timestamp'
 
 import { configs } from './config'
 
@@ -538,7 +539,7 @@ function create(options) {
                 // 如果有后缀名
                 if (ext) {
                     // 设置文件
-                    fileItem.file = new File([blob], '', { type: blob.type })
+                    fileItem.file = new File([blob], String($n_timestamp()), { type: blob.type })
                     // 设置后缀名
                     fileItem.ext = ext
 
