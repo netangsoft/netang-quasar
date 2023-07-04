@@ -100,9 +100,13 @@
                     v-for="(fileItem, fileItemIndex) in query"
                     :key="`query-item-${fileItem.id}`"
                     class="n-uploader-query__item n-uploader-query__item--image"
-                    :class="{
-                        ghost: fileItemIndex === fromIndex,
-                    }"
+                    :class="[
+                        {
+                            ghost: fileItemIndex === fromIndex,
+                        },
+                        itemClass,
+                    ]"
+                    :style="itemStyle"
                     :draggable="currentDrag"
                     @mousedown.self="mousedown($event, fileItemIndex)"
                     @mouseup="dragEnd"
@@ -173,6 +177,7 @@
                             <slot
                                 name="settings"
                                 :file="fileItem"
+                                :index="fileItemIndex"
                             />
 
                             <!-- 预览 -->
@@ -198,7 +203,15 @@
                             />
 
                         </div>
+
+                        <!-- 插槽-->
+                        <slot
+                            name="item-append"
+                            :file="fileItem"
+                            :index="fileItemIndex"
+                        />
                     </n-img>
+
                 </div>
 
                 <!-- 右边方块按钮 -->
@@ -236,12 +249,18 @@
                     v-for="(fileItem, fileItemIndex) in query"
                     :key="`query-item-${fileItem.id}`"
                     class="n-uploader-query__item n-uploader-query__item--file"
-                    :class="{
-                        ghost: fileItemIndex === fromIndex,
-                    }"
-                    :style="{
-                        height: toPx(currentSize),
-                    }"
+                    :class="[
+                        {
+                            ghost: fileItemIndex === fromIndex,
+                        },
+                        itemClass,
+                    ]"
+                    :style="[
+                        {
+                            height: toPx(currentSize),
+                        },
+                        itemStyle,
+                    ]"
                     :draggable="currentDrag"
                     @mousedown.self="mousedown($event, fileItemIndex)"
                     @mouseup="dragEnd"
@@ -321,6 +340,7 @@
                         <slot
                             name="settings"
                             :file="fileItem"
+                            :index="fileItemIndex"
                         />
 
                         <template v-if="fileItem.status === UPLOAD_STATUS.success">
@@ -381,6 +401,14 @@
                             v-if="! noDelete && ! disable && ! readonly"
                         />
                     </div>
+
+                    <!-- 插槽-->
+                    <slot
+                        name="item-append"
+                        :file="fileItem"
+                        :index="fileItemIndex"
+                    />
+
                 </div>
             </template>
         </n-dragger>
@@ -429,6 +457,10 @@ export default {
      * 声明属性
      */
     props: {
+        // 单个文件类名
+        itemClass: [String, Array, Object],
+        // 单个文件样式
+        itemStyle: [String, Array, Object],
         // 按钮类型, 可选值 square button
         buttonType: {
             type: String,
