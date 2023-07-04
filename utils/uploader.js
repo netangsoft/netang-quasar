@@ -568,7 +568,7 @@ function create(options) {
                         // 设置文件 hash
                         fileItem.hash = hash
                         // 标题
-                        fileItem.title = fileItem.hash
+                        fileItem.title = ''
                         // 设置文件状态
                         fileItem.status = UPLOAD_STATUS.hashChecked
                         // 设置文件检查进度
