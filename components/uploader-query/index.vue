@@ -119,7 +119,7 @@
                         :spinner-size="toPx(currentSize / 2)"
                         :width="toPx(currentSize)"
                         :height="toPx(currentSize)"
-                        @click="onFileItemClick(fileItem)"
+                        @click="onFileItemClick(fileItem, fileItemIndex)"
                         fit="fill"
                     >
                         <!-- 如果是外链 -->
@@ -326,7 +326,7 @@
                     </div>
 
                     <!-- 信息 -->
-                    <div class="n-uploader-query__item__info" @click="onFileItemClick(fileItem)">
+                    <div class="n-uploader-query__item__info" @click="onFileItemClick(fileItem, fileItemIndex)">
                         <!-- 标题 -->
                         <div class="n-uploader-query__item__info__title ellipsis">{{getFileName(fileItem)}}</div>
                         <!-- 错误提示 -->
@@ -644,8 +644,11 @@ export default {
         /**
          * 文件点击
          */
-        function onFileItemClick(fileItem) {
-            emit('itemClick', fileItem)
+        function onFileItemClick(file, index) {
+            emit('itemClick', {
+                file,
+                index,
+            })
         }
 
         // ==========【返回】=============================================================================================
