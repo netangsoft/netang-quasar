@@ -100,20 +100,17 @@ export default function getImage(src, options) {
 
                                 /* #if IS_WEB */
                                 // 如果开启缩放
-                                if (zoom) {
+                                if (
+                                    zoom
                                     // 获取设备像素比
-                                    const devicePixelRatio = window.devicePixelRatio || 1
-                                    if (devicePixelRatio > 2) {
-                                        w *= (devicePixelRatio > 3 ? 3 : devicePixelRatio)
-                                    }
+                                    && window.devicePixelRatio >= 2
+                                ) {
+                                    // w *= (devicePixelRatio > 3 ? 3 : devicePixelRatio)
+                                    w *= 2
                                 }
                                 /* #endif */
 
-                                if (w > 10) {
-                                    w = Math.floor(w / 10) * 10
-                                } else {
-                                    w = Math.floor(w)
-                                }
+                                w = Math.floor(w)
 
                                 // 如果有最大宽度
                                 if (maxWidth && w > maxWidth) {
