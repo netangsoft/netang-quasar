@@ -150,6 +150,7 @@ export default function getImage(src, options) {
                         w,
                         h,
                         q,
+                        interlace,
                         ignoreError,
                         format,
                     } = Object.assign({
@@ -163,6 +164,8 @@ export default function getImage(src, options) {
                         h: 0,
                         // 质量
                         q: 75,
+                        // 是否支持渐进显示
+                        interlace: false,
                         // 是否忽略错误
                         // 主要针对图片兼容性的问题导致无法处理, 取值为 1 时, 则处理失败时返回原图
                         // 不设置此参数, 默认处理失败时返回错误信息
@@ -177,11 +180,6 @@ export default function getImage(src, options) {
                         // 裁剪图片方式
                         src += `?imageView2/${mode}`
 
-                        // 质量
-                        if (q) {
-                            src += '/q/' + q
-                        }
-
                         // 宽
                         if (w) {
                             src += '/w/' + w
@@ -190,6 +188,16 @@ export default function getImage(src, options) {
                         // 高
                         if (h) {
                             src += '/h/' + h
+                        }
+
+                        // 质量
+                        if (q) {
+                            src += '/q/' + q
+                        }
+
+                        // 渐进显示
+                        if (interlace) {
+                            src += '/interlace/1'
                         }
 
                         // 是否忽略错误
