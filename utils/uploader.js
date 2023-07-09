@@ -544,6 +544,7 @@ function create(options) {
                     fileItem.ext = ext
 
                     const {
+                        title,
                         size,
                     } = fileItem.file
 
@@ -568,7 +569,7 @@ function create(options) {
                         // 设置文件 hash
                         fileItem.hash = hash
                         // 标题
-                        fileItem.title = ''
+                        fileItem.title = title
                         // 设置文件状态
                         fileItem.status = UPLOAD_STATUS.hashChecked
                         // 设置文件检查进度
