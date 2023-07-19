@@ -1250,7 +1250,7 @@ async function getViewData(options) {
 
         if (
             status
-            && $n_isValidArray($n.get(data, 'rows'))
+            && $n_isValidArray($n_get(data, 'rows'))
         ) {
             return data.rows
         }

@@ -202,6 +202,7 @@ import $n_cloneDeep from 'lodash/cloneDeep'
 import $n_isFunction from 'lodash/isFunction'
 import $n_findIndex from 'lodash/findIndex'
 import $n_get from 'lodash/get'
+import $n_find from 'lodash/find'
 
 import $n_indexOf from '@netang/utils/indexOf'
 import $n_forEach from '@netang/utils/forEach'
@@ -539,34 +540,54 @@ export default {
             } else {
 
                 // 初始已选数据
-                let _selected = []
+                const _selected = []
 
                 // 如果值转已选数据是有效数组
                 if (newSelected.length) {
 
-                    // 当前已选数据
-                    const currentSelected = tempSelected.length ? tempSelected : selected.value
+                    const newSelectedOld = newSelected
+                    const __selected = []
 
                     // 如果有已选数据
+                    const currentSelected = tempSelected.length ? tempSelected : selected.value
                     if (currentSelected.length) {
 
-                        // 新已选数据
-                        _selected = currentSelected.filter(e => newSelected.indexOf(e[props.valueKey]) > -1)
+                        const _newSelected = []
 
-                        // 需增加的值
-                        newSelected = newSelected.filter(e => _selected.map(e => e[props.valueKey]).indexOf(e) === -1)
+                        // 遍历新已选数据
+                        for (const newItem of newSelected) {
+                            // 已选中的数据
+                            const hasItem = $n_find(currentSelected, e => e[props.valueKey] === newItem)
+                            if (hasItem) {
+                                __selected.push(hasItem)
+                            // 需增加的值
+                            } else {
+                                _newSelected.push(newItem)
+                            }
+                        }
+
+                        // 设置新的需要增加的值
+                        newSelected = _newSelected
                     }
 
                     // 需增加的值
                     if (newSelected.length) {
-
                         // 如果更新值时不加载已选数据
                         if (props.noUpdateLoadSelected) {
                             // 请求选择数据
-                            _selected.push(...newSelected.map(e => setSelectedItem(e)))
+                            __selected.push(...newSelected.map(e => setSelectedItem(e)))
                         } else {
                             // 请求选择数据
-                            _selected.push(...await onRequestSelected(newSelected))
+                            __selected.push(...await onRequestSelected(newSelected))
+                        }
+                    }
+
+                    // 重新筛选和排序已选数据
+                    for (const item of newSelectedOld) {
+                        // 已选中的数据
+                        const hasItem = $n_find(__selected, e => e[props.valueKey] === item)
+                        if (hasItem) {
+                            _selected.push(hasItem)
                         }
                     }
                 }
@@ -681,6 +702,7 @@ export default {
 
                     // 如果声明值未发生变化
                     if (_value === props.modelValue) {
+
                         // 设置已选数据
                         setSelected(_selected)
 
@@ -900,7 +922,7 @@ export default {
             // 如果有初始加载已选数据数组
             if (props.loadSelected !== void 0) {
                 const rows = onLoadSelected(value, false)
-                if ($n.isValidArray(rows)) {
+                if ($n_isValidArray(rows)) {
 
                     requestValues = []
 
