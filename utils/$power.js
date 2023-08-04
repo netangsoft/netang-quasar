@@ -1237,6 +1237,10 @@ async function request(options) {
      */
     async function onRequest() {
 
+        if ($n_has(o.powerBtn.data, 'formatRequestData')) {
+            o.powerBtn.data.formatRequestData({ requestData })
+        }
+
         // 请求前执行
         const resBefore = await $n_runAsync(o.requestBefore)({
             options: o,
