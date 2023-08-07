@@ -102,23 +102,44 @@
                 </div>
             </div>
 
-            <!-- 图片列表 -->
-            <a
-                v-for="(src, i) in currentImages"
-                :key="`${src}-${i}`"
-                :href="src"
-                target="_blank"
-                class="non-selectable no-outline"
-            >
-                <img
-                    :ref="(el) => (imgRefs[i] = el)"
-                    :src="src"
-                    :style="imgStyle"
-                    @load="handleImgLoad"
-                    @error="handleImgError"
-                    v-show="i === activeIndex"
-                />
-            </a>
+
+            <!-- 图片列表(有点击事件) -->
+            <template v-if="isClickImg">
+                <div
+                    v-for="(src, i) in currentImages"
+                    :key="`${src}-${i}`"
+                    class="non-selectable no-outline"
+                    @click="onClickImg({ src })"
+                >
+                    <img
+                        :ref="(el) => (imgRefs[i] = el)"
+                        :src="src"
+                        :style="imgStyle"
+                        @load="handleImgLoad"
+                        @error="handleImgError"
+                        v-show="i === activeIndex"
+                    />
+                </div>
+            </template>
+            <!-- 图片列表(点击跳转原图) -->
+            <template v-else>
+                <a
+                    v-for="(src, i) in currentImages"
+                    :key="`${src}-${i}`"
+                    :href="src"
+                    target="_blank"
+                    class="non-selectable no-outline"
+                >
+                    <img
+                        :ref="(el) => (imgRefs[i] = el)"
+                        :src="src"
+                        :style="imgStyle"
+                        @load="handleImgLoad"
+                        @error="handleImgError"
+                        v-show="i === activeIndex"
+                    />
+                </a>
+            </template>
 
         </div>
     </q-dialog>
@@ -128,9 +149,14 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useDialogPluginComponent } from 'quasar'
 
+import $n_get from 'lodash/get'
+
 import $n_forEach from '@netang/utils/forEach'
+import $n_run from '@netang/utils/run'
 
 import $n_getImage from '../../../utils/getImage'
+
+import { configs } from '../../../utils/config'
 
 export default {
 
@@ -258,6 +284,9 @@ export default {
 
         // 模式
         const isContain = ref(true)
+
+        // 图片是否可点击
+        const isClickImg = ref($n_get(configs, 'components.imgViewer.isClickImg') === true)
 
         // 转换效果
         const transform = ref({
@@ -519,6 +548,13 @@ export default {
             }
         }
 
+        /**
+         * 点击图片
+         */
+        function onClickImg(e) {
+            $n_run($n_get(configs, 'components.imgViewer.onClickImg'))(e)
+        }
+
         // ==========【声明周期】=========================================================================================
 
         /**
@@ -551,6 +587,8 @@ export default {
             isContain,
             // 转换效果
             transform,
+            // 图片是否可点击
+            isClickImg,
 
             // 当前图片数组
             currentImages,
@@ -583,6 +621,8 @@ export default {
             handleActions,
             // 点击遮蔽
             onMask,
+            // 点击图片
+            onClickImg,
         }
     }
 }
