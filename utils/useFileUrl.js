@@ -8,7 +8,7 @@ import { configs } from './config'
 /**
  * 获取文件 url
  */
-export default function useFileUrl(domain, src) {
+export default function useFileUrl(e) {
 
     // 获取文件地址
     const {
@@ -16,11 +16,11 @@ export default function useFileUrl(domain, src) {
     } = configs
 
     if ($n_isFunction(getFileUrl)) {
-        const res = getFileUrl(domain, src)
+        const res = getFileUrl(e)
         if ($n_isValidString(res)) {
             return res
         }
     }
 
-    return $n_slash(domain, 'end', true) + src
+    return $n_slash(e.domain, 'end', true) + e.src
 }

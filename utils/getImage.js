@@ -130,7 +130,16 @@ export default function getImage(src, options) {
             const {
                 type,
                 domain,
-            } = $n_uploader.getUpload(null, $n_get(options, 'upload', ''))
+            } = $n_uploader.getUpload(
+                null,
+                $n_has(options, 'upload')
+                    ? options.upload
+                    : (
+                        src && src.slice(-1) === '_'
+                            ? 'minio'
+                            : ''
+                    )
+            )
 
             // 判断图片上传方式
             switch (type) {
@@ -219,7 +228,7 @@ export default function getImage(src, options) {
             // #endif
             // --------------------------------------------------
 
-            return useFileUrl(domain, src)
+            return useFileUrl({ type, domain, src })
         }
     }
 

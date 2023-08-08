@@ -50,11 +50,11 @@ export default function getFile(src) {
             }
 
             const {
-                // type,
+                type,
                 domain,
             } = $n_uploader.getUpload()
 
-            return useFileUrl(domain, src)
+            return useFileUrl({ type, domain, src })
         }
     }
 

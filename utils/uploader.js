@@ -46,6 +46,10 @@ import {
     FilE_NAME,
     // 上传状态
     UPLOAD_STATUS,
+    // 获取单个文件 hash
+    getFileItemHash,
+    // 设置单个文件信息
+    setFileItemInfo,
     // 上传至服务器
     uploadServer,
 } from './useUploader'
@@ -64,6 +68,8 @@ function create(options) {
     const $q = useQuasar()
 
     const {
+        // 上传器类型
+        uploaderType,
         // 上传文件输入框节点
         fileRef,
         // 更新值方法(初始化上传列表时不更新值)
@@ -72,6 +78,8 @@ function create(options) {
         onUpdate,
 
     } = Object.assign({
+        // 上传器类型
+        uploaderType: null,
         // 更新值方法
         onUpdateModelValue: null,
         // 更新方法
@@ -115,7 +123,7 @@ function create(options) {
     /**
      * 上传配置
      */
-    const configUpload = getUpload()
+    const configUpload = getUpload(null, uploaderType)
 
     const configLimit = Object.assign(
         {
@@ -567,13 +575,16 @@ function create(options) {
                     const hash = spark.end(false)
                     if (hash) {
                         // 设置文件 hash
-                        fileItem.hash = hash
+                        fileItem.hash = getFileItemHash(hash, configUpload)
                         // 标题
                         fileItem.title = title
                         // 设置文件状态
                         fileItem.status = UPLOAD_STATUS.hashChecked
                         // 设置文件检查进度
                         fileItem.progress = 100
+
+                        // 设置单个文件信息
+                        await setFileItemInfo(fileItem, setFileFail)
                         return
                     }
                 }
@@ -743,7 +754,7 @@ function create(options) {
     /**
      * 文件输入框更新
      */
-    function fileChange(e) {
+    async function fileChange(e) {
 
         try {
             // 获取上传文件
@@ -762,7 +773,7 @@ function create(options) {
             for (const file of files) {
 
                 // 创建单个文件
-                const fileItem = createFileItem(file)
+                const fileItem = await createFileItem(file)
                 if (fileItem !== false) {
 
                     // 如果只能上传一个
@@ -1029,15 +1040,18 @@ function create(options) {
 
                         } else {
                             // 设置文件 hash
-                            fileItem.hash = hash
+                            fileItem.hash = getFileItemHash(hash, configUpload)
                             // 设置文件状态
                             fileItem.status = UPLOAD_STATUS.hashChecked
                             // 设置文件检查进度
                             fileItem.progress = 100
                         }
 
-                        // 完成回调
-                        resolve()
+                        // 设置单个文件信息
+                        setFileItemInfo(fileItem, setFileFail)
+                            .finally(function () {
+                                resolve()
+                            })
                     }
 
                     // 格式化上传文件 hash
@@ -1279,7 +1293,7 @@ function create(options) {
     /**
      * 创建单个文件
      */
-    function createFileItem(file) {
+    async function createFileItem(file) {
 
         // 单个文件示例
         // name: "123.jpg"
@@ -1344,10 +1358,11 @@ function create(options) {
             props.type === 'image'
             && file.type.toLowerCase().startsWith('image')
         ) {
-            // 获取图片预览地址
-            const img = new Image()
-            img.src = window.URL.createObjectURL(file)
-            fileItem.__img = img.src
+            // 设置单个文件信息
+            const res = await setFileItemInfo(fileItem, setFileFail)
+            if (! res) {
+                return false
+            }
         }
 
         return fileItem

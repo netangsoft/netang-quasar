@@ -1,3 +1,5 @@
+import $n_has from 'lodash/has'
+
 import $n_storage from '@netang/utils/storage'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
@@ -50,6 +52,137 @@ export const UPLOAD_STATUS = {
     success: 7,
     // 上传失败
     fail: 8,
+}
+
+/**
+ * 获取单个文件 hash
+ */
+export function getFileItemHash(hash, configUpload) {
+    if (configUpload.type === 'minio') {
+        return hash + '_'
+    }
+    return hash
+}
+
+/**
+ * 获取图片信息
+ */
+async function getImageInfo(fileItem) {
+    return new Promise(function (resolve) {
+        const img = new Image()
+        img.src = window.URL.createObjectURL(fileItem.file)
+        fileItem.__img = img.src
+        img.onload = function() {
+            fileItem.json = {
+                w: this.naturalWidth,
+                h: this.naturalHeight,
+            }
+            resolve(true)
+        }
+        img.onerror = function() {
+            resolve(false)
+        }
+    })
+}
+
+/**
+ * 获取媒体信息
+ */
+async function getMediaInfo(fileItem, type) {
+    return new Promise(function (resolve) {
+        const dom = document.createElement(type)
+        dom.src = URL.createObjectURL(fileItem.file)
+        dom.onloadedmetadata = function() {
+            fileItem.json = {
+                d: this.duration,
+            }
+            if (type === 'video') {
+                Object.assign(fileItem.json, {
+                    w: this.videoWidth,
+                    h: this.videoHeight,
+                })
+            }
+            resolve(true)
+        }
+        if (type === 'video') {
+            dom.currentTime = 3
+            dom.oncanplay = function() {
+                const width = this.videoWidth ? this.videoWidth : this.width
+                const height = this.videoHeight ? this.videoHeight : this.height
+                const duration = this.duration
+
+                const canvas = document.createElement('canvas')
+                const ctx = canvas.getContext('2d')
+
+                canvas.setAttribute('width',width)
+                canvas.setAttribute('height',height)
+                ctx.drawImage(dom, 0, 0, width, height)
+                const imgSrc = canvas.toDataURL('image/png')
+
+                console.log('------imgSrc', imgSrc)
+            }
+        }
+        dom.onerror = function() {
+            resolve(false)
+        }
+    })
+}
+
+/**
+ * 设置单个文件信息
+ */
+export function setFileItemInfo(fileItem, setFileFail) {
+    return new Promise(async function (resolve) {
+
+        // 如果已经设置过了
+        if (
+            $n_has(fileItem.json, 'w')
+            || $n_has(fileItem.json, 'd')
+        ) {
+            resolve(true)
+            return
+        }
+
+        let res
+
+        // 如果为图片
+        // --------------------------------------------------
+        if (fileItem.type === 2) {
+            res = await getImageInfo(fileItem)
+
+            // 如果为视频
+            // --------------------------------------------------
+        } else if (fileItem.type === 3) {
+            res = await getMediaInfo(fileItem, 'video')
+
+            // 如果为音频
+            // --------------------------------------------------
+        } else if (fileItem.type === 4) {
+            res = await getMediaInfo(fileItem, 'audio')
+
+            // 否则为文件
+        } else {
+            // 先判断是否为图片
+            res = await getImageInfo(fileItem)
+            if (! res) {
+                // 再判断是否为视频
+                res = await getMediaInfo(fileItem, 'video')
+                if (! res) {
+                    // 最后再判断是否为音频
+                    res = await getMediaInfo(fileItem, 'video')
+                }
+            }
+        }
+        // --------------------------------------------------
+
+        if (res) {
+            resolve(true)
+        } else {
+            // 设置文件上传失败
+            setFileFail(fileItem)
+            resolve(false)
+        }
+    })
 }
 
 /**
@@ -222,6 +355,7 @@ export async function uploadServer(params) {
 
             return res
         }
+
         const resUpload = await upload(configUpload, uploadParams, 0, !! backupParams)
         if (resUpload === false) {
             return false
@@ -250,34 +384,37 @@ export async function uploadServer(params) {
             json,
         } = fileItem
 
+        // 请求数据
+        const data = {
+            // 类型
+            type: configUpload.type,
+            // 需上传的文件类型
+            file_type: fileType,
+            // 文件
+            file: {
+                // 标题
+                title: title || '',
+                // 类型
+                type,
+                // hash
+                hash,
+                // 后缀
+                ext,
+                // 文件大小
+                size,
+                // 文件 json
+                json,
+                // 是否已备份
+                is_backup,
+            },
+            // 结果
+            result: $n_isValidObject(resUpload) ? resUpload : {},
+        }
+
         // 请求 - 上传文件至 cdn
         const { status: statusCallback, data: resCallback } = await $n_http({
             url: $n_config('apiFileUrl') + 'upload_callback',
-            data: {
-                // 类型
-                type: configUpload.type,
-                // 需上传的文件类型
-                file_type: fileType,
-                // 文件
-                file: {
-                    // 标题
-                    title: title || '',
-                    // 类型
-                    type,
-                    // hash
-                    hash,
-                    // 后缀
-                    ext,
-                    // 文件大小
-                    size,
-                    // 文件 json
-                    json,
-                    // 是否已备份
-                    is_backup,
-                },
-                // 结果
-                result: $n_isValidObject(resUpload) ? resUpload : {},
-            },
+            data,
             // 关闭错误提示
             warn: false,
         })

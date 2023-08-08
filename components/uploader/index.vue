@@ -39,6 +39,8 @@ export default {
     props: {
         // 值
         modelValue: [String, Array],
+        // 上传器类型
+        uploaderType: String,
         // 上传文件类型, 可选值 file image video audio
         type: {
             type: String,
@@ -99,6 +101,9 @@ export default {
 
         // 创建上传器
         const uploader = $n_uploader.create({
+            // 上传器类型
+            uploaderType: props.uploaderType,
+            // 上传文件类型, 可选值 file image video audio
             type: props.type,
             // 声明属性
             props,
