@@ -1,4 +1,5 @@
 import $n_get from 'lodash/get'
+import $n_merge from 'lodash/merge'
 
 // 用户配置 参数
 // userConfig: {
@@ -26,14 +27,21 @@ export const configs = {
     routers: {},
     // 表格配置
     tablesConfig: {},
+    // 组件配置
+    components: {},
     // 对话框组件
     dialogComponents: {},
-    // 格式化上传文件 hash
-    formatUploadFileHash: null,
-    // 格式化上传网络链接
-    formatUploadNet: null,
-    // 获取文件地址
-    getFileUrl: null,
+    // 上传器配置
+    uploader: {
+        // 如果是 Minio 上传, 则在后面加上下划线
+        hasMinioSuffix: true,
+        // 格式化上传文件 hash
+        formatUploadFileHash: null,
+        // 格式化上传网络链接
+        formatUploadNet: null,
+        // 获取文件地址
+        getFileUrl: null,
+    },
 }
 
 /**
@@ -41,7 +49,7 @@ export const configs = {
  * @param options
  */
 export function settings(options) {
-    Object.assign(configs, options)
+    $n_merge(configs, options)
 }
 
 /**

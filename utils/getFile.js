@@ -52,7 +52,12 @@ export default function getFile(src) {
             const {
                 type,
                 domain,
-            } = $n_uploader.getUpload()
+            } = $n_uploader.getUpload(
+                null,
+                src && src.slice(-1) === '_'
+                    ? 'minio'
+                    : ''
+            )
 
             return useFileUrl({ type, domain, src })
         }

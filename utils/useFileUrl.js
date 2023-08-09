@@ -13,7 +13,7 @@ export default function useFileUrl(e) {
     // 获取文件地址
     const {
         getFileUrl,
-    } = configs
+    } = configs.uploader
 
     if ($n_isFunction(getFileUrl)) {
         const res = getFileUrl(e)

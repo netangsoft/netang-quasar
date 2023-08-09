@@ -21,7 +21,6 @@
                         :name="errorIcon"
                     />
                 </div>
-
                 <!-- 默认插槽 -->
                 <slot />
             </slot>
@@ -58,7 +57,6 @@
                         :name="errorIcon"
                     />
                 </div>
-
                 <!-- 默认插槽 -->
                 <slot />
             </slot>

@@ -24,6 +24,7 @@ import getImage from './getImage'
 import getTime from './getTime'
 import loading from './loading'
 import notify from './notify'
+import play from './play'
 import previewImage from './previewImage'
 import price from './price'
 import timestamp from './timestamp'
@@ -57,6 +58,7 @@ export default {
     getTime,
     loading,
     notify,
+    play,
     previewImage,
     price,
     timestamp,

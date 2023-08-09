@@ -315,6 +315,21 @@
                         />
 
                         <!-- 播放图标 -->
+                        <n-thumbnail
+                            class="rounded-borders cursor-pointer"
+                            :src="fileItem.json.p"
+                            :size="currentSize / 1.5"
+                            title="播放"
+                            @click.prevent.stop="uploader.play(fileItem)"
+                            v-else-if="fileItem.json.p"
+                        >
+                            <div class="absolute-full no-padding row items-center justify-center">
+                                <q-icon
+                                    name="play_circle"
+                                    :size="toPx(currentSize / 3)"
+                                />
+                            </div>
+                        </n-thumbnail>
                         <q-icon
                             class="n-uploader-query__item__icon__icon cursor-pointer"
                             name="play_circle"
@@ -431,13 +446,14 @@ import $n_getImage from '../../utils/getImage'
 import $n_previewImage from '../../utils/previewImage'
 
 import NDragger from '../dragger'
+import NThumbnail from '../thumbnail'
 
 import { NUploaderKey } from '../../utils/symbols'
 
 import {
     // 上传状态
     UPLOAD_STATUS,
-} from '../../utils/useUploader'
+} from '../../utils/uploader'
 
 export default {
 
@@ -451,6 +467,7 @@ export default {
      */
     components: {
         NDragger,
+        NThumbnail,
     },
 
     /**

@@ -10,6 +10,7 @@ import $n_uniq from 'lodash/uniq'
 import $n_find from 'lodash/find'
 import $n_isFunction from 'lodash/isFunction'
 
+import $n_storage from '@netang/utils/storage'
 import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidString from '@netang/utils/isValidString'
@@ -24,6 +25,7 @@ import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_http from '@netang/utils/http'
 import $n_getThrowMessage from '@netang/utils/getThrowMessage'
 import $n_runAsync from '@netang/utils/runAsync'
+import $n_numberDeep from '@netang/utils/numberDeep'
 
 import $n_$ruleValid from './$ruleValid'
 import $n_toast from './toast'
@@ -34,28 +36,75 @@ import $n_getImage from './getImage'
 import $n_getFile from './getFile'
 import $n_config from './config'
 import $n_timestamp from './timestamp'
-
-import { configs } from './config'
+import $n_play from './play'
 
 import copy from './copy'
+import { configs } from './config'
 
-import {
-    // 文件类型映射
-    FilE_TYPE,
-    // 文件名称映射
-    FilE_NAME,
-    // 上传状态
-    UPLOAD_STATUS,
-    // 获取单个文件 hash
-    getFileItemHash,
-    // 设置单个文件信息
-    setFileItemInfo,
-    // 上传至服务器
-    uploadServer,
-} from './useUploader'
+/**
+ * 文件类型映射
+ */
+export const FilE_TYPE = {
+    file: 1,
+    image: 2,
+    video: 3,
+    audio: 4,
+}
+
+/**
+ * 文件名称映射
+ */
+export const FilE_NAME = {
+    1: '文件',
+    2: '图片',
+    3: '视频',
+    4: '音频',
+}
+
+/**
+ * 上传状态
+ */
+export const UPLOAD_STATUS = {
+    // 等待上传中
+    waiting: 1,
+    // 检查 hash 中
+    hashChecking: 2,
+    // 检查 hash 完成
+    hashChecked: 3,
+    // 检查是否存在服务器中
+    existChecking: 4,
+    // 检查是否存在服务器完成
+    existChecked: 5,
+    // 上传中
+    uploading: 6,
+    // 上传完成
+    success: 7,
+    // 上传失败
+    fail: 8,
+}
 
 // 文件数量
 let _fileNum = 0
+
+/**
+ * 将 base64 转换为 File
+ */
+function dataUrlToFile(dataUrl) {
+    const arr = dataUrl.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = window.atob(arr[1])
+    let n = bstr.length
+    const arrayBuffer = new Uint8Array(n)
+    while (n--) {
+        arrayBuffer[n] = bstr.charCodeAt(n)
+    }
+    const blob = new Blob([arrayBuffer], { type: mime })
+
+    return {
+        arrayBuffer,
+        file: new File([blob], String($n_timestamp()), { type: blob.type }),
+    }
+}
 
 /**
  * 创建上传器
@@ -575,7 +624,7 @@ function create(options) {
                     const hash = spark.end(false)
                     if (hash) {
                         // 设置文件 hash
-                        fileItem.hash = getFileItemHash(hash, configUpload)
+                        fileItem.hash = await formatFileItemHash(hash)
                         // 标题
                         fileItem.title = title
                         // 设置文件状态
@@ -656,7 +705,7 @@ function create(options) {
                 // --------------------------------------------------
                 const {
                     formatUploadNet,
-                } = configs
+                } = configs.uploader
                 if ($n_isFunction(formatUploadNet)) {
                     files = formatUploadNet(files, props.type === 'image')
                 }
@@ -900,10 +949,7 @@ function create(options) {
             // 上传至服务器
             await uploadServer({
                 fileType: FilE_TYPE[props.type],
-                configUpload,
                 waitUploadFileLists,
-                // uploadFileLists,
-                // checkFileError,
                 setFileSuccess,
                 setFileFail,
             })
@@ -990,7 +1036,7 @@ function create(options) {
             const fileReader = new FileReader()
 
             // 文件加载
-            fileReader.onload = function(e) {
+            fileReader.onload = async function(e) {
 
                 // 追加 array buffer
                 spark.append(e.target.result)
@@ -1019,58 +1065,36 @@ function create(options) {
                         return
                     }
 
-                    // 下一步
-                    function next(hash) {
-                        if (
-                            // 如果开启去重
-                            props.unique
-                            // 如果该文件 hash 在上传文件列表中
-                            && $n_findIndex(uploadFileLists.value, { hash }) > -1
-                        ) {
-                            // 轻提示
-                            $n_toast({
-                                message: '该文件已存在，不可重复上传',
-                            })
+                    if (
+                        // 如果开启去重
+                        props.unique
+                        // 如果该文件 hash 在上传文件列表中
+                        && $n_findIndex(uploadFileLists.value, { hash }) > -1
+                    ) {
+                        // 轻提示
+                        $n_toast({
+                            message: '该文件已存在，不可重复上传',
+                        })
 
-                            // 设置文件上传失败
-                            setFileFail(fileItem, '已存在')
+                        // 设置文件上传失败
+                        setFileFail(fileItem, '已存在')
 
-                            // 删除单个文件
-                            deleteFileItem(fileItem)
+                        // 删除单个文件
+                        deleteFileItem(fileItem)
 
-                        } else {
-                            // 设置文件 hash
-                            fileItem.hash = getFileItemHash(hash, configUpload)
-                            // 设置文件状态
-                            fileItem.status = UPLOAD_STATUS.hashChecked
-                            // 设置文件检查进度
-                            fileItem.progress = 100
-                        }
-
-                        // 设置单个文件信息
-                        setFileItemInfo(fileItem, setFileFail)
-                            .finally(function () {
-                                resolve()
-                            })
+                    } else {
+                        // 设置文件 hash
+                        fileItem.hash = await formatFileItemHash(hash)
+                        // 设置文件状态
+                        fileItem.status = UPLOAD_STATUS.hashChecked
+                        // 设置文件检查进度
+                        fileItem.progress = 100
                     }
 
-                    // 格式化上传文件 hash
-                    // --------------------------------------------------
-                    const {
-                        formatUploadFileHash,
-                    } = configs
-                    if ($n_isFunction(formatUploadFileHash)) {
-                        $n_runAsync(formatUploadFileHash)(hash, fileItem)
-                            .then(function (newHash) {
-                                // 下一步
-                                next($n_isValidString(newHash) ? newHash : hash)
-                            })
-                        return
-                    }
-                    // --------------------------------------------------
+                    // 设置单个文件信息
+                    await setFileItemInfo(fileItem, setFileFail)
 
-                    // 下一步
-                    next(hash)
+                    resolve()
                 }
             }
 
@@ -1526,43 +1550,6 @@ function create(options) {
     }
 
     /**
-     * 播放
-     */
-    function play({ hash, __img }) {
-
-        const src = __img ? __img : $n_getFile(hash)
-
-        let width
-        let height
-        let fullWidth = false
-        let fullHeight = false
-        let ok = true
-        let style = ''
-
-        if ($q.platform.is.mobile) {
-            width = $q.screen.width - 48 - 32
-            height = $q.screen.height - 48 - 32 - 6 - 52
-            fullWidth = true
-            fullHeight = true
-        } else {
-            width = 800 - 32
-            height = 400 - 32 - 6
-            ok = false
-            style = 'width:800px;max-width:800px;height:400px;max-height:400px;'
-        }
-
-        $q.dialog({
-            message: `<video style="width:${width}px;height:${height}px;" playsinline autoplay controls src="${src}" type="video/mp4" muted="muted"></video>`,
-            style,
-            html: true,
-            dark: true,
-            ok,
-            fullWidth,
-            fullHeight,
-        })
-    }
-
-    /**
      * 复制地址
      */
     function copyUrl({ type, hash }) {
@@ -1576,6 +1563,472 @@ function create(options) {
         if ($n_isValidString(_url)) {
             copy(_url, '复制地址成功')
         }
+    }
+
+    /**
+     * ==============================【私有函数】==============================
+     */
+
+    /**
+     * 格式化单个文件 hash
+     */
+    async function formatFileItemHash(hash) {
+
+        const {
+            hasMinioSuffix,
+            formatUploadFileHash,
+        } = configs.uploader
+
+        if (hasMinioSuffix && configUpload.type === 'minio') {
+            hash += '_'
+        }
+
+        // 如果有格式化上传文件 hash
+        if ($n_isFunction(formatUploadFileHash)) {
+            hash = await $n_runAsync(formatUploadFileHash)(hash)
+        }
+
+        return hash
+    }
+
+    /**
+     * 获取图片信息
+     */
+    function getImageInfo(fileItem) {
+        return new Promise(function (resolve) {
+            const img = new Image()
+            img.src = window.URL.createObjectURL(fileItem.file)
+            fileItem.__img = img.src
+            img.onload = function() {
+                fileItem.json = {
+                    w: this.naturalWidth,
+                    h: this.naturalHeight,
+                }
+                resolve(true)
+            }
+            img.onerror = function() {
+                resolve(false)
+            }
+        })
+    }
+
+    /**
+     * 获取媒体信息
+     */
+    function getMediaInfo(fileItem, type) {
+        return new Promise(function (resolve) {
+            const dom = document.createElement(type)
+            dom.src = URL.createObjectURL(fileItem.file)
+            dom.onerror = function() {
+                resolve(false)
+            }
+
+            // 如果为视频
+            if (type === 'video') {
+                dom.currentTime = 3
+                dom.oncanplay = async function() {
+
+                    fileItem.json = {
+                        w: this.videoWidth ? this.videoWidth : this.width,
+                        h: this.videoHeight ? this.videoHeight : this.height,
+                        d: this.duration,
+                    }
+
+                    // 获取视频缩略图 hash
+                    const p = await getVideoThumbHash(dom, fileItem.json)
+                    if (p) {
+                        fileItem.json.p = p
+                    }
+
+                    resolve(true)
+                }
+
+            // 否则为音频
+            } else {
+                dom.onloadedmetadata = function() {
+                    fileItem.json = {
+                        d: this.duration,
+                    }
+                    resolve(true)
+                }
+            }
+        })
+    }
+
+    /**
+     * 获取视频缩略图 hash
+     */
+    function getVideoThumbHash(dom, { w, h }) {
+        return new Promise(async function (resolve) {
+
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            canvas.setAttribute('width',  w)
+            canvas.setAttribute('height', h)
+            ctx.drawImage(dom, 0, 0, w, h)
+
+            const {
+                arrayBuffer,
+                file,
+            } = dataUrlToFile(canvas.toDataURL('image/jpeg', 0.8))
+
+            // 获取缩略图 hash
+            const spark = new SparkMD5.ArrayBuffer()
+            spark.append(arrayBuffer)
+            const hash = spark.end(false)
+            if (! hash) {
+                resolve(false)
+                return
+            }
+
+            // 创建原始单个文件
+            const fileItem = Object.assign(createRawFileItem(), {
+                // 设置文件 file
+                file,
+                // 设置文件类型
+                type: FilE_TYPE.image,
+                // 设置文件后缀
+                ext: 'jpg',
+                // 设置文件大小
+                size: file.size,
+                // 设置文件 hash
+                hash: await formatFileItemHash(hash),
+                // 设置文件 json
+                json: {
+                    w,
+                    h,
+                },
+            })
+
+            // 上传至服务器
+            await uploadServer({
+                fileType: FilE_TYPE.image,
+                waitUploadFileLists: [ fileItem ],
+                setFileSuccess(fileItem) {
+                    resolve(fileItem.hash)
+                },
+                setFileFail() {
+                    resolve(false)
+                },
+            })
+        })
+    }
+
+    /**
+     * 设置单个文件信息
+     */
+    function setFileItemInfo(fileItem, setFileFail) {
+        return new Promise(async function (resolve) {
+
+            // 如果已经设置过了
+            if (
+                $n_has(fileItem.json, 'w')
+                || $n_has(fileItem.json, 'd')
+            ) {
+                resolve(true)
+                return
+            }
+
+            let res
+
+            // 如果为图片
+            // --------------------------------------------------
+            if (fileItem.type === FilE_TYPE.image) {
+                res = await getImageInfo(fileItem)
+
+            // 如果为视频
+            // --------------------------------------------------
+            } else if (fileItem.type === FilE_TYPE.video) {
+                res = await getMediaInfo(fileItem, 'video')
+
+            // 如果为音频
+            // --------------------------------------------------
+            } else if (fileItem.type === FilE_TYPE.audio) {
+                res = await getMediaInfo(fileItem, 'audio')
+
+            // 否则为文件
+            } else {
+                // 先判断是否为图片
+                res = await getImageInfo(fileItem)
+                if (! res) {
+                    // 再判断是否为视频
+                    res = await getMediaInfo(fileItem, 'video')
+                    if (! res) {
+                        // 最后再判断是否为音频
+                        res = await getMediaInfo(fileItem, 'video')
+                    }
+                }
+            }
+            // --------------------------------------------------
+
+            if (res) {
+                resolve(true)
+            } else {
+                // 设置文件上传失败
+                setFileFail(fileItem)
+                resolve(false)
+            }
+        })
+    }
+
+    /**
+     * 获取上传参数
+     */
+    async function getUploadParams(type, bucket = 'public') {
+
+        // 缓存名
+        const cacheName = `upload_params_${type}_${bucket}`
+
+        // 获取缓存
+        const cache = $n_storage.get(cacheName)
+        if (cache !== null) {
+            return cache
+        }
+
+        // 请求数据
+        const { status, data } = await $n_http({
+            url: $n_config('apiFileUrl') + 'get_upload_params',
+            data: {
+                // 类型
+                type,
+                // 空间名称
+                bucket,
+            },
+        })
+
+        // 如果成功
+        if (! status || ! $n_isValidObject(data)) {
+            return false
+        }
+
+        // 【生产模式】
+        // --------------------------------------------------
+        // #ifdef IS_PRO
+        // 保存缓存(6 小时)
+        $n_storage.set(cacheName, data, 21600000)
+        // #endif
+        // --------------------------------------------------
+
+        return data
+    }
+
+    /**
+     * 删除上传参数缓存
+     */
+    function deleteUploadParams(type, bucket = 'public') {
+        $n_storage.delete(`upload_params_${type}_${bucket}`)
+    }
+
+    /**
+     * 上传至服务器
+     */
+    async function uploadServer(options) {
+
+        const {
+            fileType,
+            waitUploadFileLists,
+            setFileSuccess,
+            setFileFail,
+            warn,
+        } = Object.assign({
+            warn: true,
+        }, options)
+
+        // 获取上传参数
+        const uploadParams = await getUploadParams(configUpload.type)
+        if (uploadParams === false) {
+            for (const fileItem of waitUploadFileLists) {
+                setFileFail(fileItem, '上传失败')
+            }
+            if (warn) {
+                $n_toast({
+                    message: `获取[${configUpload.type}]上传参数失败`,
+                })
+            }
+            return false
+        }
+
+        // 是否上传 minio 备份
+        // --------------------------------------------------
+        let backupParams = null
+        let backupConfig = null
+        if (configUpload.type !== 'minio') {
+            backupConfig = getUpload(null, 'minio')
+            // 如果同步
+            if (backupConfig.sync === true) {
+                backupParams = await getUploadParams(backupConfig.type)
+                if (backupParams === false) {
+                    for (const fileItem of waitUploadFileLists) {
+                        setFileFail(fileItem, '上传失败')
+                    }
+                    if (warn) {
+                        $n_toast({
+                            message: `获取[${backupConfig.type}]上传参数失败`,
+                        })
+                    }
+                    return false
+                }
+            }
+        }
+        // --------------------------------------------------
+
+        // 批量上传
+        for (const fileItem of waitUploadFileLists) {
+            // 上传单个文件
+            await uploadFileItem(fileItem)
+        }
+
+        /**
+         * 上传单个文件
+         */
+        async function uploadFileItem(fileItem) {
+
+            // 设置文件状态
+            fileItem.status = UPLOAD_STATUS.uploading
+
+            // 上传文件
+            const upload = async function(configUpload, uploadParams, startPercent, halfPercent) {
+
+                const {
+                    // 上传地址
+                    url,
+                    // 文件名
+                    fileName,
+                    // 键值名
+                    keyName,
+                    // 上传数据
+                    data,
+                } = uploadParams
+
+                // 请求数据
+                const httpData = Object.assign({}, data)
+                // 文件
+                httpData[fileName] = fileItem.file
+                // 自定义文件 key
+                httpData[keyName] = fileItem.hash
+
+                const { status, data: res } = await $n_http({
+                    // 上传地址
+                    url,
+                    // 数据
+                    data: httpData,
+                    // 关闭错误提醒
+                    warn: false,
+                    // 关闭检查结果 code
+                    checkCode: false,
+                    // 不包含头部鉴权认证
+                    token: false,
+                    // 开启上传
+                    upload: true,
+                    // 取消请求
+                    onCancel(cancel) {
+                        // 设置中断上传
+                        fileItem.abort = function(msg) {
+                            cancel($n_isValidString(msg) ? msg : '已取消')
+                        }
+                    },
+                    // 监听上传进度
+                    onUploadProgress(percent) {
+                        // 设置上传进度
+                        fileItem.progress = Math.round(startPercent + (halfPercent ? percent / 2 : percent))
+                    },
+                })
+
+                // 如果请求失败
+                if (! status) {
+                    // 设置文件上传失败
+                    setFileFail(fileItem, res.msg)
+                    // 删除上传参数缓存
+                    deleteUploadParams(configUpload.type)
+                    return false
+                }
+
+                return res
+            }
+
+            const resUpload = await upload(configUpload, uploadParams, 0, !! backupParams)
+            if (resUpload === false) {
+                return false
+            }
+
+            // 是否已备份
+            let is_backup = 0
+
+            // 上传至备份服务器
+            // --------------------------------------------------
+            if (backupParams) {
+                const res = await upload(backupConfig, backupParams, 50, true)
+                if (res === false) {
+                    return false
+                }
+                is_backup = 1
+            }
+            // --------------------------------------------------
+
+            const {
+                title,
+                type,
+                hash,
+                ext,
+                size,
+                json,
+            } = fileItem
+
+            // 请求数据
+            const data = {
+                // 类型
+                type: configUpload.type,
+                // 需上传的文件类型
+                file_type: fileType,
+                // 文件
+                file: {
+                    // 标题
+                    title: title || '',
+                    // 类型
+                    type,
+                    // hash
+                    hash,
+                    // 后缀
+                    ext,
+                    // 文件大小
+                    size,
+                    // 文件 json
+                    json,
+                    // 是否已备份
+                    is_backup,
+                },
+                // 结果
+                result: $n_isValidObject(resUpload) ? resUpload : {},
+            }
+
+            // 请求 - 上传文件至 cdn
+            const { status: statusCallback, data: resCallback } = await $n_http({
+                url: $n_config('apiFileUrl') + 'upload_callback',
+                data,
+                // 关闭错误提示
+                warn: false,
+            })
+
+            // 请求失败
+            if (! statusCallback || ! $n_isValidObject(resCallback)) {
+                // 设置文件上传失败
+                setFileFail(fileItem, resCallback.msg || '上传失败')
+                return false
+            }
+
+            // 格式化 json
+            const _json = $n_json.parse(resCallback.json)
+            Object.assign(fileItem, resCallback, {
+                json: $n_isValidObject(_json) ? $n_numberDeep(_json) : {},
+            })
+
+            // 设置文件上传成功
+            setFileSuccess(fileItem)
+
+            return true
+        }
+
+        return true
     }
 
     return {
@@ -1610,7 +2063,9 @@ function create(options) {
         // 修改文件名
         editFileTitle,
         // 播放视频/音频
-        play,
+        play({ hash, __img }) {
+            $n_play(__img ? __img : hash)
+        },
         // 复制地址
         copyUrl,
     }
