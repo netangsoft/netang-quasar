@@ -454,21 +454,17 @@ export default {
             // 格式化当前值
             let val = formatToCurrentValue(currentValue.value, false)
 
-            // 如果当前值有变动
-            if (val !== currentValue.value) {
+            // 更新当前值
+            currentValue.value = val
 
-                // 更新当前值
-                currentValue.value = val
+            // 将当前值转为声明值
+            val = formatToModelValue(val)
 
-                // 将当前值转为声明值
-                val = formatToModelValue(val)
+            // 触发更新值
+            emitModelValue(val)
 
-                // 触发更新值
-                emitModelValue(val)
-
-                // 失去焦点触发
-                emit('blur', val)
-            }
+            // 失去焦点触发
+            emit('blur', val)
         }
 
         /**
