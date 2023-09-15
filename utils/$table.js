@@ -123,7 +123,7 @@ function create(options) {
         // 从参数中获取搜索值
         searchFromQuery: true,
         // 是否显示宫格
-        showGrid: true,
+        showGrid: false,
         // 是否显示可见列
         showVisibleColumns: true,
         // 是否开启缓存
@@ -365,7 +365,7 @@ function create(options) {
         const _tablePagination = $route.fullPath ? o.pagination : {}
 
         // 表格宫格
-        const _tableGrid = o.showGrid && isCache ? $n_storage.get('table:grid:' + cacheName) === true : false
+        const _tableGrid = isCache && $n_storage.get('table:grid:' + cacheName) === true ? true : o.showGrid
 
         // 获取原始数据
         const r = getRawData(_tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
@@ -556,7 +556,7 @@ function create(options) {
          * 监听表格宫格模式
          */
         watch(tableGrid, function(val) {
-            if (o.showGrid && isCache) {
+            if (isCache) {
                 // 设置宫格模式缓存(永久缓存)
                 $n_storage.set('table:grid:' + cacheName, val, 0)
             }
