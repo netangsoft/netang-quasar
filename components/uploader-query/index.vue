@@ -897,7 +897,7 @@ export default {
         &__item {
             // 单个文件
             &--file {
-                width: 100%;
+                width: 250px;
             }
         }
 
