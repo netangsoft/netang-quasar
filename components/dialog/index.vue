@@ -300,7 +300,7 @@ export default {
         /**
          * 对话框确认
          */
-        async function onDialogConfirm() {
+        async function onDialogConfirm(...args) {
 
             // 如果有确定按钮
             if ($n_isFunction(props.onConfirm)) {
@@ -313,7 +313,7 @@ export default {
                     return
                 }
 
-                const res = await $n_runAsync(props.onConfirm)(await $n_runAsync(compSubmit)(), hide)
+                const res = await $n_runAsync(props.onConfirm)(await $n_runAsync(compSubmit)(...args), hide)
                 if (res === false) {
                     return
                 }

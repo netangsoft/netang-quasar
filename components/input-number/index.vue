@@ -7,6 +7,7 @@
         :disable="disable"
         :readonly="readonly"
         v-model="currentValue"
+        @update:model-value="onUpdate"
         @blur="onBlur"
         v-bind="$attrs"
     >
@@ -313,19 +314,7 @@ export default {
         /**
          * 监听 当前最小值 / 当前最大值 / 当前小数位数
          */
-        watch([currentMin, currentMax, currentDecimalLength], function () {
-
-            // 格式化当前值
-            const val = formatToCurrentValue(currentValue.value, false)
-
-            // 如果当前值有变化
-            if (val !== currentValue.value) {
-                // 更新当前值
-                currentValue.value = val
-                // 更新值
-                emitModelValue(formatToModelValue(val))
-            }
-        })
+        watch([currentMin, currentMax, currentDecimalLength], onUpdate)
 
         // ==========【方法】=============================================================================================
 
@@ -447,6 +436,23 @@ export default {
         }
 
         /**
+         * 更新值触发
+         */
+        function onUpdate() {
+
+            // 格式化当前值
+            const newVal = formatToCurrentValue(currentValue.value, false)
+
+            // 如果当前值有变化
+            if (newVal !== currentValue.value) {
+                // 更新当前值
+                currentValue.value = newVal
+                // 更新值
+                emitModelValue(formatToModelValue(newVal))
+            }
+        }
+
+        /**
          * 失去焦点触发
          */
         function onBlur() {
@@ -504,6 +510,8 @@ export default {
             // 当前是否禁用增加按钮
             currentDisablePlus,
 
+            // 更新值触发
+            onUpdate,
             // 失去焦点触发
             onBlur,
             // 改变值
