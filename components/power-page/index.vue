@@ -6,7 +6,9 @@
             fit
             html
             v-if="pageStatus === false"
-        />
+        >
+            <slot name="empty" />
+        </n-empty>
         <!-- 插槽 -->
         <slot v-else-if="pageStatus === true" />
         <!-- 加载 -->

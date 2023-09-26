@@ -24,6 +24,8 @@
                 v-else
             >{{description}}</div>
         </template>
+
+        <slot />
     </div>
 </template>
 
