@@ -78,6 +78,7 @@ import BigNumber from 'bignumber.js'
 import $n_filter from 'lodash/filter'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_sleep from '@netang/utils/sleep'
 
 export default {
 
@@ -147,6 +148,11 @@ export default {
      * 组合式
      */
     setup(props, { emit, slots }) {
+
+        // ==========【数据】============================================================================================
+
+        // 创建睡眠实例
+        const sleep = $n_sleep()
 
         // ==========【计算属性】=========================================================================================
 
@@ -438,7 +444,10 @@ export default {
         /**
          * 更新值触发
          */
-        function onUpdate() {
+        async function onUpdate() {
+
+            // 延迟执行
+            await sleep(500)
 
             // 格式化当前值
             const newVal = formatToCurrentValue(currentValue.value, false)
