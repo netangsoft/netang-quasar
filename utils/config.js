@@ -35,6 +35,8 @@ export const configs = {
     uploader: {
         // 如果是 Minio 上传, 则在后面加上下划线
         hasMinioSuffix: true,
+        // minio 文件标签
+        minioFileTag: '私',
         // 格式化上传文件 hash
         formatUploadFileHash: null,
         // 格式化上传网络链接

@@ -36,6 +36,9 @@
             @dblclick.prevent.stop="onNoop"
             v-if="preview"
         ></div>
+
+        <!-- minio 标签 -->
+        <span class="n-img-minio-tag" v-if="minioTag">{{minioTag}}</span>
     </q-img>
 
     <!-- 如果没有图片 -->
@@ -61,6 +64,9 @@
                 <slot />
             </slot>
         </div>
+
+        <!-- minio 标签 -->
+        <span class="n-img-minio-tag" v-if="minioTag">{{minioTag}}</span>
     </div>
 </template>
 
@@ -68,9 +74,12 @@
 import { computed } from 'vue'
 
 import $n_px from '@netang/utils/px'
+import $n_indexOf from '@netang/utils/indexOf'
 
 import $n_getImage from '../../utils/getImage'
 import $n_previewImage from '../../utils/previewImage'
+
+import { configs } from '../../utils/config'
 
 export default {
 
@@ -133,9 +142,7 @@ export default {
          */
         const currentSrc = computed(function () {
             const res = $n_getImage(props.src, { w: props.width, zoom: true })
-            if (res) {
-                return res
-            }
+            return res ? res : ''
         })
 
         /**
@@ -167,6 +174,23 @@ export default {
             }
         })
 
+        /**
+         * minio 标签
+         */
+        const {
+            minioFileTag,
+        } = configs.uploader
+        const minioTag = computed(function () {
+            return (
+                minioFileTag
+                && currentSrc.value
+                && (
+                    $n_indexOf(currentSrc.value, '_?') > -1
+                    || currentSrc.value.slice(-1) === '_'
+                )
+            ) ? minioFileTag : ''
+        })
+
         // ==========【方法】=============================================================================================
 
         /**
@@ -189,6 +213,8 @@ export default {
             currentSrc,
             // 图片声明属性
             imageProps,
+            // minio 标签
+            minioTag,
             // 预览
             onPreview,
             // 点击空方法
@@ -199,6 +225,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/assets/sass/variables.scss";
+
 .n-img {
     // 圆形
     &--round {
@@ -222,6 +250,20 @@ export default {
         .n-img__settings {
             visibility: visible;
         }
+    }
+
+    // minio 标签
+    &-minio-tag {
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
+        padding: 1px 2px;
+        border-radius: 3px;
+        background-color: $primary;
+        color: #ffffff;
+        transform: scale(0.6);
+        opacity: 0.8;
+        pointer-events: none;
     }
 }
 
