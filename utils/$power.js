@@ -429,41 +429,55 @@ function create(options) {
             // 权限按钮点击
             data.powerBtnClick = async function (powerBtn, tableSelected) {
 
-                // 权限请求
-                await request({
-                    // power
-                    $power: data,
-                    // 按钮数据
-                    powerBtn,
-                    // 权限路由参数
-                    $route,
-                    // 当前路由参数
-                    $currentRoute,
-                    // 表格选中数据
-                    tableSelected,
-                    // 表格实例
-                    $table: _data.$table,
-                    // 表单实例
-                    $form: _data.$form,
-                    // 检查是否正在上传文件
-                    checkUploading,
-                    // 加载中
-                    loading(status) {
-                        powerBtn.loading = status
-                    },
-                    // 上传网络外链
-                    uploadNet,
-                    // 请求上传网络外链
-                    requestUploadNet: o.requestUploadNet,
-                    // 请求前执行
-                    requestBefore: o.requestBefore,
-                    // 请求成功执行
-                    requestSuccess: o.requestSuccess,
-                    // 请求失败执行
-                    requestFail: o.requestFail,
-                    // 请求后执行
-                    requestAfter: o.requestAfter,
-                })
+                async function next() {
+
+                    // 权限请求
+                    await request({
+                        // power
+                        $power: data,
+                        // 按钮数据
+                        powerBtn,
+                        // 权限路由参数
+                        $route,
+                        // 当前路由参数
+                        $currentRoute,
+                        // 表格选中数据
+                        tableSelected,
+                        // 表格实例
+                        $table: _data.$table,
+                        // 表单实例
+                        $form: _data.$form,
+                        // 检查是否正在上传文件
+                        checkUploading,
+                        // 加载中
+                        loading(status) {
+                            powerBtn.loading = status
+                        },
+                        // 上传网络外链
+                        uploadNet,
+                        // 请求上传网络外链
+                        requestUploadNet: o.requestUploadNet,
+                        // 请求前执行
+                        requestBefore: o.requestBefore,
+                        // 请求成功执行
+                        requestSuccess: o.requestSuccess,
+                        // 请求失败执行
+                        requestFail: o.requestFail,
+                        // 请求后执行
+                        requestAfter: o.requestAfter,
+                    })
+                }
+
+                // 如果权限按钮有自定义 click 事件
+                if (
+                    $n_has(powerBtn, 'click')
+                    && $n_isFunction(powerBtn.click)
+                    && await $n_runAsync(powerBtn.click)({ powerBtn, tableSelected, next }) === false
+                ) {
+                    return
+                }
+
+                await next()
             }
         }
     }
@@ -896,6 +910,14 @@ function getRequestQuery(o) {
         if ($n_isValidObject(resTable)) {
             Object.assign(query, resTable)
         }
+    }
+
+    // 如果有自定义参数
+    if (
+        $n_has(o.powerBtn.data, 'query')
+        && $n_isValidObject(o.powerBtn.data.query)
+    ) {
+        Object.assign(query, o.powerBtn.data.query)
     }
 
     return $n_cloneDeep($n_numberDeep(query))
