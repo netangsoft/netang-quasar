@@ -224,6 +224,15 @@
     }
 }
 
+.n-field {
+    &--console {
+        .q-field__native {
+            font-family: Consolas;
+        }
+    }
+}
+
+
 /**
  * 亮色
  */
