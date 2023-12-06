@@ -217,6 +217,46 @@ export default function getImage(src, options) {
                         }
                     }
                 break
+
+                // 【oss】
+                // -------------------------------------------------------------------------------------------------
+                // 文档: https://help.aliyun.com/document_detail/44686.html
+                case 'oss':
+
+                    // 裁剪图片方式
+                    src += `?x-oss-process=image`
+
+                    // 缩放
+                    if (w || h) {
+
+                        src += '/resize'
+
+                        // 宽
+                        if (w) {
+                            src += ',w_' + w
+                        }
+
+                        // 高
+                        if (h) {
+                            src += ',h_' + h
+                        }
+                    }
+
+                    // 质量
+                    if (q) {
+                        src += '/quality,q_' + q
+                    }
+
+                    // 渐进显示
+                    if (interlace) {
+                        src += '/interlace,1'
+                    }
+
+                    // 格式化
+                    if (format) {
+                        src += '/format,' + format
+                    }
+                    break
             }
 
             // 【调试模式】

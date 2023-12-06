@@ -43,6 +43,8 @@ export const configs = {
         formatUploadNet: null,
         // 获取文件地址
         getFileUrl: null,
+        // 上传请求
+        onUploadHttp: null,
     },
 }
 

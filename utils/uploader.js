@@ -1886,6 +1886,11 @@ function create(options) {
             // 设置文件状态
             fileItem.status = UPLOAD_STATUS.uploading
 
+            const {
+                // 上传请求
+                onUploadHttp,
+            } = configs.uploader
+
             // 上传文件
             const upload = async function(configUpload, uploadParams, startPercent, halfPercent) {
 
@@ -1907,7 +1912,7 @@ function create(options) {
                 // 自定义文件 key
                 httpData[keyName] = fileItem.hash
 
-                const { status, data: res } = await $n_http({
+                let opts = {
                     // 上传地址
                     url,
                     // 数据
@@ -1932,7 +1937,17 @@ function create(options) {
                         // 设置上传进度
                         fileItem.progress = Math.round(startPercent + (halfPercent ? percent / 2 : percent))
                     },
-                })
+                }
+
+                // 上传请求
+                if ($n_isFunction(onUploadHttp)) {
+                    const res = onUploadHttp(opts, fileItem)
+                    if (res) {
+                        opts = res
+                    }
+                }
+
+                const { status, data: res } = await $n_http(opts)
 
                 // 如果请求失败
                 if (! status) {
