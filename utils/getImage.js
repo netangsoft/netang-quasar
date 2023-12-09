@@ -141,47 +141,47 @@ export default function getImage(src, options) {
                     )
             )
 
-            // 判断图片上传方式
-            switch (type) {
+            const {
+                compress,
+                mode,
+                w,
+                h,
+                q,
+                interlace,
+                ignoreError,
+                format,
+            } = Object.assign({
+                // 是否压缩
+                compress: true,
+                // 模式
+                mode: '2',
+                // 宽
+                w: 0,
+                // 高
+                h: 0,
+                // 质量
+                q: 75,
+                // 是否支持渐进显示
+                interlace: false,
+                // 是否忽略错误
+                // 主要针对图片兼容性的问题导致无法处理, 取值为 1 时, 则处理失败时返回原图
+                // 不设置此参数, 默认处理失败时返回错误信息
+                ignoreError: false,
+                // 格式
+                format: 'webp',
+            }, options)
 
-                // 七牛云
-                // 文档: https://developer.qiniu.com/dora/1279/basic-processing-images-imageview2
-                case 'qiniu':
-                // minio
-                case 'minio':
+            // 如果压缩
+            if (compress) {
 
-                    const {
-                        compress,
-                        mode,
-                        w,
-                        h,
-                        q,
-                        interlace,
-                        ignoreError,
-                        format,
-                    } = Object.assign({
-                        // 是否压缩
-                        compress: true,
-                        // 模式
-                        mode: '2',
-                        // 宽
-                        w: 0,
-                        // 高
-                        h: 0,
-                        // 质量
-                        q: 75,
-                        // 是否支持渐进显示
-                        interlace: false,
-                        // 是否忽略错误
-                        // 主要针对图片兼容性的问题导致无法处理, 取值为 1 时, 则处理失败时返回原图
-                        // 不设置此参数, 默认处理失败时返回错误信息
-                        ignoreError: false,
-                        // 格式
-                        format: 'webp',
-                    }, options)
+                // 判断图片上传方式
+                switch (type) {
 
-                    // 如果压缩
-                    if (compress) {
+                    // 七牛云
+                    // 文档: https://developer.qiniu.com/dora/1279/basic-processing-images-imageview2
+                    case 'qiniu':
+                    // minio
+                    case 'minio':
 
                         // 裁剪图片方式
                         src += `?imageView2/${mode}`
@@ -215,48 +215,48 @@ export default function getImage(src, options) {
                         if (format) {
                             src += '/format/' + format
                         }
-                    }
-                break
-
-                // 【oss】
-                // -------------------------------------------------------------------------------------------------
-                // 文档: https://help.aliyun.com/document_detail/44686.html
-                case 'oss':
-
-                    // 裁剪图片方式
-                    src += `?x-oss-process=image`
-
-                    // 缩放
-                    if (w || h) {
-
-                        src += '/resize'
-
-                        // 宽
-                        if (w) {
-                            src += ',w_' + w
-                        }
-
-                        // 高
-                        if (h) {
-                            src += ',h_' + h
-                        }
-                    }
-
-                    // 质量
-                    if (q) {
-                        src += '/quality,q_' + q
-                    }
-
-                    // 渐进显示
-                    if (interlace) {
-                        src += '/interlace,1'
-                    }
-
-                    // 格式化
-                    if (format) {
-                        src += '/format,' + format
-                    }
                     break
+
+                    // 【oss】
+                    // -------------------------------------------------------------------------------------------------
+                    // 文档: https://help.aliyun.com/document_detail/44686.html
+                    case 'oss':
+
+                        // 裁剪图片方式
+                        src += `?x-oss-process=image`
+
+                        // 缩放
+                        if (w || h) {
+
+                            src += '/resize'
+
+                            // 宽
+                            if (w) {
+                                src += ',w_' + w
+                            }
+
+                            // 高
+                            if (h) {
+                                src += ',h_' + h
+                            }
+                        }
+
+                        // 质量
+                        if (q) {
+                            src += '/quality,q_' + q
+                        }
+
+                        // 渐进显示
+                        if (interlace) {
+                            src += '/interlace,1'
+                        }
+
+                        // 格式化
+                        if (format) {
+                            src += '/format,' + format
+                        }
+                        break
+                }
             }
 
             // 【调试模式】
