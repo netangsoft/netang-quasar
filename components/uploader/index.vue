@@ -6,6 +6,7 @@
             ref="fileRef"
             class="hidden"
             type="file"
+            capture="camera"
             :multiple="count !== 1"
             @change="uploader.fileChange"
         >
