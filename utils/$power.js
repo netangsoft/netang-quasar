@@ -1134,6 +1134,12 @@ async function request(options) {
 
             // 验证表单
             if (! await o.$form.formRef.value.validate()) {
+
+                // 轻提示
+                $n_toast({
+                    message: '表单中有无效值',
+                })
+
                 return
             }
         }
