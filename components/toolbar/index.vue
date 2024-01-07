@@ -133,7 +133,11 @@ export default {
 <style lang="scss">
 .n-toolbar {
     &__body {
-        .q-btn {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        > * {
             margin-top: 7px;
 
             // 非第一个子节点
