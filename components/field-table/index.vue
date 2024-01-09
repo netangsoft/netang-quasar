@@ -19,6 +19,7 @@
         :disable="disable"
         :readonly="readonly"
         :clearable="clearable"
+        for="field-table"
         @focus="onFieldFocus"
         @blur="onFieldBlur"
         @clear="onFieldClear"

@@ -5,6 +5,7 @@
         :disable="disable"
         :readonly="readonly"
         :clearable="clearable"
+        for="field-tree"
         @focus="onFieldFocus"
         @blur="onFieldBlur"
         @clear="onFieldClear"

@@ -6,6 +6,7 @@
         :outlined="outlined"
         :dense="dense"
         :readonly="readonly"
+        for="field-text"
         v-bind="$attrs"
     >
         <template v-slot:control>

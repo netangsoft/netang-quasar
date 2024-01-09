@@ -2,6 +2,7 @@
     <q-field
         :model-value="modelValue"
         :readonly="readonly"
+        for="field-date"
         @clear="onClear"
         v-bind="$attrs"
     >
