@@ -135,14 +135,17 @@ export default {
             }
 
             // 版本
-            const version = '0.34.1'
+            const version = '0.43.0'
+
+            // 协议
+            const protocol = `${location.protocol}//`
 
             // 加载 script
             script([
                 [
-                    `https://cdn.staticfile.org/monaco-editor/${version}/min/vs/loader.js`,
-                    `https://fastly.jsdelivr.net/npm/monaco-editor@${version}/min/vs/loader.js`,
-                    `https://unpkg.com/monaco-editor@${version}/min/vs/loader.js`,
+                    `${protocol}cdn.staticfile.org/monaco-editor/${version}/min/vs/loader.js`,
+                    `${protocol}fastly.jsdelivr.net/npm/monaco-editor@${version}/min/vs/loader.js`,
+                    `${protocol}unpkg.com/monaco-editor@${version}/min/vs/loader.js`,
                 ]
             ])
                 .then(function ([ url ]) {
