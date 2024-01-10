@@ -314,14 +314,23 @@ export default {
         /**
          * 监听声明值
          */
-        watch([()=>props.modelValue, ()=>props.end, ()=>props.type], function() {
-            dateValue.value = formatDateValue()
-            Object.assign(timeValue, formatTimeValue())
-
-            showValue.value = updateValue(dateValue.value, timeValue, false)
+        watch([()=>props.modelValue, ()=>props.end], function() {
+            watchValue(false)
+        })
+        watch(()=>props.type, function() {
+            watchValue(true)
         })
 
         // ==========【方法】=============================================================================================
+
+        /**
+         * 监听值
+         */
+        function watchValue(isEmit) {
+            dateValue.value = formatDateValue()
+            Object.assign(timeValue, formatTimeValue())
+            showValue.value = updateValue(dateValue.value, timeValue, isEmit)
+        }
 
         /**
          * 格式化日期值
@@ -764,9 +773,9 @@ export default {
          * 清空
          */
         function onClear() {
-            emit('update:modelValue', null)
+            emit('update:modelValue', '')
             if (isRange.value) {
-                emit('update:end', null)
+                emit('update:end', '')
             }
             popupRef.value.hide()
         }

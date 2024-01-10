@@ -559,7 +559,7 @@ export default {
 
             // 触发更新值
             // 清空树数据
-            emitModelValue(props.multiple ? [] : null)
+            emitModelValue(props.multiple ? [] : '')
 
             // 隐藏弹出层
             popupRef.value.hide()

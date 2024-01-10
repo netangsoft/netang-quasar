@@ -449,33 +449,96 @@ export function formatValue(rawSearchOptions, searchValue) {
         // 否则为数字
         } else {
 
-            if (
-                // 如果是日期
-                type === 'date'
-                // 如果类型为快捷日期
-                && value1.compare >= 20
-            ) {
-                const res = getQuickRange(value1.compare - 20, true)
-                if (res) {
+            // 如果是日期
+            if (type === 'date') {
 
-                    lists.push(
-                        // 日期起
-                        {
-                            field: name,
-                            // ≥
-                            compare: dicts.SEARCH_COMPARE_TYPE__GTE,
-                            value: $n_numberDeep(quasarDate.formatDate($n_toDate(`${res.date.from} ${res.time.from}`), 'X')),
-                        },
-                        // 日期止
-                        {
-                            field: name,
-                            // ≤
-                            compare: dicts.SEARCH_COMPARE_TYPE__LTE,
-                            value: $n_numberDeep(quasarDate.formatDate($n_toDate(`${res.date.to} ${res.time.to}`), 'X')),
+                // 如果 为 == || !=
+                const isEqual = value1.compare === dicts.SEARCH_COMPARE_TYPE__EQUAL
+                if (isEqual || value1.compare === dicts.SEARCH_COMPARE_TYPE__NOT_EQUAL) {
+                    const { value, dateType } = value1
+                    if ($n_isRequired(value)) {
+
+                        // 当前时间
+                        const now = $n_toDate(value)
+
+                        let end
+                        switch (dateType) {
+                            // 年
+                            case 'year':
+                            // 月
+                            case 'month':
+                            // 日
+                            case 'day':
+                                end = quasarDate.endOfDate(now, dateType)
+                                break
+                            // 分
+                            case 'datetime':
+                                end = $n_toDate(quasarDate.formatDate(now, 'YYYY/MM/DD HH:mm:59'))
+                                break
                         }
-                    )
+
+                        let compare1
+                        let compare2
+
+                        // 如果为 ==
+                        if (isEqual) {
+                            // ≥
+                            compare1 = dicts.SEARCH_COMPARE_TYPE__GTE
+                            // ≤
+                            compare2 = dicts.SEARCH_COMPARE_TYPE__LTE
+
+                        // 否则为 !=
+                        } else {
+                            // <
+                            compare1 = dicts.SEARCH_COMPARE_TYPE__LT
+                            // >
+                            compare2 = dicts.SEARCH_COMPARE_TYPE__GT
+                        }
+
+                        lists.push(
+                            // 日期起
+                            {
+                                field: name,
+                                // ≥
+                                compare: compare1,
+                                value,
+                            },
+                            // 日期止
+                            {
+                                field: name,
+                                // ≤
+                                compare: compare2,
+                                value: $n_numberDeep(quasarDate.formatDate(end, 'X')),
+                            }
+                        )
+                    }
+                    return
+
+                // 如果类型为快捷日期
+                } else if (value1.compare >= 20) {
+
+                    const res = getQuickRange(value1.compare - 20, true)
+                    if (res) {
+
+                        lists.push(
+                            // 日期起
+                            {
+                                field: name,
+                                // ≥
+                                compare: dicts.SEARCH_COMPARE_TYPE__GTE,
+                                value: $n_numberDeep(quasarDate.formatDate($n_toDate(`${res.date.from} ${res.time.from}`), 'X')),
+                            },
+                            // 日期止
+                            {
+                                field: name,
+                                // ≤
+                                compare: dicts.SEARCH_COMPARE_TYPE__LTE,
+                                value: $n_numberDeep(quasarDate.formatDate($n_toDate(`${res.date.to} ${res.time.to}`), 'X')),
+                            }
+                        )
+                    }
+                    return
                 }
-                return
             }
 
             // 添加值1
