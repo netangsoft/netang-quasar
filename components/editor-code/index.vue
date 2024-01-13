@@ -143,7 +143,7 @@ export default {
             // 加载 script
             script([
                 [
-                    `${protocol}cdn.staticfile.org/monaco-editor/${version}/min/vs/loader.js`,
+                    `${protocol}cdn.bootcdn.net/ajax/libs/monaco-editor/${version}/min/vs/loader.js`,
                     `${protocol}fastly.jsdelivr.net/npm/monaco-editor@${version}/min/vs/loader.js`,
                     `${protocol}unpkg.com/monaco-editor@${version}/min/vs/loader.js`,
                 ]
