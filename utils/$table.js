@@ -1192,7 +1192,8 @@ function create(options) {
  * 获取表格配置
  */
 function config(routePath, path, defaultValue) {
-    return $n_cloneDeep($n_get(tablesConfig, $n_slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue))
+    const res = $n_get(tablesConfig, $n_slash(routePath, 'start', false) + (path ? '.' + path : ''), defaultValue)
+    return $n_cloneDeep($n_isFunction(res) ? res() : res)
 }
 
 /**
