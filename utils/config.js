@@ -46,6 +46,8 @@ export const configs = {
         // 上传请求
         onUploadHttp: null,
     },
+    // 鉴权过期时间(2 天)
+    authExpireTime: 172800000,
 }
 
 /**

@@ -128,6 +128,10 @@ export default {
             type: [String, Number],
             default: '600px',
         },
+        // 最小高度
+        minHeight: [String, Number],
+        // 最大宽度
+        maxWidth: [String, Number],
         // 是否全屏
         fullscreen: Boolean,
         // 是否是页面容器
@@ -258,6 +262,14 @@ export default {
                 setWH(style, 'height', 'vh')
                 // 最小宽度
                 setWH(style, 'minWidth', 'vw')
+                // 最小高度度
+                if (props.minHeight) {
+                    setWH(style, 'minHeight', 'vh')
+                }
+                // 最大宽度
+                if (props.maxWidth) {
+                    setWH(style, 'maxWidth', 'vw')
+                }
             }
 
             return style

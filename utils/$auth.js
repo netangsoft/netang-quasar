@@ -1,8 +1,9 @@
 import $n_router from '@netang/utils/vue/router'
 
 import $n_isValidObject from '@netang/utils/isValidObject'
-import $n_cookie from '@netang/utils/cookie'
+import $n_storage from '@netang/utils/storage'
 
+import { configs } from './config'
 import { stateUserInfo } from '../store'
 import { checkUserInfo } from './useAuth'
 
@@ -58,7 +59,7 @@ function _updateUserInfo(res) {
     }
 
     // 保存缓存(永久缓存)
-    $n_cookie.set('_tk', res, 0)
+    $n_storage.set('_tk', res, configs.authExpireTime)
 
     // 设置用户信息状态
     stateUserInfo.value = res
@@ -96,7 +97,7 @@ function pushLogin(query) {
 function logout() {
 
     // 删除管理员信息
-    $n_cookie.delete('_tk')
+    $n_storage.delete('_tk')
 
     // 清空用户信息状态
     stateUserInfo.value = {
