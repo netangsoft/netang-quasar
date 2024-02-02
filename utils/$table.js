@@ -21,6 +21,7 @@ import $n_storage from '@netang/utils/storage'
 
 import $n_isRequired from '@netang/utils/isRequired'
 import $n_forIn from '@netang/utils/forIn'
+import $n_run from '@netang/utils/run'
 import $n_runAsync from '@netang/utils/runAsync'
 import $n_isValidObject from '@netang/utils/isValidObject'
 import $n_isValidValue from '@netang/utils/isValidValue'
@@ -110,6 +111,14 @@ function create(options) {
         },
         // 每页显示行数选项
         rowsPerPageOptions,
+        // 请求前执行
+        requestBefore: null,
+        // 请求成功执行
+        requestSuccess: null,
+        // 请求失败执行
+        requestFail: null,
+        // 请求后执行
+        requestAfter: null,
         // 自定义请求方法
         request: null,
         // 格式化单条数据
@@ -921,7 +930,7 @@ function create(options) {
         } = props
 
         // http 请求参数
-        const httpOptions = Object.assign({
+        let httpOptions = Object.assign({
             // 请求数据
             url: $n_isValidString(o.url) ? o.url : $route.path,
             // 请求数据
@@ -931,68 +940,131 @@ function create(options) {
             debounce: false,
         }, o.httpSettings)
 
-        const { status, data: res } = $n_isFunction(o.request)
-            // 如果有自定义请求方法
-            ? await $n_runAsync(o.request)({
-                // http 请求参数
-                httpOptions,
-                // 表格声明属性
-                props,
-                // 表格行数据
-                rows: tableRows,
-                // 表格已选数据
-                selected: tableSelected,
-            })
-            // 否则请求服务器
-            : await $n_http(httpOptions)
+        // 下一步
+        async function next() {
 
-        // 请求成功
-        if (status) {
-
-            const {
-                // 返回数据
-                rows,
-                // 数据总数
-                total,
-            } = res
-
-            // 如果请求表格合计
-            if (isRequestSummary) {
-                const summary = $n_get(res, 'summary')
-                tableSummary.value = $n_isValidObject(summary) ? summary : null
-            }
-
-            // 更新页码
-            tablePagination.value.page = page
-            // 更新每页的数据条数
-            tablePagination.value.rowsPerPage = rowsPerPage
-            // 更新数据总数
-            tablePagination.value.rowsNumber = total
-            // 更新排序字段
-            tablePagination.value.sortBy = sortBy
-            // 更新是否降序排列
-            tablePagination.value.descending = descending
-
-            // 格式化单条数据
-            if ($n_isFunction(o.formatRow)) {
-                $n_forEach(rows, function(row) {
-                    o.formatRow({
-                        row,
-                        rows: tableRows,
-                        selected: tableSelected,
-                    })
+            const e = $n_isFunction(o.request)
+                // 如果有自定义请求方法
+                ? await $n_runAsync(o.request)({
+                    // http 请求参数
+                    httpOptions,
+                    // 表格声明属性
+                    props,
+                    // 表格行数据
+                    rows: tableRows,
+                    // 表格已选数据
+                    selected: tableSelected,
                 })
+                // 否则请求服务器
+                : await $n_http(httpOptions)
+
+            const { status, data: res } = e
+
+            // 返回结果数据
+            const resultData = Object.assign({
+                // 请求地址
+                requestUrl: httpOptions.url,
+                // 参数
+                options: httpOptions,
+                // 请求数据
+                requestData: httpOptions.data,
+            }, e)
+
+            // 请求后执行
+            if (await $n_runAsync(o.requestAfter)(resultData) === false) {
+                return
             }
 
-            // 清除现有数据并添加新数据
-            tableRows.value.splice(0, tableRows.value.length, ...rows)
+            // 请求成功
+            if (status) {
+
+                // 下一步
+                function nextSuccess() {
+
+                    const {
+                        // 返回数据
+                        rows,
+                        // 数据总数
+                        total,
+                    } = res
+
+                    // 如果请求表格合计
+                    if (isRequestSummary) {
+                        const summary = $n_get(res, 'summary')
+                        tableSummary.value = $n_isValidObject(summary) ? summary : null
+                    }
+
+                    // 更新页码
+                    tablePagination.value.page = page
+                    // 更新每页的数据条数
+                    tablePagination.value.rowsPerPage = rowsPerPage
+                    // 更新数据总数
+                    tablePagination.value.rowsNumber = total
+                    // 更新排序字段
+                    tablePagination.value.sortBy = sortBy
+                    // 更新是否降序排列
+                    tablePagination.value.descending = descending
+
+                    // 格式化单条数据
+                    if ($n_isFunction(o.formatRow)) {
+                        $n_forEach(rows, function(row) {
+                            o.formatRow({
+                                row,
+                                rows: tableRows,
+                                selected: tableSelected,
+                            })
+                        })
+                    }
+
+                    // 清除现有数据并添加新数据
+                    tableRows.value.splice(0, tableRows.value.length, ...rows)
+
+                    // 取消请求表格合计
+                    isRequestSummary = false
+
+                    // 取消加载
+                    tableLoading.value = false
+                }
+
+                // 请求成功执行
+                if (await $n_runAsync(o.requestSuccess)(Object.assign({ next: nextSuccess }, resultData)) === false) {
+                    return
+                }
+
+                nextSuccess()
+
+            // 否则请求失败
+            } else {
+
+                // 请求失败执行
+                $n_run(o.requestFail)(resultData)
+
+                // 取消请求表格合计
+                isRequestSummary = false
+
+                // 取消加载
+                tableLoading.value = false
+            }
         }
 
-        // 取消请求表格合计
-        isRequestSummary = false
+        if (o.requestBefore) {
 
-        // 取消加载
-        tableLoading.value = false
+            // 请求前执行
+            const resBefore = await $n_runAsync(o.requestBefore)({
+                options: httpOptions,
+                next,
+            })
+            if (resBefore !== void 0) {
+                if (resBefore === false) {
+                    return
+                }
+                httpOptions = resBefore
+            }
+        }
+
+        // 下一步
+        next()
+            .finally()
     }
 
     /**
