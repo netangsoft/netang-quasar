@@ -1418,7 +1418,7 @@ function getPageData($route) {
         $route = $n_router.getRoute()
     }
 
-    const path = $n_get($route, 'path')
+    let path = $n_get($route, 'path')
     if (! path) {
         return $n_fail('路由参数错误')
     }
@@ -1426,6 +1426,8 @@ function getPageData($route) {
     if (! statePower.value.v) {
         return $n_fail('没有获取到权限数据')
     }
+
+    path = $n_slash(path, 'start', true)
 
     // 获取角色数据
     const { urls, btns } = $n_cloneDeep(statePower.value)
