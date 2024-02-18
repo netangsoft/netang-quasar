@@ -379,8 +379,6 @@ function create(options) {
         // 获取原始数据
         const r = getRawData(_tableColumns, Object.assign({}, $route.query), o.searchFromQuery)
 
-        console.log('-----r', $n.cloneDeep(r.firstTableSearchValue))
-
         // 原始参数
         rawQuery = r.rawQuery
         // 原始表格搜索参数

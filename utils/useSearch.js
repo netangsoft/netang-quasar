@@ -197,9 +197,6 @@ function formatItemValueCompare(value, { compareOptions1 }) {
  */
 export function getRawData(tableColumns, query, searchFromQuery = true) {
 
-
-    console.log('-----query', $n.cloneDeep(query))
-
     // 原始参数
     const rawQuery = {}
     // 原始表格搜索参数
