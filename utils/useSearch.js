@@ -6,15 +6,17 @@ import $n_isFunction from 'lodash/isFunction'
 import $n_findIndex from 'lodash/findIndex'
 
 import $n_forEach from '@netang/utils/forEach'
-import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_join from '@netang/utils/join'
 import $n_split from '@netang/utils/split'
+import $n_isJson from '@netang/utils/isJson'
+import $n_json from '@netang/utils/json'
 import $n_indexOf from '@netang/utils/indexOf'
 
 import $n_isRequired from '@netang/utils/isRequired'
 import $n_forIn from '@netang/utils/forIn'
 import $n_runAsync from '@netang/utils/runAsync'
 import $n_isValidObject from '@netang/utils/isValidObject'
+import $n_isValidArray from '@netang/utils/isValidArray'
 import $n_isValidValue from '@netang/utils/isValidValue'
 import $n_trimString from '@netang/utils/trimString'
 import $n_numberDeep from '@netang/utils/numberDeep'
@@ -195,6 +197,9 @@ function formatItemValueCompare(value, { compareOptions1 }) {
  */
 export function getRawData(tableColumns, query, searchFromQuery = true) {
 
+
+    console.log('-----query', $n.cloneDeep(query))
+
     // 原始参数
     const rawQuery = {}
     // 原始表格搜索参数
@@ -268,10 +273,30 @@ export function getRawData(tableColumns, query, searchFromQuery = true) {
                 // 如果在传参中有搜索参数
                 && $n_has(query, newItem.name)
             ) {
+                let newVal = query[newItem.name]
+
                 // 如果有值
-                if ($n_isRequired(query[newItem.name])) {
-                    // 设置单个搜索值
-                    setItemValue(value, query[newItem.name])
+                if ($n_isRequired(newVal)) {
+
+                    newVal = decodeURIComponent(newVal)
+                    if ($n_isJson(newVal)) {
+                        $n_forEach($n_json.parse(newVal), function (v, i) {
+                            if (
+                                i <= 1
+                                && $n_isValidArray(v)
+                                && v.length >= 2
+                            ) {
+                                value[i] = {
+                                    compare: v[0],
+                                    value: $n_isRequired(v[1]) ? v[1] : '',
+                                }
+                            }
+                        })
+
+                    } else {
+                        // 设置单个搜索值
+                        setItemValue(value, newVal)
+                    }
                 }
 
                 // 设置参数中搜索的 key
