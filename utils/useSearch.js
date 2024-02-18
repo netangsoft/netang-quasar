@@ -136,25 +136,29 @@ export function setItemValue(value, val) {
 
     // 如果值为数组
     if (Array.isArray(val)) {
+
         // 比较类型为 in
         value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
-        // 设置值为将数组转为逗号分隔的字符串
-        value[0].value = $n_join(val, ',')
 
-    // 如果值是逗号隔开
-    } else if ($n_split(val, ',').length > 1) {
-        // 比较类型为 in
-        value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
-        // 设置值为将数组转为逗号分隔的字符串
-        value[0].value = val
-
-    // 否则为单个值
     } else {
-        // 比较类型为 ==
-        value[0].compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
-        // 设置值为当前值
-        value[0].value = val
+
+        // 如果值是逗号隔开
+        const arr = $n_split(val, ',')
+        if (arr.length > 1) {
+            // 比较类型为 in
+            value[0].compare = dicts.SEARCH_COMPARE_TYPE__IN
+            val = arr
+
+        // 否则为单个值
+        } else {
+
+            // 比较类型为 ==
+            value[0].compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
+        }
     }
+
+    // 设置值为当前值
+    value[0].value = $n_numberDeep(val)
 }
 
 /**
@@ -278,14 +282,28 @@ export function getRawData(tableColumns, query, searchFromQuery = true) {
                     newVal = decodeURIComponent(newVal)
                     if ($n_isJson(newVal)) {
                         $n_forEach($n_json.parse(newVal), function (v, i) {
+
                             if (
                                 i <= 1
                                 && $n_isValidArray(v)
                                 && v.length >= 2
                             ) {
+                                let newVal = v[1]
+
+                                // 如果比较类型为 in / not in
+                                if ($n_indexOf([ dicts.SEARCH_COMPARE_TYPE__IN, dicts.SEARCH_COMPARE_TYPE__NOT_IN ], v[0]) > -1) {
+                                    // 如果不为数组
+                                    if (! Array.isArray(v[1])) {
+                                        newVal = $n_split(newVal, ',')
+                                    }
+
+                                } else if (! $n_isRequired(newVal)) {
+                                    newVal = ''
+                                }
+
                                 value[i] = {
                                     compare: v[0],
-                                    value: $n_isRequired(v[1]) ? v[1] : '',
+                                    value: $n_numberDeep(newVal),
                                 }
                             }
                         })
