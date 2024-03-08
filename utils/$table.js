@@ -1286,20 +1286,31 @@ async function getViewData(options) {
     }, options)
 
     const _isValidValue = $n_isValidValue(httpValue)
-    if (_isValidValue || $n_isValidArray(httpValue)) {
+    const hasSearch = $n_has(httpData, 'n_search')
+    if (_isValidValue || $n_isValidArray(httpValue) || hasSearch) {
 
-        let per_page
-        let value
-        let compare
+        const n_search = []
+        let per_page = 1
 
-        if (_isValidValue) {
-            compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
-            value = httpValue
-            per_page = 1
-        } else {
-            compare = dicts.SEARCH_COMPARE_TYPE__IN
-            value = $n_uniq(httpValue)
-            per_page = value.length
+        if (! hasSearch) {
+
+            let value
+            let compare
+
+            if (_isValidValue) {
+                compare = dicts.SEARCH_COMPARE_TYPE__EQUAL
+                value = httpValue
+            } else {
+                compare = dicts.SEARCH_COMPARE_TYPE__IN
+                value = $n_uniq(httpValue)
+                per_page = value.length
+            }
+
+            n_search.push({
+                field,
+                compare,
+                value,
+            })
         }
 
         const { status, data } = await $n_http({
@@ -1310,13 +1321,7 @@ async function getViewData(options) {
                 Pview: 1,
             },
             data: Object.assign({
-                n_search: [
-                    {
-                        field,
-                        compare,
-                        value,
-                    },
-                ],
+                n_search,
                 page: 1,
                 per_page,
             }, httpData),

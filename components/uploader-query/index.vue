@@ -123,7 +123,7 @@
                         fit="fill"
                     >
                         <!-- 如果是外链 -->
-                        <span class="n-uploader-query__item__net" v-if="fileItem.isNet && ! fileItem.isNetUploaded">链接</span>
+                        <span class="n-uploader-query__item__net" v-if="fileItem.isNet && ! fileItem.isNetUploaded">网络</span>
 
                         <!-- 内容 -->
                         <div
