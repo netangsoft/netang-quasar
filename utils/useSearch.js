@@ -6,7 +6,6 @@ import $n_isFunction from 'lodash/isFunction'
 import $n_findIndex from 'lodash/findIndex'
 
 import $n_forEach from '@netang/utils/forEach'
-import $n_join from '@netang/utils/join'
 import $n_split from '@netang/utils/split'
 import $n_isJson from '@netang/utils/isJson'
 import $n_json from '@netang/utils/json'
@@ -68,6 +67,8 @@ function setItemCompare(item) {
             { label: '!=', value: dicts.SEARCH_COMPARE_TYPE__NOT_EQUAL },
             { label: '>', value: dicts.SEARCH_COMPARE_TYPE__GT },
             { label: '≥', value: dicts.SEARCH_COMPARE_TYPE__GTE },
+            { label: '<', value: dicts.SEARCH_COMPARE_TYPE__LT },
+            { label: '≤', value: dicts.SEARCH_COMPARE_TYPE__LTE },
         ]
 
     // 如果类型为日期
