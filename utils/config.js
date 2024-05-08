@@ -31,6 +31,10 @@ export const configs = {
     components: {},
     // 对话框组件
     dialogComponents: {},
+    power: {
+        // 确认密码
+        confirmPassword: null,
+    },
     // 上传器配置
     uploader: {
         // 如果是 Minio 上传, 则在后面加上下划线

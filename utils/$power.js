@@ -1171,30 +1171,59 @@ async function request(options) {
     }
 
     // 判断是否有确认框
-    const isConfirm = $n_get(o.powerBtn.data, 'confirm')
+    let isConfirm = $n_get(o.powerBtn.data, 'confirm')
+    const isConfirmPassword = $n_get(o.powerBtn.data, 'confirmPassword')
     if (
         // 如果有确认框
         isConfirm
         // 如果有密码确认框
-        || $n_get(o.powerBtn.data, 'confirmPassword')
+        || isConfirmPassword
     ) {
+        // 如果是确认密码
+        if (isConfirmPassword) {
+
+            const {
+                confirmPassword,
+            } = configs.power
+
+            // 如果确认密码方法存在
+            if ($n_isFunction(confirmPassword)) {
+
+                // 确认框
+                $n_confirm({
+                    message: $n_isValidString(isConfirmPassword) ? isConfirmPassword : '重要操作，请输入登录密码并确认后操作！',
+                    prompt: {
+                        model: '',
+                        isValid: val => val.length > 0,
+                        type: 'password',
+                    },
+                    persistent: true,
+                })
+                    // 点击确认执行
+                    .onOk(function (e) {
+                        confirmPassword(e, onConfirmRequest)
+                    })
+                return
+            }
+
+            // 否则为普通确认框
+            isConfirm = true
+        }
+
         // 如果需要先弹出确认框
         if (isConfirm) {
-
             // 确认框
             $n_confirm({
-                // 重要操作，请输入登录密码并确认后操作
                 message: $n_isValidString(isConfirm) ? isConfirm : '确认要执行该操作吗？',
+                persistent: true,
             })
                 // 点击确认执行
                 .onOk(onConfirmRequest)
-
-            return
         }
     }
 
     // 否则执行确认请求事件
-    await onConfirmRequest()
+    onConfirmRequest()
 
     /**
      * 确认请求事件
