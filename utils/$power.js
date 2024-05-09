@@ -1220,6 +1220,8 @@ async function request(options) {
                 // 点击确认执行
                 .onOk(onConfirmRequest)
         }
+
+        return
     }
 
     // 否则执行确认请求事件
