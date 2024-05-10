@@ -99,6 +99,15 @@
                         @click="handleActions('clockwise')"
                     />
 
+                    <!-- 原图 -->
+                    <q-icon
+                        tag="a"
+                        :href="currentImg.origin"
+                        target="_blank"
+                        class="cursor-pointer non-selectable no-outline n-text-decoration-none"
+                        name="crop_original"
+                        color="white"
+                    />
                 </div>
             </div>
 
@@ -106,14 +115,14 @@
             <!-- 图片列表(有点击事件) -->
             <template v-if="isClickImg">
                 <div
-                    v-for="(src, i) in currentImages"
-                    :key="`${src}-${i}`"
+                    v-for="(item, i) in currentImages"
+                    :key="`${item.src}-${i}`"
                     class="non-selectable no-outline"
                     @click="onClickImg({ src })"
                 >
                     <img
                         :ref="(el) => (imgRefs[i] = el)"
-                        :src="src"
+                        :src="item.src"
                         :style="imgStyle"
                         @load="handleImgLoad"
                         @error="handleImgError"
@@ -124,15 +133,15 @@
             <!-- 图片列表(点击跳转原图) -->
             <template v-else>
                 <a
-                    v-for="(src, i) in currentImages"
-                    :key="`${src}-${i}`"
-                    :href="src"
+                    v-for="(item, i) in currentImages"
+                    :key="`${item.src}-${i}`"
+                    :href="item.src"
                     target="_blank"
                     class="non-selectable no-outline"
                 >
                     <img
                         :ref="(el) => (imgRefs[i] = el)"
-                        :src="src"
+                        :src="item.src"
                         :style="imgStyle"
                         @load="handleImgLoad"
                         @error="handleImgError"
@@ -311,11 +320,11 @@ export default {
             $n_forEach(props.images, function (url) {
                 const origin = $n_getImage(url, { compress: false })
                 if (origin) {
-                    lists.push($n_getImage(url, { w: 1000 }))
-                    // lists.push({
-                    //     src: $n_getImage(url, { w: 1000 }),
-                    //     origin,
-                    // })
+                    // lists.push($n_getImage(url, { w: 1000 }))
+                    lists.push({
+                        src: $n_getImage(url, { w: 1000 }),
+                        origin,
+                    })
                 }
             })
 
@@ -555,6 +564,13 @@ export default {
             $n_run($n_get(configs, 'components.imgViewer.onClickImg'))(e)
         }
 
+        /**
+         * 点击原图
+         */
+        function onClickOriginalImg() {
+            console.log('-----currentImg', currentImg)
+        }
+
         // ==========【声明周期】=========================================================================================
 
         /**
@@ -623,6 +639,8 @@ export default {
             onMask,
             // 点击图片
             onClickImg,
+            // 点击原图
+            onClickOriginalImg,
         }
     }
 }
