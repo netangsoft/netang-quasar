@@ -128,6 +128,17 @@ export default {
         preview: Boolean,
         // 预览参数
         previewProps: Object,
+
+        // 真实宽度
+        // 用于 cdn 显示真实图片宽度
+        realWidth: Number,
+        // 图片参数
+        options: Object,
+        // cdn 自动缩放
+        zoom: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     /**
@@ -141,8 +152,31 @@ export default {
          * 当前图片地址
          */
         const currentSrc = computed(function () {
-            const res = $n_getImage(props.src, { w: props.width, zoom: true })
-            return res ? res : ''
+
+            if (props.src) {
+
+                // 获取参数
+                const options = {}
+
+                // 宽度
+                if (props.width) {
+                    options.w = props.width
+                }
+
+                // 真实宽度
+                if (props.realWidth) {
+                    options.realWidth = props.realWidth
+                }
+
+                // 自动缩放
+                if (props.zoom) {
+                    options.zoom = true
+                }
+
+                return $n_getImage(props.src, Object.assign(options, props.options)) || ''
+            }
+
+            return ''
         })
 
         /**

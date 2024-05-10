@@ -14,6 +14,50 @@ import $n_uploader from './uploader'
 import useFileUrl from './useFileUrl'
 
 /**
+ * 像素转数字
+ */
+function px2Number(w) {
+
+    if ($n_isString(w)) {
+        w = w.replace('px', '')
+    }
+
+    if ($n_isNumeric(w)) {
+        w = Number(w)
+        if (w > 0) {
+            return w
+        }
+    }
+
+    return 0
+}
+
+/**
+ * 获取宽度
+ */
+function getW(options) {
+
+    // 如果有真实宽度
+    if (
+        $n_has(options, 'realWidth')
+        && $n_isNumeric(options.realWidth)
+    ) {
+        const realWidth = px2Number(options.realWidth)
+        return realWidth > 0 ? realWidth : 0
+    }
+
+    if (
+        $n_has(options, 'w')
+        && $n_isNumeric(options.w)
+    ) {
+        const w = px2Number(options.w)
+        return w > 0 ? w : 0
+    }
+
+    return null
+}
+
+/**
  * 获取图片
  */
 export default function getImage(src, options) {
@@ -72,55 +116,43 @@ export default function getImage(src, options) {
             // 如果为对象定义的规格
             if ($n_isValidObject(options)) {
 
-                // 如果有定义 w
-                if ($n_has(options, 'w')) {
+                // 获取宽度
+                let w = getW(options)
+                if (w) {
 
                     let {
-                        w,
                         maxWidth,
                         zoom,
                     } = options
 
-                    // 先设为最大宽度
-                    options.w = maxWidth || 0
-
-                    // 如果有宽度
-                    if (w) {
-
-                        if (
-                            ! $n_isNumeric(w)
-                            && $n_isString(w)
-                        ) {
-                            w = w.replace('px', '')
-                        }
-
-                        if ($n_isNumeric(w)) {
-                            w = Number(w)
-                            if (w > 0) {
-
-                                /* #if IS_WEB */
-                                // 如果开启缩放
-                                if (
-                                    zoom
-                                    // 获取设备像素比
-                                    && window.devicePixelRatio >= 2
-                                ) {
-                                    // w *= (devicePixelRatio > 3 ? 3 : devicePixelRatio)
-                                    w *= 2
-                                }
-                                /* #endif */
-
-                                w = Math.floor(w)
-
-                                // 如果有最大宽度
-                                if (maxWidth && w > maxWidth) {
-                                    w = maxWidth
-                                }
-
-                                options.w = w
-                            }
-                        }
+                    /* #if IS_WEB */
+                    // 如果开启缩放
+                    if (
+                        zoom
+                        // 获取设备像素比
+                        && window.devicePixelRatio >= 2
+                    ) {
+                        // w *= (devicePixelRatio > 3 ? 3 : devicePixelRatio)
+                        w *= 2
                     }
+                    /* #endif */
+
+                    w = Math.floor(w)
+
+                    // 如果有最大宽度
+                    if (maxWidth && w > maxWidth) {
+                        w = maxWidth
+                    }
+
+                    options.w = w
+
+                // 否则如果无宽度
+                } else if (w === 0) {
+                    options.w = 0
+
+                // 否则删除宽度
+                } else if ($n_has(options, 'w')) {
+                    delete options.w
                 }
 
             } else {
@@ -156,7 +188,7 @@ export default function getImage(src, options) {
                 // 模式
                 mode: '2',
                 // 宽
-                w: 0,
+                w: 800,
                 // 高
                 h: 0,
                 // 质量
