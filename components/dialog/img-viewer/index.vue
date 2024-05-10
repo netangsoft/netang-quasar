@@ -564,13 +564,6 @@ export default {
             $n_run($n_get(configs, 'components.imgViewer.onClickImg'))(e)
         }
 
-        /**
-         * 点击原图
-         */
-        function onClickOriginalImg() {
-            console.log('-----currentImg', currentImg)
-        }
-
         // ==========【声明周期】=========================================================================================
 
         /**
@@ -639,8 +632,6 @@ export default {
             onMask,
             // 点击图片
             onClickImg,
-            // 点击原图
-            onClickOriginalImg,
         }
     }
 }
