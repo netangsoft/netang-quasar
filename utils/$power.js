@@ -1128,13 +1128,15 @@ async function request(options) {
         // 如果验证表单
         if ($n_get(o.powerBtn.data, 'validate') !== false) {
 
-            if (! o.$form.formRef) {
+            if (
+                ! o.$form.formRef
+                || ! o.$form.formRef?.value?.validate
+            ) {
                 throw new Error('没有绑定 fromRef')
             }
 
             // 验证表单
             if (! await o.$form.formRef.value.validate()) {
-
                 // 轻提示
                 $n_toast({
                     message: '表单中有无效值',
