@@ -55,15 +55,15 @@
                 <template v-if="! disable && ! readonly && ! rightSquareButton">
                     <slot
                         name="square-button"
-                        :size="currentSize"
+                        :size="currentSquareButtonSize"
                         :show="showSquareButton"
                         v-if="$slots['square-button']"
                     />
                     <div
                         class="n-uploader-query__button--square"
                         :style="{
-                            width: toPx(currentSize),
-                            height: toPx(currentSize),
+                            width: toPx(currentSquareButtonSize),
+                            height: toPx(currentSquareButtonSize),
                         }"
                         v-show="showSquareButton"
                         v-else-if="! noButton && currentButtonType === 'square'"
@@ -75,7 +75,7 @@
                         >
                             <q-icon
                                 name="add"
-                                :size="toPx(currentSize / 2)"
+                                :size="toPx(currentSquareButtonSize / 2)"
                             />
                             <div class="n-uploader-query__button--square-button__text" v-if="buttonText">{{buttonText}}</div>
                         </div>
@@ -88,7 +88,7 @@
                         >
                             <q-icon
                                 name="cloud_upload"
-                                :size="toPx(currentSize / 3)"
+                                :size="toPx(currentSquareButtonSize / 3)"
                             />
                             <div class="n-uploader-query__button--square-button__text" v-if="buttonText">{{buttonText}}</div>
                         </div>
@@ -489,6 +489,8 @@ export default {
         buttonProps: Object,
         // 图片/按钮/文件 尺寸
         size: Number,
+        // 方块按钮尺寸
+        squareButtonSize: Number,
         // 是否开启拖拽
         drag: {
             type: Boolean,
@@ -626,6 +628,16 @@ export default {
         })
 
         /**
+         * 当前方块尺寸
+         */
+        const currentSquareButtonSize = computed(function () {
+            if (props.squareButtonSize) {
+                return props.squareButtonSize
+            }
+            return currentSize.value
+        })
+
+        /**
          * 是否显示方块按钮
          */
         const showSquareButton = computed(function () {
@@ -688,6 +700,8 @@ export default {
             currentButtonType,
             // 当前尺寸
             currentSize,
+            // 当前方块尺寸
+            currentSquareButtonSize,
             // 是否显示方块按钮
             showSquareButton,
 
