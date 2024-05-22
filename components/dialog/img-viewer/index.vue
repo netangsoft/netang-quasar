@@ -383,12 +383,13 @@ export default {
             }
 
             const style = {
-                    transform: `scale(${scale}) scale3d(${rotateX}, ${rotateY}, 1) rotate(${deg}deg) translate(${translateX}px, ${translateY}px)`,
+                transform: `scale(${scale}) scale3d(${rotateX}, ${rotateY}, 1) rotate(${deg}deg) translate(${translateX}px, ${translateY}px)`,
                 transition: enableTransition ? 'transform .3s' : '',
             }
 
             if (isContain.value) {
-                style.maxWidth = style.maxHeight = '100%'
+                style.maxWidth = '100vw'
+                style.maxHeight = '100vh'
             }
 
             return style
