@@ -132,6 +132,11 @@ export default {
         disable: Boolean,
         // 是否只读
         readonly: Boolean,
+        // 延迟时间
+        updateDelayTime: {
+            type: Number,
+            default: 500,
+        },
     },
 
     /**
@@ -447,7 +452,9 @@ export default {
         async function onUpdate() {
 
             // 延迟执行
-            await sleep(500)
+            if (props.updateDelayTime) {
+                await sleep(props.updateDelayTime)
+            }
 
             // 格式化当前值
             const newVal = formatToCurrentValue(currentValue.value, false)
