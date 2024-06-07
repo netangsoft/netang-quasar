@@ -94,6 +94,12 @@ body {
     text-decoration: underline;
 }
 
+// 文本自动换行
+.n-word-wrap {
+    word-wrap: break-word; /* 允许在长单词内部换行 */
+    word-break: break-all; /* 允许任意位置的单词断行 */
+}
+
 //.n-color-primary,
 //.n-color-main {
 //    color: var(--q-primary);
