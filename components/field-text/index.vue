@@ -42,7 +42,7 @@
 
             <!-- 否则如果开启复制 -->
             <div
-                class="full-width"
+                class="full-width n-word-wrap"
                 :class="valueClass"
                 :style="valueStyle"
                 @click="onCopy"
@@ -51,7 +51,7 @@
 
             <!-- 否则仅展示 -->
             <div
-                class="full-width"
+                class="full-width n-word-wrap"
                 :class="valueClass"
                 :style="valueStyle"
                 v-else
