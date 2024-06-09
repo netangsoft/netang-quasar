@@ -381,7 +381,7 @@ export async function getOptions(rawSearchOptions, format) {
                 $n_merge(newItem, {
                     searchType: 'select',
                     select: {
-                        options: $n_dictOptions(newItem.dict)
+                        options: $n_isArray(newItem.dict) ? newItem.dict : $n_dictOptions(newItem.dict),
                     },
                 })
 

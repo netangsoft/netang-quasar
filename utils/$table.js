@@ -10,6 +10,7 @@ import $n_findIndex from 'lodash/findIndex'
 import $n_uniq from 'lodash/uniq'
 import $n_concat from 'lodash/concat'
 import $n_isNil from 'lodash/isNil'
+import $n_isArray from 'lodash/isArray'
 
 import $n_router from '@netang/utils/vue/router'
 
@@ -336,7 +337,16 @@ function create(options) {
             // 如果有数据字典
             } else if ($n_has(item, 'dict')) {
                 if (! $n_has(item, 'format')) {
-                    item.format = val => $n_dict(item.dict, val)
+                    item.format = $n_isArray(item.dict)
+                        ? function (val) {
+                            for (const e of item.dict) {
+                                if (e.value === val) {
+                                    return e.label
+                                }
+                            }
+                            return ''
+                        }
+                        : val => $n_dict(item.dict, val)
                 }
 
             // 如果有图片
