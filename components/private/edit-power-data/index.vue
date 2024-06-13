@@ -267,7 +267,7 @@
                             >
                                 <q-item-section>
                                     <q-input
-                                        class="n-field-fieldset"
+                                        class="n-field-fieldset n-field--console"
                                         v-model="formData.requestQuery.list[itemIndex]"
                                         placeholder="请输入参数"
                                         outlined
@@ -301,7 +301,7 @@
                         >
                             <q-item-section>
                                 <q-input
-                                    class="n-field-fieldset"
+                                    class="n-field-fieldset n-field--console"
                                     v-model="formData.requestQuery.query[itemIndex]"
                                     placeholder="请输入参数"
                                     outlined
@@ -331,7 +331,7 @@
             <div class="col-xs-12">
                 <q-input
                     style="max-width:800px"
-                    class="n-field-fieldset"
+                    class="n-field-fieldset n-field--console"
                     v-model="formData.params"
                     placeholder="请输入参数"
                     outlined
