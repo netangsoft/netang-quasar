@@ -108,6 +108,14 @@
                         name="crop_original"
                         color="white"
                     />
+
+                    <!-- 其他菜单 -->
+                    <q-icon
+                        v-for="e in otherMenus"
+                        class="cursor-pointer"
+                        :name="e.icon"
+                        @click="e.click(currentImg)"
+                    />
                 </div>
             </div>
 
@@ -118,7 +126,7 @@
                     v-for="(item, i) in currentImages"
                     :key="`${item.src}-${i}`"
                     class="non-selectable no-outline"
-                    @click="onClickImg({ src })"
+                    @click="onClickImg({ src: item.origin })"
                 >
                     <img
                         :ref="(el) => (imgRefs[i] = el)"
@@ -162,6 +170,7 @@ import $n_get from 'lodash/get'
 
 import $n_forEach from '@netang/utils/forEach'
 import $n_run from '@netang/utils/run'
+import $n_isValidArray from '@netang/utils/isValidArray'
 
 import $n_getImage from '../../../utils/getImage'
 
@@ -296,6 +305,10 @@ export default {
 
         // 图片是否可点击
         const isClickImg = ref($n_get(configs, 'components.imgViewer.isClickImg') === true)
+
+        // 其他菜单
+        const _menus = $n_get(configs, 'components.imgViewer.menus')
+        const otherMenus = ref($n_isValidArray(_menus) ? _menus : [])
 
         // 转换效果
         const transform = ref({
@@ -599,6 +612,8 @@ export default {
             transform,
             // 图片是否可点击
             isClickImg,
+            // 其他菜单
+            otherMenus,
 
             // 当前图片数组
             currentImages,
