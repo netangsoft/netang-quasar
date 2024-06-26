@@ -15,6 +15,7 @@ import bus from './bus'
 import config from './config'
 import confirm from './confirm'
 import copy from './copy'
+import copyImage from './copyImage'
 import dialog from './dialog'
 import dict from './dict'
 import dictOptions from './dictOptions'
@@ -49,6 +50,7 @@ export default {
     config,
     confirm,
     copy,
+    copyImage,
     dialog,
     dict,
     dictOptions,
