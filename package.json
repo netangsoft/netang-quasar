@@ -19,6 +19,9 @@
     "url": "https://github.com/netangsoft/netang-quasar/issues"
   },
   "homepage": "https://github.com/netangsoft/netang-quasar#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "dependencies": {
     "spark-md5": "^3.0.2"
   }
