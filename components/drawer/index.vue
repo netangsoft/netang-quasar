@@ -32,7 +32,7 @@ import $n_sleep from '@netang/utils/sleep'
 import $n_percentValue from '@netang/utils/percentValue'
 import $n_pxValue from '@netang/utils/pxValue'
 
-import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols.js'
+import { layoutKey, emptyRenderFn } from 'quasar/src/utils/private/symbols'
 
 import { NPowerKey } from '../../utils/symbols'
 
