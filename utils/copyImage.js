@@ -6,6 +6,7 @@ import $n_toast from './toast'
  * 复制图片
  */
 export default function copyImage(src) {
+
     $n_copyImage(src)
         .then(function () {
             // 轻提示
@@ -17,7 +18,7 @@ export default function copyImage(src) {
         .catch(function (e) {
             // 轻提示
             $n_toast({
-                type: 'positive',
+                type: 'negative',
                 message: '复制图片失败：' + e,
             })
         })
