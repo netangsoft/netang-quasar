@@ -2,13 +2,14 @@
     <div class="n-uploader" v-if="pageStatus === true">
 
         <!-- 隐藏上传文件输入框 -->
+        <!--capture="camera"-->
         <input
             ref="fileRef"
             class="hidden"
             type="file"
-            capture="camera"
             :multiple="count !== 1"
             @change="uploader.fileChange"
+            v-bind="$attrs"
         >
 
         <!-- 插槽 -->
