@@ -9,6 +9,10 @@ $dark-header-footer-bg-color: $color-gray-93;
 $td-bg-color: #ffffff;
 $dark-td-bg-color: $dark;
 
+.q-page {
+    overflow: hidden;
+}
+
 .n-table {
 
     // 单元格换行
@@ -70,6 +74,14 @@ $dark-td-bg-color: $dark;
     // 宫格模式
     &--grid {
         background-color: rgba(var(--n-reverse-color-rgb), 0.1);
+
+        overflow: hidden;
+        display: flex;
+
+        .q-table__grid-content {
+            overflow: hidden;
+            overflow-y: auto;
+        }
     }
 
     // 撑满
