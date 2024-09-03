@@ -1,4 +1,4 @@
-import { ref, computed, provide, inject, watch } from 'vue'
+import { ref, computed, provide, inject, watch, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 
 import $n_has from 'lodash/has'
@@ -200,6 +200,9 @@ function create(options) {
 
     // 是否已生成数据
     let _isCreated = false
+
+    // 表格节点
+    const tableRef = ref(null)
 
     // 创建表格
     reCreate(options)
@@ -640,6 +643,13 @@ function create(options) {
     // ==========【方法】================================================================================================
 
     /**
+     * 设置表格节点节点
+     */
+    function setTableRef(target) {
+        tableRef.value = target
+    }
+
+    /**
      * 设置表格传参
      */
     function setQuery(query) {
@@ -1056,6 +1066,22 @@ function create(options) {
                 // 取消加载
                 tableLoading.value = false
             }
+
+            // 请求后, 将表格列表置顶
+
+            await nextTick()
+
+            const $el = tableRef.value?.$el
+            if ($el) {
+                let dom = $el.querySelector('.q-virtual-scroll--vertical')
+                if (dom) {
+                    dom.scrollTop = 0
+                }
+                dom = $el.querySelector('.q-table__grid-content')
+                if (dom) {
+                    dom.scrollTop = 0
+                }
+            }
         }
 
         if (o.requestBefore) {
@@ -1189,6 +1215,8 @@ function create(options) {
         // 表格每页显示行数选项
         tableRowsPerPageOptions: o.rowsPerPageOptions,
 
+        // 表格节点
+        tableRef,
         // 表格加载状态
         tableLoading,
         // 表格选择类型
@@ -1223,6 +1251,8 @@ function create(options) {
         // 表格搜索参数
         tableSearchOptions,
 
+        // 设置表格节点
+        setTableRef,
         // 设置表格传参
         setQuery,
         // 表格是否已加载

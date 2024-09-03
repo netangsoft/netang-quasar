@@ -112,6 +112,7 @@
             <!-- 快捷表格 -->
             <n-table
                 class="n-table n-field-table__popup-table"
+                :ref="setTableRef"
                 v-model:pagination="tablePagination"
                 :selected="selected"
                 @update:selected="emitModelValue"

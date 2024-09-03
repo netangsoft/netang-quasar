@@ -80,11 +80,11 @@
         <q-page-container>
             <q-page>
                 <n-table
-                    ref="tableRef"
                     class="n-table absolute-full"
                     :class="{
                         'n-table--last-fixed': showTableFixed,
                     }"
+                    :ref="setTableRef"
                     v-model:pagination="tablePagination"
                     v-model:selected="tableSelected"
                     :row-key="tableRowKey"
@@ -345,9 +345,6 @@ export default {
             currentTableRowDblclick = $table.tableRowDblclick
         }
 
-        // 表格节点
-        const tableRef = ref(null)
-
         // 树节点
         const treeRef = ref(null)
 
@@ -508,8 +505,6 @@ export default {
             // 解构表格实例
             ...$table,
 
-            // 表格节点
-            tableRef,
             // 树节点
             treeRef,
             // 树筛选值
