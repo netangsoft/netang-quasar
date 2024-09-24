@@ -1638,9 +1638,10 @@ function create(options) {
                     const p = await getVideoThumbHash(dom, fileItem.json)
                     if (p) {
                         fileItem.json.p = p
+                        resolve(true)
+                    } else {
+                        resolve(false)
                     }
-
-                    resolve(true)
                 }
 
             // 否则为音频
