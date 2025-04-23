@@ -1,4 +1,5 @@
 <template>
+    <!-- @update:model-value="onUpdate" -->
     <q-input
         class="n-input-number"
         :class="{
@@ -7,7 +8,6 @@
         :disable="disable"
         :readonly="readonly"
         v-model="currentValue"
-        @update:model-value="onUpdate"
         @blur="onBlur"
         v-bind="$attrs"
     >
