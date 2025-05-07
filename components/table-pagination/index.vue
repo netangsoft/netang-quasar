@@ -65,6 +65,9 @@
             v-if="! noRefresh && hasRefresh"
         />
 
+        <!-- 页码 -->
+        <span class="q-table__bottom-item q-mx-xs">共 {{props.pagination.rowsNumber}} 条数据</span>
+
         <!-- 当前页面工具栏无权限按钮时显示 -->
         <template v-if="! noPower && ! toolbarPowerBtns.length">
 
