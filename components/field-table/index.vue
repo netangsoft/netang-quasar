@@ -331,6 +331,11 @@ export default {
         request: Function,
         // 每次对话框显示都请求
         requestEveryDialogShow: Boolean,
+        // 自动获取焦点
+        autofocus: {
+            type: Boolean,
+            default: true,
+        }
     },
 
     /**
@@ -1351,6 +1356,8 @@ export default {
                 props.filter
                 // 如果有输入框节点
                 && inputRef.value
+                // 如果自动获取焦点
+                && props.autofocus
             ) {
                 inputRef.value.focus()
             }
